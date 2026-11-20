@@ -1,0 +1,8 @@
+name = "portal-mac"
+pages_build_output_dir = "public"
+compatibility_date = "2026-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "portal-mac-db"
+database_id = "1280d865-4e68-45ac-b88c-7b4d7857ac35"
