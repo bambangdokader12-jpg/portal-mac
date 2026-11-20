@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daftar MAC Address HP — Julfikar.Com Wifi</title>
+<style>
+  :root{--bg:#f3f5f9;--card:#fff;--ink:#1c2433;--muted:#6b7588;--line:#e2e6ee;--pri:#0b6bcb;--pri2:#0954a0;
+        --ok:#1a8a4a;--okbg:#e6f6ec;--warn:#a96500;--warnbg:#fff4e0;--bad:#c0362c;--badbg:#fdecea}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  header{background:linear-gradient(135deg,#0b6bcb,#0a3f7a);color:#fff;padding:22px 16px 56px}
+  header h1{margin:0;font-size:1.35rem}
+  header p{margin:4px 0 0;opacity:.85;font-size:.92rem}
+  main{max-width:960px;margin:-40px auto 40px;padding:0 12px}
+  .tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .tab{border:0;background:rgba(255,255,255,.9);padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .tab.on{background:var(--pri);color:#fff}
+  .card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(20,30,60,.07);margin-bottom:14px}
+  h2{margin:0 0 14px;font-size:1.1rem}
+  label{display:block;font-size:.85rem;font-weight:600;margin:12px 0 4px}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:1rem;background:#fff;color:var(--ink)}
+  input:focus,select:focus{outline:2px solid #b9d6f5;border-color:var(--pri)}
+  .mono{font-family:ui-monospace,Consolas,monospace;letter-spacing:.5px}
+  button.btn{border:0;background:var(--pri);color:#fff;padding:11px 18px;border-radius:9px;font-weight:600;font-size:.95rem;cursor:pointer}
+  button.btn:hover{background:var(--pri2)} button.btn:disabled{opacity:.6;cursor:wait}
+  button.ghost{background:#eef2f8;color:var(--ink)} button.ghost:hover{background:#e1e7f1}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  @media(max-width:600px){.row{grid-template-columns:1fr}}
+  .msg{padding:11px 13px;border-radius:9px;margin-top:14px;font-size:.93rem;display:none}
+  .msg.ok{display:block;background:var(--okbg);color:var(--ok)}
+  .msg.warn{display:block;background:var(--warnbg);color:var(--warn)}
+  .msg.bad{display:block;background:var(--badbg);color:var(--bad)}
+  details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-top:10px}
+  summary{cursor:pointer;font-weight:600}
+  ol{padding-left:20px;margin:8px 0} li{margin:3px 0}
+  .hint{color:var(--muted);font-size:.85rem}
+  .hidden{display:none!important}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  @media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:var(--card);border-radius:12px;padding:12px 14px;box-shadow:0 1px 6px rgba(20,30,60,.06)}
+  .stat b{display:block;font-size:1.5rem} .stat span{color:var(--muted);font-size:.8rem}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .toolbar input{flex:1;min-width:180px} .toolbar select{width:auto}
+  table{width:100%;border-collapse:collapse;font-size:.9rem}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:.75rem;text-transform:uppercase;color:var(--muted);letter-spacing:.4px}
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:700}
+  .p-aktif{background:var(--okbg);color:var(--ok)} .p-menunggu{background:var(--warnbg);color:var(--warn)} .p-nonaktif{background:#eceff4;color:var(--muted)}
+  .flag{color:var(--bad);font-size:.75rem;font-weight:600}
+  .act{display:flex;gap:4px;flex-wrap:wrap}
+  .act button{border:0;padding:5px 9px;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer}
+  .a-ok{background:var(--okbg);color:var(--ok)} .a-off{background:#eceff4;color:var(--ink)} .a-del{background:var(--badbg);color:var(--bad)} .a-ed{background:#e8f0fb;color:var(--pri)}
+  .tablewrap{overflow-x:auto}
+  .empty{text-align:center;color:var(--muted);padding:26px}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:10px 0 30px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📶 Daftar MAC Address HP</h1>
+  <p>Julfikar.Com Wifi — daftarkan HP Anda agar bisa tersambung ke jaringan</p>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab on" data-tab="daftar">Daftar</button>
+    <button class="tab" data-tab="cek">Cek Status</button>
+    <button class="tab" data-tab="admin">Admin</button>
+  </div>
+
+  <!-- ===== DAFTAR ===== -->
+  <section id="t-daftar">
+    <div class="card">
+      <h2>Formulir Pendaftaran</h2>
+      <form id="fDaftar" autocomplete="off">
+        <div class="row">
+          <div><label>Nama</label><input name="nama" required maxlength="50" placeholder="Nama lengkap"></div>
+          <div><label>No. HP / WA</label><input name="hp" maxlength="20" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
+        </div>
+        <label>MAC Address WiFi HP</label>
+        <input name="mac" class="mono" required maxlength="17" placeholder="A4:5E:60:12:34:56" autocapitalize="characters">
+        <div class="hint">Boleh pakai titik dua, strip, atau tanpa pemisah.</div>
+        <label>Keterangan (opsional)</label>
+        <input name="ket" maxlength="80" placeholder="Misal: HP anak, rumah blok C">
+        <div style="margin-top:16px"><button class="btn" type="submit">Kirim Pendaftaran</button></div>
+        <div id="mDaftar" class="msg"></div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Penting: matikan MAC acak dulu</h2>
+      <p class="hint" style="margin-top:-6px">HP sekarang memakai MAC acak (Private Address). Kalau tidak dimatikan, MAC yang didaftarkan tidak akan cocok dan HP tetap tidak bisa tersambung.</p>
+      <details open>
+        <summary>Android (Samsung, Xiaomi, Oppo, Vivo, dll.)</summary>
+        <ol>
+          <li>Buka <b>Pengaturan → WiFi</b>, sambungkan ke WiFi kami.</li>
+          <li>Ketuk ikon ⚙️ / panah di samping nama WiFi.</li>
+          <li>Cari <b>Privasi</b> / <b>Jenis alamat MAC</b> → pilih <b>MAC perangkat / MAC ponsel</b>.</li>
+          <li>Di halaman yang sama biasanya terlihat <b>Alamat MAC</b> — salin ke formulir di atas.</li>
+        </ol>
+      </details>
+      <details>
+        <summary>iPhone</summary>
+        <ol>
+          <li>Buka <b>Pengaturan → Wi-Fi</b>, ketuk ikon ⓘ di samping nama WiFi kami.</li>
+          <li>Ubah <b>Alamat Wi-Fi Pribadi</b> menjadi <b>Mati</b>.</li>
+          <li>Alamat yang tampil di bawahnya (<b>Alamat Wi-Fi</b>) adalah MAC yang didaftarkan.</li>
+        </ol>
+      </details>
+    </div>
+  </section>
+
+  <!-- ===== CEK ===== -->
+  <section id="t-cek" class="hidden">
+    <div class="card">
+      <h2>Cek Status Pendaftaran</h2>
+      <form id="fCek">
+        <label>MAC Address</label>
+        <input name="mac" class="mono" required placeholder="A4:5E:60:12:34:56">
+        <div style="margin-top:14px"><button class="btn" type="submit">Cek</button></div>
+        <div id="mCek" class="msg"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== ADMIN ===== -->
+  <section id="t-admin" class="hidden">
+    <div id="loginBox" class="card">
+      <h2>Masuk Admin</h2>
+      <form id="fLogin">
+        <label>Password</label>
+        <input name="password" type="password" required autocomplete="current-password">
+        <div style="margin-top:14px"><button class="btn" type="submit">Masuk</button></div>
+        <div id="mLogin" class="msg"></div>
+      </form>
+    </div>
+
+    <div id="adminBox" class="hidden">
+      <div class="stats">
+        <div class="stat"><b id="sTotal">0</b><span>Total</span></div>
+        <div class="stat"><b id="sAktif" style="color:var(--ok)">0</b><span>Aktif</span></div>
+        <div class="stat"><b id="sTunggu" style="color:var(--warn)">0</b><span>Menunggu</span></div>
+        <div class="stat"><b id="sOff" style="color:var(--muted)">0</b><span>Nonaktif</span></div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <input id="q" placeholder="Cari nama, MAC, no. HP…">
+          <select id="fStatus">
+            <option value="">Semua status</option><option value="menunggu">Menunggu</option>
+            <option value="aktif">Aktif</option><option value="nonaktif">Nonaktif</option>
+          </select>
+          <button class="btn ghost" id="bReload" type="button">↻ Muat ulang</button>
+          <button class="btn ghost" id="bLogout" type="button">Keluar</button>
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Nama</th><th>MAC Address</th><th>No. HP</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+            <tbody id="tb"></tbody>
+          </table>
+        </div>
+        <div id="mAdmin" class="msg"></div>
+      </div>
+
+      <div class="card">
+        <h2>Tambah Perangkat Manual</h2>
+        <form id="fTambah" autocomplete="off">
+          <div class="row">
+            <div><label>Nama</label><input name="nama" required maxlength="50"></div>
+            <div><label>MAC Address</label><input name="mac" class="mono" required></div>
+          </div>
+          <div class="row">
+            <div><label>No. HP</label><input name="hp" maxlength="20"></div>
+            <div><label>Status</label><select name="status"><option value="aktif">Aktif</option><option value="menunggu">Menunggu</option><option value="nonaktif">Nonaktif</option></select></div>
+          </div>
+          <div style="margin-top:14px"><button class="btn" type="submit">Tambah</button></div>
+          <div id="mTambah" class="msg"></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Impor Banyak</h2>
+        <p class="hint" style="margin-top:-6px">Tempel satu perangkat per baris dengan format <span class="mono">MAC;Nama</span>, misalnya <span class="mono">A4:5E:60:12:34:56;Budi</span>. MAC yang sudah terdaftar akan dilewati.</p>
+        <form id="fImpor" autocomplete="off">
+          <textarea id="imporText" rows="8" class="mono" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:.9rem" placeholder="AA:B8:C6:D5:6D:8A;V2026&#10;C6:C5:EE:F2:F4:13;OPPO-A18"></textarea>
+          <div class="row">
+            <div><label>Status untuk semua</label><select id="imporStatus"><option value="aktif">Aktif</option><option value="menunggu">Menunggu</option></select></div>
+          </div>
+          <div style="margin-top:14px"><button class="btn" type="submit">Impor</button></div>
+          <div id="mImpor" class="msg"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>Perangkat berstatus <b>Aktif</b> akan otomatis masuk ke MikroTik dalam beberapa menit.</footer>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let token = "";
+try { token = sessionStorage.getItem("macToken") || ""; } catch (e) {}
+let data = [];
+
+function normMac(s){const h=String(s||"").toUpperCase().replace(/[^0-9A-F]/g,"");return h.length===12?h.match(/../g).join(":"):null}
+function isRandom(mac){return (parseInt(mac[1],16)&2)===2}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function show(el,type,txt){el.className="msg "+type;el.textContent=txt}
+function tgl(iso){try{return new Date(iso).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"})}catch(e){return""}}
+
+async function api(path,opt={}){
+  const headers={"content-type":"application/json"};
+  if(token) headers.authorization="Bearer "+token;
+  const r=await fetch("/api"+path,{...opt,headers});
+  let j={}; try{j=await r.json()}catch(e){j={ok:false,pesan:"Server tidak merespons dengan benar ("+r.status+")."}}
+  if(r.status===401 && path.startsWith("/perangkat")) logout("Sesi habis, silakan login lagi.");
+  return j;
+}
+
+// Tabs
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b));
+  ["daftar","cek","admin"].forEach(t=>$("#t-"+t).classList.toggle("hidden",t!==b.dataset.tab));
+  if(b.dataset.tab==="admin"&&token) loadAdmin();
+});
+
+// Format MAC saat diketik
+document.querySelectorAll("input[name=mac]").forEach(i=>i.addEventListener("blur",()=>{const m=normMac(i.value);if(m)i.value=m}));
+
+// Daftar
+$("#fDaftar").onsubmit=async(e)=>{
+  e.preventDefault();
+  const f=e.target, m=$("#mDaftar"), mac=normMac(f.mac.value);
+  if(!mac) return show(m,"bad","Format MAC Address tidak valid. Contoh: A4:5E:60:12:34:56");
+  if(isRandom(mac) && !confirm("MAC ini terlihat seperti MAC ACAK (Private Address).\nPastikan MAC acak sudah dimatikan, lalu salin ulang MAC-nya.\n\nTetap kirim?")) return;
+  const btn=f.querySelector("button"); btn.disabled=true;
+  const j=await api("/daftar",{method:"POST",body:JSON.stringify({nama:f.nama.value,hp:f.hp.value,mac,ket:f.ket.value})});
+  btn.disabled=false;
+  show(m,j.ok?(j.status==="aktif"?"ok":"warn"):"bad",j.pesan);
+  if(j.ok) f.reset();
+};
+
+// Cek
+const statusTeks={aktif:"✅ AKTIF — HP sudah bisa tersambung.",menunggu:"⏳ MENUNGGU persetujuan admin.",nonaktif:"⛔ NONAKTIF — hubungi admin.","tidak-terdaftar":"❌ Belum terdaftar."};
+$("#fCek").onsubmit=async(e)=>{
+  e.preventDefault();
+  const m=$("#mCek"), mac=normMac(e.target.mac.value);
+  if(!mac) return show(m,"bad","Format MAC Address tidak valid.");
+  const j=await api("/cek?mac="+encodeURIComponent(mac));
+  if(!j.ok) return show(m,"bad",j.pesan);
+  show(m,j.status==="aktif"?"ok":j.status==="menunggu"?"warn":"bad",mac+" : "+statusTeks[j.status]);
+};
+
+// Login
+$("#fLogin").onsubmit=async(e)=>{
+  e.preventDefault();
+  const j=await api("/login",{method:"POST",body:JSON.stringify({password:e.target.password.value})});
+  if(!j.ok) return show($("#mLogin"),"bad",j.pesan);
+  token=j.token; try{sessionStorage.setItem("macToken",token)}catch(e){}
+  e.target.reset(); $("#mLogin").className="msg"; loadAdmin();
+};
+function logout(msg){
+  token=""; try{sessionStorage.removeItem("macToken")}catch(e){}
+  $("#adminBox").classList.add("hidden"); $("#loginBox").classList.remove("hidden");
+  if(msg) show($("#mLogin"),"warn",msg);
+}
+$("#bLogout").onclick=()=>logout();
+$("#bReload").onclick=()=>loadAdmin();
+
+async function loadAdmin(){
+  const j=await api("/perangkat");
+  if(!j.ok) return;
+  data=j.data||[];
+  $("#loginBox").classList.add("hidden"); $("#adminBox").classList.remove("hidden");
+  render();
+}
+function render(){
+  const q=$("#q").value.toLowerCase().trim(), st=$("#fStatus").value;
+  $("#sTotal").textContent=data.length;
+  $("#sAktif").textContent=data.filter(d=>d.status==="aktif").length;
+  $("#sTunggu").textContent=data.filter(d=>d.status==="menunggu").length;
+  $("#sOff").textContent=data.filter(d=>d.status==="nonaktif").length;
+  const order={menunggu:0,aktif:1,nonaktif:2};
+  const rows=data
+    .filter(d=>!st||d.status===st)
+    .filter(d=>!q||[d.nama,d.mac,d.hp,d.ket].join(" ").toLowerCase().includes(q))
+    .sort((a,b)=>order[a.status]-order[b.status]||String(b.dibuat).localeCompare(String(a.dibuat)));
+  $("#tb").innerHTML=rows.length?rows.map(d=>`
+    <tr>
+      <td><b>${esc(d.nama)}</b>${d.ket?`<div class="hint">${esc(d.ket)}</div>`:""}</td>
+      <td class="mono">${esc(d.mac)}${d.acak?`<div class="flag">⚠ MAC acak</div>`:""}</td>
+      <td>${esc(d.hp)}</td>
+      <td><span class="pill p-${d.status}">${d.status}</span></td>
+      <td class="hint">${tgl(d.dibuat)}</td>
+      <td><div class="act">
+        ${d.status!=="aktif"?`<button class="a-ok" data-a="aktif" data-id="${d.id}">${d.status==="menunggu"?"Setujui":"Aktifkan"}</button>`:""}
+        ${d.status==="aktif"?`<button class="a-off" data-a="nonaktif" data-id="${d.id}">Nonaktifkan</button>`:""}
+        <button class="a-ed" data-a="edit" data-id="${d.id}">Ubah nama</button>
+        <button class="a-del" data-a="hapus" data-id="${d.id}">Hapus</button>
+      </div></td>
+    </tr>`).join(""):`<tr><td colspan="6" class="empty">Tidak ada data.</td></tr>`;
+}
+$("#q").oninput=render; $("#fStatus").onchange=render;
+
+$("#tb").onclick=async(e)=>{
+  const b=e.target.closest("button[data-a]"); if(!b) return;
+  const d=data.find(x=>x.id===b.dataset.id), a=b.dataset.a; let j;
+  if(a==="hapus"){ if(!confirm("Hapus "+d.nama+" ("+d.mac+")?")) return; j=await api("/perangkat/"+d.id,{method:"DELETE"}); }
+  else if(a==="edit"){ const n=prompt("Nama baru:",d.nama); if(n===null) return; j=await api("/perangkat/"+d.id,{method:"PATCH",body:JSON.stringify({nama:n})}); }
+  else { j=await api("/perangkat/"+d.id,{method:"PATCH",body:JSON.stringify({status:a})}); }
+  if(!j.ok) return show($("#mAdmin"),"bad",j.pesan);
+  $("#mAdmin").className="msg"; loadAdmin();
+};
+
+$("#fTambah").onsubmit=async(e)=>{
+  e.preventDefault(); const f=e.target, m=$("#mTambah"), mac=normMac(f.mac.value);
+  if(!mac) return show(m,"bad","Format MAC tidak valid.");
+  const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,mac,hp:f.hp.value,status:f.status.value})});
+  if(!j.ok) return show(m,"bad",j.pesan);
+  show(m,"ok","Ditambahkan: "+j.data.nama+" ("+j.data.mac+")"); f.reset(); loadAdmin();
+};
+
+$("#fImpor").onsubmit=async(e)=>{
+  e.preventDefault();
+  const m=$("#mImpor"), btn=e.target.querySelector("button"), status=$("#imporStatus").value;
+  const lines=$("#imporText").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  if(!lines.length) return show(m,"bad","Belum ada data yang ditempel.");
+  let ok=0, ada=0, salah=[];
+  btn.disabled=true;
+  for(let i=0;i<lines.length;i++){
+    const parts=lines[i].split(/[;,\t]/);
+    const mac=normMac(parts[0]);
+    const nama=(parts.slice(1).join(" ").trim())||"tanpa nama";
+    if(!mac){ salah.push(lines[i]); continue; }
+    show(m,"warn","Mengimpor "+(i+1)+" dari "+lines.length+"…");
+    const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama,mac,status})});
+    if(j.ok) ok++; else if(String(j.pesan||"").includes("sudah ada")) ada++; else salah.push(lines[i]);
+  }
+  btn.disabled=false;
+  let txt="Selesai: "+ok+" ditambahkan, "+ada+" sudah ada (dilewati)";
+  if(salah.length) txt+=", "+salah.length+" gagal: "+salah.slice(0,5).join(" | ");
+  show(m,salah.length?"warn":"ok",txt);
+  if(!salah.length) $("#imporText").value="";
+  loadAdmin();
+};
+</script>
+</body>
+</html>
