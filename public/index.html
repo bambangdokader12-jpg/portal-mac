@@ -135,6 +135,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
       <button data-sub="online">🟢 User Aktif</button>
       <button data-sub="pelanggan">📱 Pelanggan</button>
       <button data-sub="pembayaran">💰 Pembayaran</button>
+      <button data-sub="kecepatan" data-role="admin">⚡ Kecepatan</button>
       <button data-sub="backup" data-role="admin">🗄️ Backup</button>
       <button id="bLogout" style="margin-left:auto">Keluar</button>
     </div>
@@ -194,7 +195,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
             <div><label>No. HP / WA (opsional)</label><input name="hp" maxlength="20" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
           </div>
           <div class="row3">
-            <div><label>Kecepatan (upload/download)</label><input name="kecepatan" class="mono" placeholder="kosong = ikut default, contoh 2M/5M"></div>
+            <div><label>Kecepatan</label><select name="kecepatan"></select></div>
             <div><label>Masa aktif (hari)</label><input name="hari" type="number" min="0" value="30"><div class="hint">0 = tanpa batas waktu</div></div>
             <div><label>Nominal (Rp)</label><input name="harga" type="number" min="0" placeholder="0 = gratis"></div>
           </div>
@@ -220,11 +221,6 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
           <button class="btn ghost" id="bReload" type="button">↻</button>
           <button class="btn ghost" id="bCsvPel" type="button">⬇ Excel</button>
         </div>
-        <form id="fDefault" class="toolbar" data-role="admin" autocomplete="off" style="background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:8px 10px">
-          <b>⚡ Kecepatan default</b><span class="hint">untuk HP tanpa kecepatan sendiri (upload/download, contoh 2M/5M; kosong = tanpa batas)</span>
-          <input id="defRate" class="mono" placeholder="tanpa batas" style="max-width:150px;flex:0 0 150px">
-          <button class="btn sm" type="submit">Simpan</button><span class="hint" id="defNow"></span>
-        </form>
         <div class="tablewrap"><table>
           <thead><tr><th>Pelanggan</th><th>MAC Address</th><th>Status</th><th>Masa aktif</th><th>Kecepatan</th><th>Pembayaran</th><th>Aksi</th></tr></thead>
           <tbody id="tb"></tbody>
@@ -249,6 +245,38 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
           <thead><tr><th>Tanggal</th><th>Pelanggan</th><th>Nominal</th><th>Status</th><th>Masa aktif s/d</th><th>Catatan</th><th></th></tr></thead>
           <tbody id="tbBayar"></tbody>
         </table></div>
+      </div>
+    </div>
+
+    <!-- KECEPATAN -->
+    <div id="s-kecepatan" class="hidden">
+      <div class="two">
+        <div class="card">
+          <h2>⚡ Daftar Kecepatan</h2>
+          <p class="sub">Pilihan kecepatan yang muncul saat mendaftarkan HP, Bayar, dan Ubah.</p>
+          <div class="tablewrap"><table>
+            <thead><tr><th>Nama</th><th>Upload / Download</th><th>Dipakai</th><th></th></tr></thead>
+            <tbody id="tbKec"></tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <h2>➕ Tambah Kecepatan</h2>
+          <form id="fKec" autocomplete="off">
+            <label>Nama</label><input name="nama" required maxlength="30" placeholder="contoh: Paket 5 Mbps">
+            <div class="row">
+              <div><label>Upload</label><input name="up" class="mono" required placeholder="2M"></div>
+              <div><label>Download</label><input name="down" class="mono" required placeholder="5M"></div>
+            </div>
+            <div class="hint" style="margin-top:6px">Pakai <b>M</b> untuk Mbps atau <b>k</b> untuk Kbps, misalnya <span class="mono">512k</span>, <span class="mono">2M</span>, <span class="mono">10M</span>.</div>
+            <div style="margin-top:14px"><button class="btn" type="submit">Tambah</button></div>
+          </form>
+          <form id="fDefault" autocomplete="off" style="margin-top:22px;border-top:1px solid var(--line);padding-top:16px">
+            <h2>Kecepatan Default</h2>
+            <p class="sub">Dipakai HP yang tidak dipilihkan kecepatan (pilihan "Default").</p>
+            <select id="defRate"></select>
+            <div style="margin-top:12px;display:flex;gap:10px;align-items:center"><button class="btn" type="submit">Simpan</button><span class="hint" id="defNow"></span></div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -313,7 +341,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
         <div><label>Nominal (Rp)</label><input id="bayarHarga" type="number" min="0"></div>
         <div><label>Tambah masa aktif (hari)</label><input id="bayarHari" type="number" min="0" value="30"></div>
       </div>
-      <label>Kecepatan (upload/download)</label><input id="bayarKec" class="mono" placeholder="kosong = tidak diubah, contoh 5M/10M">
+      <label>Kecepatan</label><select id="bayarKec"></select>
       <label>Pembayaran</label>
       <div class="seg"><label><input type="radio" name="bStat" value="lunas" checked> ✅ Lunas</label><label><input type="radio" name="bStat" value="utang"> ⏳ Utang</label></div>
       <label>Catatan (opsional)</label><input id="bayarCatatan" maxlength="80" placeholder="Tunai / transfer / dll.">
@@ -333,8 +361,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
         <div><label>No. HP</label><input id="eHp" maxlength="20"></div>
       </div>
       <label>Keterangan</label><input id="eKet" maxlength="80">
-      <label>Kecepatan (upload/download)</label>
-      <input id="eKec" class="mono" placeholder="kosong = ikut default, 0/0 = tanpa batas, contoh 2M/5M">
+      <label>Kecepatan</label><select id="eKec"></select>
       <label>Aktif sampai</label>
       <div style="display:flex;gap:8px"><input id="eSampai" type="date"><button class="btn ghost" type="button" id="eTanpa">Tanpa batas</button></div>
       <label class="check"><input type="checkbox" id="ePutus"> Putus otomatis saat masa aktif habis</label>
@@ -364,6 +391,20 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const TZ="Asia/Makassar";
 let token="", me=null; try{token=localStorage.getItem("macToken")||""}catch(e){}
+let kecList=[];
+const rateTxt=r=>{ if(!r||r==="0/0") return "Tanpa batas"; const [u,d]=r.split("/"); return "↑"+u+" / ↓"+d; };
+const kecName=r=>{ const k=kecList.find(x=>x.rate===r); return k?k.nama:null; };
+function kecOptions(first, cur){
+  let o=first.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("");
+  o+=kecList.map(k=>`<option value="${esc(k.rate)}">${esc(k.nama)} (${esc(rateTxt(k.rate))})</option>`).join("");
+  if(cur&&cur!=="0/0"&&!kecList.some(k=>k.rate===cur)&&!first.some(f=>f[0]===cur)) o+=`<option value="${esc(cur)}">${esc(rateTxt(cur))}</option>`;
+  return o;
+}
+async function loadKec(){ const j=await api("/kecepatan"); if(j.ok){ kecList=j.data; defRate=j.kecepatan_default||""; } fillKecSelects(); }
+function fillKecSelects(){
+  const dlab="Default ("+(defRate&&defRate!=="0/0"?(kecName(defRate)||rateTxt(defRate)):"tanpa batas")+")";
+  const sd=$("#fDaftar [name=kecepatan]"); if(sd){ const v=sd.value; sd.innerHTML=kecOptions([["",dlab],["0/0","Tanpa batas"]]); if(v) sd.value=v; }
+}
 let data=[], keu=null, curDev=null, defRate="", onRows=[], users=[], curUser=null;
 
 const rp=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n||0);
@@ -405,6 +446,7 @@ function start(user){
   $("#whoBox").classList.remove("hidden"); $("#whoName").textContent=me.nama||me.username;
   $("#whoRole").textContent=me.username+" · "+({admin:"Admin",operator:"Operator",lihat:"Lihat saja"}[me.role]||me.role);
   $$("[data-role]").forEach(el=>el.classList.toggle("hidden",!bisa(el.dataset.role)));
+  loadKec();
   subTab("ringkasan");
 }
 function logout(msg){
@@ -419,8 +461,8 @@ $("#bLogout").onclick=()=>logout();
 $$("#subnav button[data-sub]").forEach(b=>b.onclick=()=>subTab(b.dataset.sub));
 function subTab(s){
   $$("#subnav button[data-sub]").forEach(x=>x.classList.toggle("on",x.dataset.sub===s));
-  ["ringkasan","online","pelanggan","pembayaran","backup"].forEach(t=>$("#s-"+t).classList.toggle("hidden",t!==s));
-  ({ringkasan:loadKeuangan,online:loadOnline,pelanggan:()=>{loadDev();loadDefault();},pembayaran:loadBayar,backup:loadUsers})[s]?.();
+  ["ringkasan","online","pelanggan","pembayaran","kecepatan","backup"].forEach(t=>$("#s-"+t).classList.toggle("hidden",t!==s));
+  ({ringkasan:loadKeuangan,online:loadOnline,pelanggan:()=>{loadKec();loadDev();},pembayaran:loadBayar,kecepatan:loadKecPage,backup:loadUsers})[s]?.();
 }
 document.addEventListener("focusout",e=>{ if(e.target.matches("input[name=mac]")){const m=normMac(e.target.value);if(m)e.target.value=m} });
 document.addEventListener("click",e=>{
@@ -490,8 +532,8 @@ function expCell(d){
 }
 function spdCell(d){
   if(d.kecepatan==="0/0") return '<span class="spd free">Tanpa batas</span>';
-  if(d.kecepatan) return `<span class="spd">${esc(d.kecepatan)}</span>`;
-  return `<span class="spd def">${defRate&&defRate!=="0/0"?esc(defRate):"Tanpa batas"}</span><div class="hint">default</div>`;
+  if(d.kecepatan) return `<span class="spd">${esc(rateTxt(d.kecepatan))}</span>${kecName(d.kecepatan)?`<div class="hint">${esc(kecName(d.kecepatan))}</div>`:""}`;
+  return `<span class="spd def">${defRate&&defRate!=="0/0"?esc(rateTxt(defRate)):"Tanpa batas"}</span><div class="hint">default</div>`;
 }
 function bayarCell(d){
   if(d.utang>0) return `<span class="pill p-habis">Utang ${rp(d.utang)}</span>${bisa("operator")?` <button class="btn sm green" data-lunas="${d.id}">Lunas</button>`:""}`;
@@ -549,17 +591,17 @@ $("#fDaftar").onsubmit=async e=>{
 function openBayar(id){
   curDev=data.find(x=>x.id===id); if(!curDev) return;
   $("#bayarSiapa").textContent=curDev.nama+" · "+curDev.mac+(curDev.aktif_sampai?" · aktif s/d "+tgl(curDev.aktif_sampai):"");
-  $("#bayarHarga").value=""; $("#bayarHari").value=30; $("#bayarKec").value=""; $("#bayarCatatan").value="";
+  $("#bayarHarga").value=""; $("#bayarHari").value=30; $("#bayarKec").innerHTML=kecOptions([["","Tidak diubah"],["0/0","Tanpa batas"]]); $("#bayarKec").value=""; $("#bayarCatatan").value="";
   $$("input[name=bStat]")[0].checked=true; previewBayar(); $("#dBayar").showModal();
 }
 function previewBayar(){
   const hari=+$("#bayarHari").value||0, base=curDev.aktif_sampai&&Date.parse(curDev.aktif_sampai)>Date.now()?Date.parse(curDev.aktif_sampai):Date.now();
   const k=$("#bayarKec").value.trim(), st=$("input[name=bStat]:checked").value;
   $("#bayarPreview").innerHTML=(hari?`Masa aktif sampai <b>${tgl(new Date(base+hari*86400000).toISOString())}</b>`:"Masa aktif tidak berubah")
-    +"<br>"+(k?`Kecepatan menjadi <b>${esc(k)}</b>`:`Kecepatan tetap: <b>${esc(curDev.kecepatan||("default "+(defRate||"tanpa batas")))}</b>`)
+    +"<br>"+(k?`Kecepatan menjadi <b>${esc(rateTxt(k))}</b>`:`Kecepatan tetap: <b>${esc(curDev.kecepatan||("default "+(defRate||"tanpa batas")))}</b>`)
     +"<br>"+(st==="lunas"?"✅ Langsung masuk pendapatan hari ini":"⏳ Dicatat sebagai <b>utang</b>, masuk pendapatan saat ditandai Lunas");
 }
-["#bayarHari","#bayarKec"].forEach(s=>$(s).oninput=previewBayar); $$("input[name=bStat]").forEach(r=>r.onchange=previewBayar);
+$("#bayarHari").oninput=previewBayar; $("#bayarKec").onchange=previewBayar; $$("input[name=bStat]").forEach(r=>r.onchange=previewBayar);
 $("#fBayar").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
   const j=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:curDev.id,harga:$("#bayarHarga").value,hari:$("#bayarHari").value,kecepatan:$("#bayarKec").value.trim(),status:$("input[name=bStat]:checked").value,catatan:$("#bayarCatatan").value})});
@@ -567,7 +609,7 @@ $("#fBayar").onsubmit=async e=>{
 };
 
 // ---------- Dialog Ubah ----------
-function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eKec").value=d.kecepatan||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#dEdit").showModal(); }
+function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eKec").innerHTML=kecOptions([["","Default"],["0/0","Tanpa batas"]],d.kecepatan); $("#eKec").value=d.kecepatan||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#dEdit").showModal(); }
 $("#eTanpa").onclick=()=>{$("#eSampai").value=""};
 $("#fEdit").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
@@ -605,9 +647,26 @@ $("#tbBayar").onclick=async e=>{
   toast(j.pesan||"Tersimpan."); loadBayar();
 };
 
+// ---------- Menu Kecepatan ----------
+async function loadKecPage(){
+  await loadKec(); const [dv]=await Promise.all([api("/perangkat")]); if(dv.ok) data=dv.data;
+  $("#tbKec").innerHTML=kecList.length?kecList.map((k,i)=>`<tr><td><b>${esc(k.nama)}</b></td><td><span class="spd">${esc(rateTxt(k.rate))}</span></td><td class="hint">${data.filter(d=>d.kecepatan===k.rate).length} HP</td><td><button class="btn sm red" data-kh="${i}">Hapus</button></td></tr>`).join(""):'<tr><td colspan="4" class="empty">Belum ada. Tambahkan di sebelah kanan.</td></tr>';
+  $("#defRate").innerHTML=kecOptions([["","Tanpa batas"]]); $("#defRate").value=defRate&&defRate!=="0/0"?defRate:"";
+  $("#defNow").textContent="Sekarang: "+(defRate&&defRate!=="0/0"?(kecName(defRate)||rateTxt(defRate)):"tanpa batas");
+}
+async function saveKec(list,msg){ const j=await api("/kecepatan",{method:"PUT",body:JSON.stringify({data:list})}); toast(j.ok?msg:j.pesan); if(j.ok) loadKecPage(); return j.ok; }
+$("#fKec").onsubmit=async e=>{
+  e.preventDefault(); const f=e.target; const rate=f.up.value.trim()+"/"+f.down.value.trim();
+  if(await saveKec([...kecList,{nama:f.nama.value.trim(),rate}],"Kecepatan ditambahkan.")) f.reset();
+};
+$("#tbKec").onclick=async e=>{
+  const b=e.target.closest("[data-kh]"); if(!b) return; const k=kecList[+b.dataset.kh];
+  if(!confirm("Hapus pilihan kecepatan "+k.nama+"?\nHP yang sudah memakainya tetap dengan kecepatan itu.")) return;
+  saveKec(kecList.filter((_,i)=>i!==+b.dataset.kh),"Dihapus.");
+};
+
 // ---------- Kecepatan default ----------
-async function loadDefault(){ const j=await api("/pengaturan"); if(!j.ok) return; defRate=j.data.kecepatan_default||""; $("#defRate").value=defRate; $("#defNow").textContent="Sekarang: "+(defRate&&defRate!=="0/0"?defRate+" (upload/download)":"tanpa batas"); }
-$("#fDefault").onsubmit=async e=>{ e.preventDefault(); const j=await api("/pengaturan",{method:"PATCH",body:JSON.stringify({kecepatan_default:$("#defRate").value})}); toast(j.ok?j.pesan+". Router menyesuaikan dalam ±2 menit.":j.pesan); if(j.ok) loadDefault(); };
+$("#fDefault").onsubmit=async e=>{ e.preventDefault(); const j=await api("/pengaturan",{method:"PATCH",body:JSON.stringify({kecepatan_default:$("#defRate").value})}); toast(j.ok?j.pesan+". Router menyesuaikan dalam ±2 menit.":j.pesan); if(j.ok) loadKecPage(); };
 
 // ---------- Pengguna ----------
 const roleTxt={admin:"Admin",operator:"Operator",lihat:"Lihat saja"};
