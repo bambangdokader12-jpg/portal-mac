@@ -239,7 +239,7 @@ export async function onRequest({ request, env }) {
       if (u && u.aktif) me = { username: u.username, nama: u.nama, role: u.role };
     }
     if (!me) {
-      const known = ["/saya", "/pengguna", "/lunas", "/perangkat", "/paket", "/bayar", "/pembayaran", "/keuangan", "/backup", "/restore", "/pengaturan", "/online"];
+      const known = ["/kecepatan", "/saya", "/pengguna", "/lunas", "/perangkat", "/paket", "/bayar", "/pembayaran", "/keuangan", "/backup", "/restore", "/pengaturan", "/online"];
       if (known.some((p) => path === p || path.startsWith(p + "/"))) return json({ ok: false, pesan: "Sesi habis, silakan login lagi." }, 401);
       return json({ ok: false, pesan: "Alamat tidak dikenal." }, 404);
     }
@@ -249,7 +249,7 @@ export async function onRequest({ request, env }) {
     // ----- Hak akses -----
     const butuh = (role) => (RANK[me.role] || 0) >= RANK[role];
     const tolak = () => json({ ok: false, pesan: "Akun Anda (" + me.role + ") tidak punya izin untuk ini." }, 403);
-    const hanyaAdmin = seg[1] === "pengguna" || path === "/restore" || path === "/backup"
+    const hanyaAdmin = seg[1] === "pengguna" || (path === "/kecepatan" && method !== "GET") || path === "/restore" || path === "/backup"
       || (path === "/pengaturan" && method !== "GET") || (method === "DELETE");
     if (hanyaAdmin && !butuh("admin")) return tolak();
     if (method !== "GET" && !butuh("operator")) return tolak();
@@ -490,6 +490,25 @@ export async function onRequest({ request, env }) {
           kecepatan: d ? (rateOf(d, def) || "") : "" };
       });
       return json({ ok: true, waktu: rep.waktu, data });
+    }
+
+    // ----- Daftar pilihan kecepatan -----
+    if (path === "/kecepatan") {
+      const getList = async () => { try { return JSON.parse(((await db.prepare("SELECT nilai FROM pengaturan WHERE kunci = 'kecepatan_list'").first()) || {}).nilai || "[]"); } catch { return []; } };
+      if (method === "GET") return json({ ok: true, data: await getList(), kecepatan_default: await getDefaultRate() });
+      if (method === "PUT") {
+        const b = await readBody(request);
+        if (!Array.isArray(b.data)) return json({ ok: false, pesan: "Data tidak valid." }, 400);
+        const list = [];
+        for (const x of b.data.slice(0, 50)) {
+          const nama = clean(x && x.nama, 30), r = normRate(x && x.rate);
+          if (!nama) return json({ ok: false, pesan: "Nama kecepatan wajib diisi." }, 400);
+          if (!r || r === "0/0") return json({ ok: false, pesan: "Kecepatan '" + nama + "': " + RATE_ERR }, 400);
+          list.push({ nama, rate: r });
+        }
+        await db.prepare("INSERT INTO pengaturan (kunci, nilai) VALUES ('kecepatan_list', ?) ON CONFLICT(kunci) DO UPDATE SET nilai = excluded.nilai").bind(JSON.stringify(list)).run();
+        return json({ ok: true, data: list, pesan: "Daftar kecepatan disimpan." });
+      }
     }
 
     // ----- Pengaturan (kecepatan default) -----
