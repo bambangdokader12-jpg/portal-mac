@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>APP-BHP (APP-NET) — Daftar HP</title>
+<title>APP-BHP (APP-NET) — Panel Daftar MAC</title>
 <meta name="theme-color" content="#0b3d91">
+<meta name="robots" content="noindex">
 <style>
 :root{
   --bg:#eef2f8;--card:#ffffff;--ink:#0f1b2d;--muted:#64708a;--line:#e3e8f1;--soft:#f6f8fc;
@@ -95,264 +96,209 @@ dialog::backdrop{background:rgba(10,20,40,.45);backdrop-filter:blur(2px)}
 footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 .statusbox{display:flex;gap:14px;align-items:center;padding:16px;border-radius:14px;margin-top:14px}
 .statusbox .ic{font-size:1.8rem}
+
+.seg{display:flex;gap:6px;margin-top:2px}
+.seg label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;margin:0;padding:10px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-weight:600;font-size:.92rem;background:#fff}
+.seg label:has(input:checked){border-color:var(--pri);background:#eef4ff;color:var(--pri2)}
+.seg input{width:auto;margin:0}
+@media(max-width:640px){#whoBox{display:none}}
 </style>
 </head>
 <body>
 <header class="hero">
   <div class="hero-in">
     <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5a15 15 0 0 1 20 0"/><path d="M5.5 12a10 10 0 0 1 13 0"/><path d="M9 15.5a5 5 0 0 1 6 0"/><circle cx="12" cy="19" r="1.3" fill="#fff"/></svg></div>
-    <div><h1>APP-BHP <span style="opacity:.8;font-weight:600">· APP-NET</span></h1><p>HP wajib didaftarkan agar bisa tersambung ke WiFi</p></div>
+    <div style="flex:1"><h1>APP-BHP <span style="opacity:.8;font-weight:600">· APP-NET</span></h1><p>Panel admin daftar MAC HP</p></div>
+    <div id="whoBox" class="hidden" style="text-align:right"><div style="font-weight:700" id="whoName"></div><div style="opacity:.8;font-size:.85rem" id="whoRole"></div></div>
   </div>
 </header>
 
 <div class="wrap">
-  <nav class="nav" id="mainnav">
-    <button class="on" data-tab="daftar">Daftar HP</button>
-    <button data-tab="cek">Cek Status</button>
-    <button data-tab="admin">Admin</button>
-  </nav>
-
-  <!-- ================= DAFTAR ================= -->
-  <section id="t-daftar">
-    <div class="card">
-      <h2>Cara Daftar</h2>
-      <ol class="steps">
-        <li><span>Buka halaman ini memakai <b>data seluler / kuota HP</b>. WiFi belum bisa dipakai sebelum HP terdaftar.</span></li>
-        <li><span>Matikan <b>MAC acak / Privasi</b> untuk WiFi kami (panduan di bawah), lalu salin <b>Alamat MAC</b> HP.</span></li>
-        <li><span>Isi formulir, kirim, lalu tekan <b>Konfirmasi via WhatsApp</b> ke admin.</span></li>
-        <li><span>Setelah disetujui admin, tunggu ±2 menit lalu sambungkan HP ke WiFi.</span></li>
-      </ol>
-    </div>
-    <div class="card">
-      <h2>Formulir Pendaftaran</h2>
-      <p class="sub">Data hanya dipakai untuk mengatur akses WiFi.</p>
-      <form id="fDaftar" autocomplete="off">
-        <div class="row">
-          <div><label>Nama</label><input name="nama" required maxlength="50" placeholder="Nama lengkap"></div>
-          <div><label>No. HP / WhatsApp</label><input name="hp" maxlength="20" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
-        </div>
-        <label>MAC Address WiFi HP</label>
-        <input name="mac" class="mono" required maxlength="17" placeholder="A4:5E:60:12:34:56" autocapitalize="characters">
-        <div class="hint">Boleh pakai titik dua, strip, atau tanpa pemisah.</div>
-        <label>Keterangan (opsional)</label>
-        <input name="ket" maxlength="80" placeholder="Misal: HP anak, rumah blok C">
-        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" type="submit">Kirim Pendaftaran</button>
-          <a id="waDaftar" class="btn wa hidden" target="_blank" rel="noopener">Konfirmasi via WhatsApp</a>
-        </div>
-        <div id="mDaftar" class="msg"></div>
-      </form>
-    </div>
-    <div class="card">
-      <h2>Cara melihat MAC & mematikan MAC acak</h2>
-      <p class="sub">Kalau MAC acak tidak dimatikan, MAC yang didaftarkan tidak cocok dan HP tetap tidak bisa tersambung.</p>
-      <details open><summary>Android (Samsung, Xiaomi, Oppo, Vivo, Infinix, Realme)</summary>
-        <ol><li>Pengaturan → WiFi → ketuk ⚙️ di samping nama WiFi kami.</li>
-        <li><b>Privasi / Jenis alamat MAC</b> → pilih <b>MAC perangkat / MAC ponsel</b>.</li>
-        <li>Salin <b>Alamat MAC</b> yang tampil di halaman tersebut.</li></ol></details>
-      <details><summary>iPhone</summary>
-        <ol><li>Pengaturan → Wi-Fi → ketuk ⓘ di samping nama WiFi kami.</li>
-        <li>Ubah <b>Alamat Wi-Fi Pribadi</b> menjadi <b>Mati</b>.</li>
-        <li>Salin <b>Alamat Wi-Fi</b> yang tampil di bawahnya.</li></ol></details>
-      <p class="hint" style="margin:12px 0 0">Butuh bantuan? <a href="https://wa.me/6282151587277" target="_blank" rel="noopener">WhatsApp admin 0821-5158-7277</a></p>
-    </div>
+  <!-- ================= LOGIN ================= -->
+  <section id="loginBox" class="card" style="max-width:420px;margin:0 auto">
+    <h2>Masuk</h2>
+    <p class="sub">Masuk dengan akun yang sudah didaftarkan admin.</p>
+    <form id="fLogin" autocomplete="on">
+      <label>Username</label>
+      <input name="username" required autocomplete="username" autocapitalize="none" placeholder="admin">
+      <label>Password</label>
+      <input name="password" type="password" required autocomplete="current-password">
+      <div style="margin-top:16px"><button class="btn" type="submit" style="width:100%;justify-content:center">Masuk</button></div>
+      <div id="mLogin" class="msg"></div>
+    </form>
   </section>
 
-  <!-- ================= CEK ================= -->
-  <section id="t-cek" class="hidden">
-    <div class="card">
-      <h2>Cek Status HP</h2>
-      <p class="sub">Masukkan MAC Address HP untuk melihat status dan masa aktif.</p>
-      <form id="fCek">
-        <input name="mac" class="mono" required placeholder="A4:5E:60:12:34:56">
-        <div style="margin-top:12px"><button class="btn" type="submit">Cek</button></div>
-      </form>
-      <div id="cekHasil"></div>
-    </div>
-  </section>
-
-  <!-- ================= ADMIN ================= -->
-  <section id="t-admin" class="hidden">
-    <div id="loginBox" class="card" style="max-width:420px">
-      <h2>Masuk Admin</h2>
-      <p class="sub">Khusus pengelola APP-BHP.</p>
-      <form id="fLogin">
-        <label>Password</label>
-        <input name="password" type="password" required autocomplete="current-password">
-        <div style="margin-top:14px"><button class="btn" type="submit">Masuk</button></div>
-        <div id="mLogin" class="msg"></div>
-      </form>
+  <!-- ================= APLIKASI ================= -->
+  <section id="app" class="hidden">
+    <div class="subnav" id="subnav">
+      <button class="on" data-sub="ringkasan">📊 Ringkasan</button>
+      <button data-sub="online">🟢 User Aktif</button>
+      <button data-sub="pelanggan">📱 Pelanggan</button>
+      <button data-sub="pembayaran">💰 Pembayaran</button>
+      <button data-sub="backup" data-role="admin">🗄️ Backup</button>
+      <button id="bLogout" style="margin-left:auto">Keluar</button>
     </div>
 
-    <div id="adminBox" class="hidden">
-      <div class="subnav" id="subnav">
-        <button class="on" data-sub="ringkasan">📊 Ringkasan</button>
-        <button data-sub="online">🟢 User Aktif</button>
-        <button data-sub="pelanggan">📱 Pelanggan</button>
-        <button data-sub="pembayaran">💰 Pembayaran</button>
-        <button data-sub="paket">🏷️ Paket</button>
-        <button data-sub="backup">🗄️ Backup</button>
-        <button id="bLogout" style="margin-left:auto">Keluar</button>
+    <!-- RINGKASAN -->
+    <div id="s-ringkasan">
+      <div class="grid-kpi">
+        <div class="kpi blue"><div class="l">Pendapatan bulan ini</div><div class="v money" id="kBulan">–</div><div class="d" id="kBulanD"></div></div>
+        <div class="kpi"><div class="l">Hari ini</div><div class="v money" id="kHari">–</div><div class="d" id="kHariD"></div></div>
+        <div class="kpi"><div class="l">Utang belum lunas</div><div class="v money" id="kUtang" style="color:var(--bad)">–</div><div class="d" id="kUtangD"></div></div>
+        <div class="kpi"><div class="l">HP aktif</div><div class="v" id="kAktif">–</div><div class="d" id="kAktifD"></div></div>
       </div>
-
-      <!-- RINGKASAN -->
-      <div id="s-ringkasan">
-        <div class="grid-kpi">
-          <div class="kpi blue"><div class="l">Pendapatan bulan ini</div><div class="v money" id="kBulan">–</div><div class="d" id="kBulanD"></div></div>
-          <div class="kpi"><div class="l">Hari ini</div><div class="v money" id="kHari">–</div><div class="d" id="kHariD"></div></div>
-          <div class="kpi"><div class="l">Total pendapatan</div><div class="v money" id="kTotal">–</div><div class="d" id="kTotalD"></div></div>
-          <div class="kpi"><div class="l">Pelanggan aktif</div><div class="v" id="kAktif">–</div><div class="d" id="kAktifD"></div></div>
+      <div class="two">
+        <div class="card">
+          <h2>Pendapatan per bulan</h2>
+          <p class="sub">Hanya pembayaran yang sudah lunas · total <span id="kTotal"></span></p>
+          <div class="chart" id="chart"></div>
         </div>
-        <div class="two">
-          <div class="card">
-            <h2>Pendapatan per bulan</h2>
-            <p class="sub">12 bulan terakhir</p>
-            <div class="chart" id="chart"></div>
+        <div class="card">
+          <h2>Segera habis (7 hari)</h2>
+          <p class="sub">Ingatkan pelanggan untuk bayar</p>
+          <div class="list" id="soonList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USER AKTIF -->
+    <div id="s-online" class="hidden">
+      <div class="grid-kpi">
+        <div class="kpi blue"><div class="l">Sedang tersambung</div><div class="v" id="oJumlah">–</div><div class="d" id="oWaktu"></div></div>
+        <div class="kpi"><div class="l">Pemakaian download</div><div class="v" id="oDown">–</div><div class="d">total HP yang tersambung</div></div>
+        <div class="kpi"><div class="l">Pemakaian upload</div><div class="v" id="oUp">–</div><div class="d">total HP yang tersambung</div></div>
+        <div class="kpi"><div class="l">Tidak dikenal</div><div class="v" id="oAsing">–</div><div class="d">tersambung tapi tidak ada di daftar</div></div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <input id="oq" placeholder="Cari nama, MAC, IP…">
+          <button class="btn ghost" id="oReload" type="button">↻ Muat ulang</button>
+          <span class="hint">Data dikirim router setiap ±2 menit. Pemakaian dihitung sejak HP tersambung.</span>
+        </div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Pelanggan</th><th>MAC / Nama HP</th><th>IP</th><th>Kecepatan</th><th>Pemakaian ↓ / ↑</th><th>Masa aktif</th><th></th></tr></thead>
+          <tbody id="tbOnline"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- DAFTAR MAC -->
+    <div id="s-pelanggan" class="hidden">
+      <div class="card" data-role="operator">
+        <h2>➕ Daftar HP Baru</h2>
+        <p class="sub">Sekali klik: HP langsung aktif, dan pembayarannya tercatat sebagai <b>Lunas</b> atau <b>Utang</b>.</p>
+        <form id="fDaftar" autocomplete="off">
+          <div class="row3">
+            <div><label>Nama pelanggan</label><input name="nama" required maxlength="50" placeholder="Nama"></div>
+            <div><label>MAC Address HP</label><input name="mac" class="mono" required placeholder="A4:5E:60:12:34:56"></div>
+            <div><label>No. HP / WA (opsional)</label><input name="hp" maxlength="20" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
           </div>
-          <div class="card">
-            <h2>Segera habis (7 hari)</h2>
-            <p class="sub">Ingatkan pelanggan untuk bayar</p>
-            <div class="list" id="soonList"></div>
+          <div class="row3">
+            <div><label>Kecepatan (upload/download)</label><input name="kecepatan" class="mono" placeholder="kosong = ikut default, contoh 2M/5M"></div>
+            <div><label>Masa aktif (hari)</label><input name="hari" type="number" min="0" value="30"><div class="hint">0 = tanpa batas waktu</div></div>
+            <div><label>Nominal (Rp)</label><input name="harga" type="number" min="0" placeholder="0 = gratis"></div>
+          </div>
+          <div class="row3">
+            <div><label>Pembayaran</label>
+              <div class="seg"><label><input type="radio" name="bayar" value="lunas" checked> ✅ Lunas</label><label><input type="radio" name="bayar" value="utang"> ⏳ Utang</label></div></div>
+            <div><label>Keterangan (opsional)</label><input name="ket" maxlength="80" placeholder="Rumah blok C, dll."></div>
+            <div style="display:flex;align-items:flex-end"><button class="btn" type="submit" style="width:100%;justify-content:center;margin-top:12px">Daftarkan & Aktifkan</button></div>
+          </div>
+          <div id="mDaftar" class="msg"></div>
+        </form>
+        <details style="margin-top:12px"><summary>Cara melihat MAC di HP pelanggan</summary>
+          <ol><li><b>Android:</b> Pengaturan → WiFi → ⚙️ di samping WiFi → <b>Privasi</b> → pilih <b>MAC perangkat</b>, lalu salin <b>Alamat MAC</b>.</li>
+          <li><b>iPhone:</b> Pengaturan → Wi-Fi → ⓘ → <b>Alamat Wi-Fi Pribadi</b> = <b>Mati</b>, lalu salin <b>Alamat Wi-Fi</b>.</li></ol></details>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <input id="q" placeholder="Cari nama, MAC, no. HP…">
+          <select id="fStatus">
+            <option value="">Semua</option><option value="aktif">Aktif</option><option value="hampir">Segera habis</option>
+            <option value="habis">Habis</option><option value="nonaktif">Nonaktif</option><option value="utang">Punya utang</option>
+          </select>
+          <button class="btn ghost" id="bReload" type="button">↻</button>
+          <button class="btn ghost" id="bCsvPel" type="button">⬇ Excel</button>
+        </div>
+        <form id="fDefault" class="toolbar" data-role="admin" autocomplete="off" style="background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:8px 10px">
+          <b>⚡ Kecepatan default</b><span class="hint">untuk HP tanpa kecepatan sendiri (upload/download, contoh 2M/5M; kosong = tanpa batas)</span>
+          <input id="defRate" class="mono" placeholder="tanpa batas" style="max-width:150px;flex:0 0 150px">
+          <button class="btn sm" type="submit">Simpan</button><span class="hint" id="defNow"></span>
+        </form>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Pelanggan</th><th>MAC Address</th><th>Status</th><th>Masa aktif</th><th>Kecepatan</th><th>Pembayaran</th><th>Aksi</th></tr></thead>
+          <tbody id="tb"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PEMBAYARAN -->
+    <div id="s-pembayaran" class="hidden">
+      <div class="grid-kpi" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi blue"><div class="l">Lunas di bulan ini</div><div class="v money" id="pLunas">–</div><div class="d" id="pLunasD"></div></div>
+        <div class="kpi"><div class="l">Utang dicatat bulan ini</div><div class="v money" id="pUtang" style="color:var(--bad)">–</div><div class="d" id="pUtangD"></div></div>
+        <div class="kpi"><div class="l">Semua utang belum lunas</div><div class="v money" id="pUtangAll" style="color:var(--bad)">–</div><div class="d" id="pUtangAllD"></div></div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <input type="month" id="bulanPick" style="max-width:190px">
+          <select id="bStatus"><option value="">Semua</option><option value="lunas">Lunas</option><option value="utang">Utang (semua bulan)</option></select>
+          <button class="btn ghost" id="bCsvBayar" type="button">⬇ Excel</button>
+        </div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Tanggal</th><th>Pelanggan</th><th>Nominal</th><th>Status</th><th>Masa aktif s/d</th><th>Catatan</th><th></th></tr></thead>
+          <tbody id="tbBayar"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- BACKUP -->
+    <div id="s-backup" class="hidden">
+      <div class="two">
+        <div class="card">
+          <h2>Backup database</h2>
+          <p class="sub">Unduh seluruh data (pelanggan, pembayaran, pengguna, pengaturan) ke satu file. Simpan secara rutin, misalnya seminggu sekali.</p>
+          <button class="btn" id="bBackup" type="button">⬇ Download backup</button>
+          <div style="margin-top:18px">
+            <h2>Download Excel</h2>
+            <p class="sub">File CSV, bisa dibuka di Excel / Google Sheets.</p>
+            <button class="btn ghost" id="bCsvAll" type="button">Semua pembayaran (CSV)</button>
           </div>
         </div>
         <div class="card">
-          <h2>Pendapatan bulan ini per paket</h2>
-          <div class="list" id="paketList" style="margin-top:10px"></div>
+          <h2>Restore dari backup</h2>
+          <p class="sub">⚠️ Semua data saat ini akan <b>diganti</b> dengan isi file backup.</p>
+          <input type="file" id="restoreFile" accept=".json,application/json">
+          <div style="margin-top:12px"><button class="btn red" id="bRestore" type="button">Restore</button></div>
+          <div id="mRestore" class="msg"></div>
         </div>
       </div>
-
-      <!-- USER AKTIF -->
-      <div id="s-online" class="hidden">
-        <div class="grid-kpi">
-          <div class="kpi blue"><div class="l">Sedang tersambung</div><div class="v" id="oJumlah">–</div><div class="d" id="oWaktu"></div></div>
-          <div class="kpi"><div class="l">Pemakaian download</div><div class="v" id="oDown">–</div><div class="d">total HP yang tersambung</div></div>
-          <div class="kpi"><div class="l">Pemakaian upload</div><div class="v" id="oUp">–</div><div class="d">total HP yang tersambung</div></div>
-          <div class="kpi"><div class="l">Tidak dikenal</div><div class="v" id="oAsing">–</div><div class="d">tersambung tapi tidak ada di daftar</div></div>
-        </div>
+    <!-- PENGGUNA -->
+    <div id="s-pengguna">
+      <div class="two">
         <div class="card">
-          <div class="toolbar">
-            <input id="oq" placeholder="Cari nama, MAC, IP…">
-            <button class="btn ghost" id="oReload" type="button">↻ Muat ulang</button>
-            <span class="hint">Data dikirim router setiap ±2 menit. Pemakaian dihitung sejak HP tersambung.</span>
-          </div>
+          <h2>👤 Pengguna Login</h2>
+          <p class="sub">Akun yang bisa masuk ke panel ini.</p>
           <div class="tablewrap"><table>
-            <thead><tr><th>Pelanggan</th><th>MAC / Nama HP</th><th>IP</th><th>Kecepatan</th><th>Pemakaian ↓ / ↑</th><th>Masa aktif</th><th></th></tr></thead>
-            <tbody id="tbOnline"></tbody>
+            <thead><tr><th>Username</th><th>Hak akses</th><th>Status</th><th>Login terakhir</th><th></th></tr></thead>
+            <tbody id="tbUser"></tbody>
           </table></div>
         </div>
-      </div>
-
-      <!-- PELANGGAN -->
-      <div id="s-pelanggan" class="hidden">
         <div class="card">
-          <div class="toolbar">
-            <input id="q" placeholder="Cari nama, MAC, no. HP…">
-            <select id="fStatus">
-              <option value="">Semua</option><option value="menunggu">Menunggu</option><option value="aktif">Aktif</option>
-              <option value="hampir">Segera habis</option><option value="habis">Habis</option><option value="nonaktif">Nonaktif</option>
-            </select>
-            <button class="btn ghost" id="bReload" type="button">↻</button>
-          </div>
-          <div class="tablewrap"><table>
-            <thead><tr><th>Pelanggan</th><th>MAC Address</th><th>Status</th><th>Masa aktif</th><th>Kecepatan</th><th>Aksi</th></tr></thead>
-            <tbody id="tb"></tbody>
-          </table></div>
-        </div>
-        <div class="two">
-          <div class="card">
-            <h2>Tambah Pelanggan</h2>
-            <form id="fTambah" autocomplete="off">
-              <div class="row">
-                <div><label>Nama</label><input name="nama" required maxlength="50"></div>
-                <div><label>No. HP</label><input name="hp" maxlength="20"></div>
-              </div>
-              <label>MAC Address</label><input name="mac" class="mono" required>
-              <label>Kecepatan (upload/download, opsional)</label><input name="kecepatan" class="mono" placeholder="kosong = ikut default, contoh 2M/5M">
-              <label>Status</label><select name="status"><option value="aktif">Aktif</option><option value="menunggu">Menunggu</option><option value="nonaktif">Nonaktif</option></select>
-              <div style="margin-top:14px"><button class="btn" type="submit">Tambah</button></div>
-            </form>
-          </div>
-          <div class="card">
-            <h2>Impor Banyak</h2>
-            <p class="sub">Satu baris per HP: <span class="mono">MAC;Nama</span></p>
-            <form id="fImpor">
-              <textarea id="imporText" rows="6" class="mono" placeholder="AA:B8:C6:D5:6D:8A;V2026"></textarea>
-              <label>Status untuk semua</label><select id="imporStatus"><option value="aktif">Aktif</option><option value="menunggu">Menunggu</option></select>
-              <div style="margin-top:14px"><button class="btn" type="submit">Impor</button></div>
-              <div id="mImpor" class="msg"></div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- PEMBAYARAN -->
-      <div id="s-pembayaran" class="hidden">
-        <div class="card">
-          <div class="toolbar">
-            <input type="month" id="bulanPick" style="max-width:200px">
-            <button class="btn ghost" id="bCsvBayar" type="button">⬇ Excel (CSV)</button>
-            <div style="margin-left:auto;font-weight:700">Total: <span class="money" id="totalBulan">–</span></div>
-          </div>
-          <div class="tablewrap"><table>
-            <thead><tr><th>Tanggal</th><th>Pelanggan</th><th>Paket</th><th>Nominal</th><th>Masa aktif s/d</th><th>Catatan</th><th></th></tr></thead>
-            <tbody id="tbBayar"></tbody>
-          </table></div>
-        </div>
-      </div>
-
-      <!-- PAKET -->
-      <div id="s-paket" class="hidden">
-        <div class="card">
-          <h2>Daftar Paket</h2>
-          <p class="sub">Dipakai saat mencatat pembayaran. Masa aktif 0 hari = tanpa batas waktu. Kecepatan kosong = ikut kecepatan default.</p>
-          <div class="tablewrap"><table>
-            <thead><tr><th>Nama paket</th><th>Harga (Rp)</th><th>Masa aktif (hari)</th><th>Kecepatan (up/down)</th><th></th></tr></thead>
-            <tbody id="tbPaket"></tbody>
-          </table></div>
-          <form id="fPaket" class="row" style="margin-top:14px;align-items:end" autocomplete="off">
-            <div><label>Nama paket baru</label><input name="nama" required placeholder="Bulanan Rumah"></div>
-            <div><label>Harga (Rp)</label><input name="harga" type="number" min="0" required placeholder="100000"></div>
-            <div><label>Masa aktif (hari)</label><input name="hari" type="number" min="0" required placeholder="30"></div>
-            <div><label>Kecepatan (upload/download)</label><input name="kecepatan" class="mono" placeholder="contoh 5M/10M"></div>
-            <div style="margin-top:12px"><button class="btn" type="submit">+ Tambah paket</button></div>
+          <h2>➕ Daftar Pengguna Baru</h2>
+          <form id="fUser" autocomplete="off">
+            <label>Nama</label><input name="nama" maxlength="40" placeholder="Nama lengkap">
+            <label>Username</label><input name="username" required autocapitalize="none" placeholder="contoh: andi">
+            <label>Password</label><input name="password" type="text" required minlength="6" placeholder="minimal 6 karakter">
+            <label>Hak akses</label>
+            <select name="role"><option value="operator">Operator: daftar HP, bayar, lunas, ubah</option><option value="lihat">Lihat saja</option><option value="admin">Admin: semua fitur</option></select>
+            <div style="margin-top:14px"><button class="btn" type="submit">Daftarkan pengguna</button></div>
           </form>
-        </div>
-        <div class="card">
-          <h2>⚡ Kecepatan Default</h2>
-          <p class="sub">Berlaku untuk pelanggan yang <b>belum punya kecepatan sendiri</b> (belum bayar paket atau kecepatannya dikosongkan). Format <b>upload/download</b>, contoh <span class="mono">2M/5M</span> = upload 2 Mbps, download 5 Mbps. <span class="mono">512k/1M</span> juga boleh. <span class="mono">0/0</span> = tanpa batas.</p>
-          <form id="fDefault" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center" autocomplete="off">
-            <input id="defRate" class="mono" placeholder="kosong = tanpa batas" style="max-width:220px">
-            <button class="btn" type="submit">Simpan</button>
-            <span class="hint" id="defNow"></span>
-          </form>
+          <div class="hint" style="margin-top:12px">Akun utama <b>admin</b> memakai password <b>ADMIN_PASSWORD</b> di Cloudflare dan tidak bisa dihapus dari sini.</div>
         </div>
       </div>
+    </div>
 
-      <!-- BACKUP -->
-      <div id="s-backup" class="hidden">
-        <div class="two">
-          <div class="card">
-            <h2>Backup database</h2>
-            <p class="sub">Unduh seluruh data (pelanggan, paket, pembayaran) ke satu file. Simpan di laptop / Google Drive secara rutin, misalnya seminggu sekali.</p>
-            <button class="btn" id="bBackup" type="button">⬇ Download backup</button>
-            <div style="margin-top:18px">
-              <h2>Download Excel</h2>
-              <p class="sub">File CSV, bisa dibuka di Excel / Google Sheets.</p>
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn ghost" id="bCsvPel" type="button">Pelanggan (CSV)</button>
-                <button class="btn ghost" id="bCsvAll" type="button">Semua pembayaran (CSV)</button>
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <h2>Restore dari backup</h2>
-            <p class="sub">⚠️ Semua data saat ini akan <b>diganti</b> dengan isi file backup.</p>
-            <input type="file" id="restoreFile" accept=".json,application/json">
-            <div style="margin-top:12px"><button class="btn red" id="bRestore" type="button">Restore</button></div>
-            <div id="mRestore" class="msg"></div>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 </div>
@@ -363,16 +309,17 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
   <form method="dialog" id="fBayar">
     <div class="dlg-h"><h3>Catat Pembayaran</h3><div class="hint" id="bayarSiapa"></div></div>
     <div class="dlg-b">
-      <label>Paket</label><select id="bayarPaket"></select>
       <div class="row">
         <div><label>Nominal (Rp)</label><input id="bayarHarga" type="number" min="0"></div>
-        <div><label>Masa aktif (hari)</label><input id="bayarHari" type="number" min="0"></div>
+        <div><label>Tambah masa aktif (hari)</label><input id="bayarHari" type="number" min="0" value="30"></div>
       </div>
       <label>Kecepatan (upload/download)</label><input id="bayarKec" class="mono" placeholder="kosong = tidak diubah, contoh 5M/10M">
+      <label>Pembayaran</label>
+      <div class="seg"><label><input type="radio" name="bStat" value="lunas" checked> ✅ Lunas</label><label><input type="radio" name="bStat" value="utang"> ⏳ Utang</label></div>
       <label>Catatan (opsional)</label><input id="bayarCatatan" maxlength="80" placeholder="Tunai / transfer / dll.">
       <div class="preview" id="bayarPreview"></div>
     </div>
-    <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn green" id="bayarOk" value="ok">Simpan pembayaran</button></div>
+    <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn green" id="bayarOk" value="ok">Simpan</button></div>
   </form>
 </dialog>
 
@@ -386,11 +333,26 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
         <div><label>No. HP</label><input id="eHp" maxlength="20"></div>
       </div>
       <label>Keterangan</label><input id="eKet" maxlength="80">
-      <label>Aktif sampai</label>
-      <div style="display:flex;gap:8px"><input id="eSampai" type="date"><button class="btn ghost" type="button" id="eTanpa">Tanpa batas</button></div>
       <label>Kecepatan (upload/download)</label>
       <input id="eKec" class="mono" placeholder="kosong = ikut default, 0/0 = tanpa batas, contoh 2M/5M">
+      <label>Aktif sampai</label>
+      <div style="display:flex;gap:8px"><input id="eSampai" type="date"><button class="btn ghost" type="button" id="eTanpa">Tanpa batas</button></div>
       <label class="check"><input type="checkbox" id="ePutus"> Putus otomatis saat masa aktif habis</label>
+    </div>
+    <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
+  </form>
+</dialog>
+
+<!-- Dialog pengguna -->
+<dialog id="dUser">
+  <form method="dialog" id="fUserEdit">
+    <div class="dlg-h"><h3>Ubah Pengguna</h3><div class="hint mono" id="uName"></div></div>
+    <div class="dlg-b">
+      <label>Nama</label><input id="uNama" maxlength="40">
+      <label>Hak akses</label>
+      <select id="uRole"><option value="operator">Operator</option><option value="lihat">Lihat saja</option><option value="admin">Admin</option></select>
+      <label>Password baru (kosongkan jika tidak diganti)</label><input id="uPass" type="text" minlength="6">
+      <label class="check"><input type="checkbox" id="uAktif"> Akun aktif (boleh login)</label>
     </div>
     <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
   </form>
@@ -400,14 +362,14 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const WA="6282151587277", TZ="Asia/Makassar";
-let token=""; try{token=sessionStorage.getItem("macToken")||""}catch(e){}
-let data=[], paket=[], bayarRows=[], keu=null, curDev=null, defRate="";
+const TZ="Asia/Makassar";
+let token="", me=null; try{token=localStorage.getItem("macToken")||""}catch(e){}
+let data=[], keu=null, curDev=null, defRate="", onRows=[], users=[], curUser=null;
 
 const rp=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n||0);
 const rpShort=n=>n>=1e6?(n/1e6).toFixed(n%1e6?1:0).replace(".",",")+" jt":n>=1e3?Math.round(n/1e3)+" rb":String(n||0);
 const tgl=iso=>iso?new Date(iso).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric",timeZone:TZ}):"";
-const tglJam=iso=>iso?new Date(iso).toLocaleString("id-ID",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",timeZone:TZ}):"";
+const tglJam=iso=>iso?new Date(iso).toLocaleString("id-ID",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",timeZone:TZ}):"";
 const toDateInput=iso=>iso?new Date(Date.parse(iso)+8*3600e3).toISOString().slice(0,10):"";
 const fromDateInput=v=>v?v+"T23:59:59+08:00":null;
 const bulanNow=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,7);
@@ -416,91 +378,80 @@ function normMac(s){const h=String(s||"").toUpperCase().replace(/[^0-9A-F]/g,"")
 const isRandom=mac=>(parseInt(mac[1],16)&2)===2;
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function show(el,type,txt){el.className="msg "+type;el.textContent=txt}
-let tt; function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),2800)}
+let tt; function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),3200)}
 const daysLeft=iso=>iso?Math.ceil((Date.parse(iso)-Date.now())/86400000):null;
 function kondisi(d){ if(d.status!=="aktif") return d.status; if(d.habis) return "habis"; const n=daysLeft(d.aktif_sampai); return (n!==null&&n<=7)?"hampir":"aktif"; }
+const bisa=role=>me&&({lihat:1,operator:2,admin:3}[me.role]||0)>=({lihat:1,operator:2,admin:3}[role]);
 
 async function api(path,opt={}){
   const headers={"content-type":"application/json"}; if(token) headers.authorization="Bearer "+token;
   let r; try{ r=await fetch("/api"+path,{...opt,headers}); }catch(e){ return {ok:false,pesan:"Tidak ada koneksi internet."}; }
   let j={}; try{j=await r.json()}catch(e){j={ok:false,pesan:"Server tidak merespons ("+r.status+")."}}
-  if(r.status===401 && !path.startsWith("/login")) logout("Sesi habis, silakan login lagi.");
+  if(r.status===401 && path!=="/login") logout("Sesi habis, silakan masuk lagi.");
   return j;
 }
 
+// ---------- Login ----------
+$("#fLogin").onsubmit=async e=>{
+  e.preventDefault(); const f=e.target, btn=f.querySelector("button"); btn.disabled=true;
+  const j=await api("/login",{method:"POST",body:JSON.stringify({username:f.username.value,password:f.password.value})});
+  btn.disabled=false;
+  if(!j.ok) return show($("#mLogin"),"bad",j.pesan);
+  token=j.token; try{localStorage.setItem("macToken",token)}catch(e){}
+  f.password.value=""; $("#mLogin").className="msg"; start(j.user);
+};
+function start(user){
+  me=user; $("#loginBox").classList.add("hidden"); $("#app").classList.remove("hidden");
+  $("#whoBox").classList.remove("hidden"); $("#whoName").textContent=me.nama||me.username;
+  $("#whoRole").textContent=me.username+" · "+({admin:"Admin",operator:"Operator",lihat:"Lihat saja"}[me.role]||me.role);
+  $$("[data-role]").forEach(el=>el.classList.toggle("hidden",!bisa(el.dataset.role)));
+  subTab("ringkasan");
+}
+function logout(msg){
+  token=""; me=null; try{localStorage.removeItem("macToken")}catch(e){}
+  $("#app").classList.add("hidden"); $("#whoBox").classList.add("hidden"); $("#loginBox").classList.remove("hidden");
+  if(msg) show($("#mLogin"),"warn",msg);
+}
+$("#bLogout").onclick=()=>logout();
+(async()=>{ if(!token) return; const j=await api("/saya"); if(j.ok) start(j.user); })();
+
 // ---------- Navigasi ----------
-$$("#mainnav button").forEach(b=>b.onclick=()=>{
-  $$("#mainnav button").forEach(x=>x.classList.toggle("on",x===b));
-  ["daftar","cek","admin"].forEach(t=>$("#t-"+t).classList.toggle("hidden",t!==b.dataset.tab));
-  if(b.dataset.tab==="admin"&&token) openAdmin();
-});
 $$("#subnav button[data-sub]").forEach(b=>b.onclick=()=>subTab(b.dataset.sub));
 function subTab(s){
   $$("#subnav button[data-sub]").forEach(x=>x.classList.toggle("on",x.dataset.sub===s));
-  ["ringkasan","online","pelanggan","pembayaran","paket","backup"].forEach(t=>$("#s-"+t).classList.toggle("hidden",t!==s));
-  if(s==="online") loadOnline();
-  if(s==="ringkasan") loadKeuangan(); if(s==="pelanggan") loadDev(); if(s==="pembayaran") loadBayar(); if(s==="paket") loadPaket();
+  ["ringkasan","online","pelanggan","pembayaran","backup"].forEach(t=>$("#s-"+t).classList.toggle("hidden",t!==s));
+  ({ringkasan:loadKeuangan,online:loadOnline,pelanggan:()=>{loadDev();loadDefault();},pembayaran:loadBayar,backup:loadUsers})[s]?.();
 }
-$$("input[name=mac]").forEach(i=>i.addEventListener("blur",()=>{const m=normMac(i.value);if(m)i.value=m}));
-
-// ---------- Publik ----------
-$("#fDaftar").onsubmit=async e=>{
-  e.preventDefault(); const f=e.target,m=$("#mDaftar"),mac=normMac(f.mac.value);
-  if(!mac) return show(m,"bad","Format MAC Address tidak valid. Contoh: A4:5E:60:12:34:56");
-  if(isRandom(mac)&&!confirm("MAC ini terlihat seperti MAC ACAK (Privasi).\nPastikan MAC acak sudah dimatikan lalu salin ulang MAC-nya.\n\nTetap kirim?")) return;
-  const btn=f.querySelector("button"); btn.disabled=true;
-  const j=await api("/daftar",{method:"POST",body:JSON.stringify({nama:f.nama.value,hp:f.hp.value,mac,ket:f.ket.value})});
-  btn.disabled=false; show(m,j.ok?(j.status==="aktif"?"ok":"warn"):"bad",j.pesan);
-  if(j.ok){
-    const teks="Assalamualaikum admin APP-BHP, saya sudah daftar HP.\nNama: "+f.nama.value+"\nNo. HP: "+f.hp.value+"\nMAC: "+mac+"\nMohon disetujui. Terima kasih.";
-    const wa=$("#waDaftar"); wa.href="https://wa.me/"+WA+"?text="+encodeURIComponent(teks); wa.classList.remove("hidden"); f.reset();
-  }
-};
-const statusInfo={aktif:["✅","Aktif","HP sudah bisa tersambung ke WiFi.","var(--okbg)"],menunggu:["⏳","Menunggu persetujuan","Admin akan segera menyetujui. Konfirmasi lewat WhatsApp agar lebih cepat.","var(--warnbg)"],
-  nonaktif:["⛔","Nonaktif","Hubungi admin untuk mengaktifkan kembali.","var(--graybg)"],habis:["⌛","Masa aktif habis","Silakan lakukan pembayaran ke admin untuk memperpanjang.","var(--badbg)"],
-  "tidak-terdaftar":["❌","Belum terdaftar","Silakan daftar lewat menu Daftar HP.","var(--badbg)"]};
-$("#fCek").onsubmit=async e=>{
-  e.preventDefault(); const mac=normMac(e.target.mac.value), box=$("#cekHasil");
-  if(!mac){box.innerHTML='<div class="msg bad">Format MAC Address tidak valid.</div>';return}
-  const j=await api("/cek?mac="+encodeURIComponent(mac));
-  if(!j.ok){box.innerHTML='<div class="msg bad">'+esc(j.pesan)+'</div>';return}
-  const [ic,t,d,bg]=statusInfo[j.status]||statusInfo["tidak-terdaftar"];
-  const exp=j.aktif_sampai?"<div class='hint'>Masa aktif sampai <b>"+tgl(j.aktif_sampai)+"</b></div>":"";
-  box.innerHTML=`<div class="statusbox" style="background:${bg}"><div class="ic">${ic}</div><div><b>${t}</b> <span class="mono hint">${mac}</span><div>${d}</div>${exp}</div></div>`;
-};
-
-// ---------- Login ----------
-$("#fLogin").onsubmit=async e=>{
-  e.preventDefault();
-  const j=await api("/login",{method:"POST",body:JSON.stringify({password:e.target.password.value})});
-  if(!j.ok) return show($("#mLogin"),"bad",j.pesan);
-  token=j.token; try{sessionStorage.setItem("macToken",token)}catch(e){}
-  e.target.reset(); $("#mLogin").className="msg"; openAdmin();
-};
-function openAdmin(){ $("#loginBox").classList.add("hidden"); $("#adminBox").classList.remove("hidden"); loadPaket(true); subTab($("#subnav button.on")?.dataset.sub||"ringkasan"); }
-function logout(msg){ token=""; try{sessionStorage.removeItem("macToken")}catch(e){} $("#adminBox").classList.add("hidden"); $("#loginBox").classList.remove("hidden"); if(msg) show($("#mLogin"),"warn",msg); }
-$("#bLogout").onclick=()=>logout();
+document.addEventListener("focusout",e=>{ if(e.target.matches("input[name=mac]")){const m=normMac(e.target.value);if(m)e.target.value=m} });
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-bayar]"); if(b) openBayar(b.dataset.bayar);
+  const l=e.target.closest("[data-lunas]"); if(l) lunasi(l.dataset.lunas);
+});
 
 // ---------- Ringkasan ----------
 async function loadKeuangan(){
   const [j,dv]=await Promise.all([api("/keuangan"),api("/perangkat")]); if(!j.ok) return; keu=j.data; if(dv.ok){ data=dv.data; defRate=dv.kecepatan_default||""; }
-  $("#kBulan").textContent=rp(keu.bulan_ini.t); $("#kBulanD").textContent=keu.bulan_ini.n+" transaksi · bulan lalu "+rp(keu.bulan_lalu.t);
-  $("#kHari").textContent=rp(keu.hari_ini.t); $("#kHariD").textContent=keu.hari_ini.n+" transaksi";
-  $("#kTotal").textContent=rp(keu.total.t); $("#kTotalD").textContent=keu.total.n+" transaksi";
-  const akt=data.filter(d=>d.status==="aktif"&&!d.habis).length, tunggu=data.filter(d=>d.status==="menunggu").length;
-  $("#kAktif").textContent=akt; $("#kAktifD").textContent=tunggu+" menunggu · "+keu.jumlah_habis+" habis";
-  // grafik 12 bulan
+  $("#kBulan").textContent=rp(keu.bulan_ini.t); $("#kBulanD").textContent=keu.bulan_ini.n+" lunas · bulan lalu "+rp(keu.bulan_lalu.t);
+  $("#kHari").textContent=rp(keu.hari_ini.t); $("#kHariD").textContent=keu.hari_ini.n+" lunas";
+  $("#kUtang").textContent=rp(keu.utang.t); $("#kUtangD").textContent=keu.utang.n+" tagihan";
+  $("#kTotal").textContent=rp(keu.total.t);
+  const akt=data.filter(d=>d.status==="aktif"&&!d.habis).length;
+  $("#kAktif").textContent=akt; $("#kAktifD").textContent=data.length+" terdaftar · "+keu.jumlah_habis+" habis";
   const map=Object.fromEntries(keu.per_bulan.map(x=>[x.bulan,x.total])); const months=[]; const [y,m]=bulanNow().split("-").map(Number);
-  for(let i=11;i>=0;i--){const d=new Date(Date.UTC(y,m-1-i,1));months.push(d.toISOString().slice(0,7))}
+  for(let i=11;i>=0;i--){months.push(new Date(Date.UTC(y,m-1-i,1)).toISOString().slice(0,7))}
   const max=Math.max(1,...months.map(b=>map[b]||0));
   $("#chart").innerHTML=months.map(b=>{const v=map[b]||0;return `<div class="bar" title="${namaBulan(b)}: ${rp(v)}"><b>${v?rpShort(v):""}</b><i style="height:${Math.max(2,v/max*100)}%;${b===bulanNow()?"":"opacity:.55"}"></i><span>${namaBulan(b)}</span></div>`}).join("");
-  $("#soonList").innerHTML=keu.hampir_habis.length?keu.hampir_habis.map(d=>`<div class="li"><div><b>${esc(d.nama)}</b><div class="hint">s/d ${tgl(d.aktif_sampai)} · ${daysLeft(d.aktif_sampai)} hari lagi</div></div><button class="btn sm green" data-bayar="${d.id}">Bayar</button></div>`).join(""):'<div class="empty">Tidak ada 🎉</div>';
-  $("#paketList").innerHTML=keu.per_paket.length?keu.per_paket.map(p=>`<div class="li"><div><b>${esc(p.paket)}</b> <span class="hint">× ${p.jumlah}</span></div><div class="money">${rp(p.total)}</div></div>`).join(""):'<div class="empty">Belum ada pembayaran bulan ini.</div>';
+  $("#soonList").innerHTML=keu.hampir_habis.length?keu.hampir_habis.map(d=>`<div class="li"><div><b>${esc(d.nama)}</b><div class="hint">s/d ${tgl(d.aktif_sampai)} · ${daysLeft(d.aktif_sampai)} hari lagi</div></div>${bisa("operator")?`<button class="btn sm green" data-bayar="${d.id}">Bayar</button>`:""}</div>`).join(""):'<div class="empty">Tidak ada 🎉</div>';
 }
-document.addEventListener("click",e=>{const b=e.target.closest("[data-bayar]");if(b) openBayar(b.dataset.bayar)});
+async function lunasi(id){
+  const d=data.find(x=>x.id===id); const nama=d?d.nama:"pelanggan ini";
+  if(!confirm("Tandai semua utang "+nama+" sudah LUNAS?\nNominalnya masuk pendapatan hari ini.")) return;
+  const j=await api("/lunas",{method:"POST",body:JSON.stringify({perangkat_id:id})}); toast(j.pesan);
+  refreshNow();
+}
+function refreshNow(){ const s=$("#subnav button.on")?.dataset.sub; if(s==="pelanggan") loadDev(); else if(s==="pembayaran") loadBayar(); else loadKeuangan(); }
 
 // ---------- User aktif ----------
-let onRows=[];
 const bytes=n=>{ if(n==null) return "–"; const u=["B","KB","MB","GB","TB"]; let i=0; while(n>=1024&&i<u.length-1){n/=1024;i++} return (i?n.toFixed(n<10?2:1):n).toString().replace(".",",")+" "+u[i]; };
 function sejak(iso){ if(!iso) return "belum ada laporan dari router"; const m=Math.round((Date.now()-Date.parse(iso))/60000); return "diperbarui "+(m<1?"baru saja":m+" menit lalu")+(m>5?" ⚠ router belum lapor lagi":""); }
 async function loadOnline(){
@@ -519,17 +470,17 @@ function renderOnline(){
     <td>${x.kecepatan?`<span class="spd">${esc(x.kecepatan)}</span>`:'<span class="spd free">Tanpa batas</span>'}</td>
     <td class="money">${bytes(x.down)} <span class="hint">/ ${bytes(x.up)}</span></td>
     <td>${x.aktif_sampai?expCell({aktif_sampai:x.aktif_sampai,habis:x.status==="habis",putus_otomatis:true}):'<span class="exp hint">Tanpa batas</span>'}</td>
-    <td>${x.id?`<button class="btn sm red" data-putus="${x.id}">Putuskan</button>`:""}</td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada HP yang tersambung'+(onRows.length?" yang cocok.":".")+'</td></tr>';
+    <td>${x.id&&bisa("operator")?`<button class="btn sm red" data-putus="${x.id}">Putuskan</button>`:""}</td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada HP yang tersambung.</td></tr>';
 }
 $("#oq").oninput=renderOnline; $("#oReload").onclick=loadOnline;
 $("#tbOnline").onclick=async e=>{
   const b=e.target.closest("[data-putus]"); if(!b) return; const x=onRows.find(r=>r.id===b.dataset.putus);
-  if(!confirm("Nonaktifkan "+(x?.nama||"")+" sekarang?\nHP akan terputus dalam ±2 menit. Bisa diaktifkan lagi di menu Pelanggan.")) return;
+  if(!confirm("Nonaktifkan "+(x?.nama||"")+" sekarang?\nHP terputus dalam ±2 menit. Bisa diaktifkan lagi di Daftar MAC.")) return;
   const j=await api("/perangkat/"+b.dataset.putus,{method:"PATCH",body:JSON.stringify({status:"nonaktif"})});
   toast(j.ok?"Dinonaktifkan. HP terputus dalam ±2 menit.":j.pesan);
 };
 
-// ---------- Pelanggan ----------
+// ---------- Daftar MAC ----------
 async function loadDev(){ const j=await api("/perangkat"); if(!j.ok) return; data=j.data; defRate=j.kecepatan_default||""; renderDev(); }
 function expCell(d){
   if(!d.aktif_sampai) return '<span class="exp hint">Tanpa batas</span>';
@@ -537,88 +488,86 @@ function expCell(d){
   const txt=d.habis||n<=0?"Habis "+tgl(d.aktif_sampai):tgl(d.aktif_sampai)+" ("+n+" hr)";
   return `<span class="exp ${cls}">${txt}</span>${d.putus_otomatis?"":'<div class="hint">tidak diputus</div>'}`;
 }
-function renderDev(){
-  const q=$("#q").value.toLowerCase().trim(), st=$("#fStatus").value, order={menunggu:0,habis:1,hampir:2,aktif:3,nonaktif:4};
-  const rows=data.map(d=>({...d,k:kondisi(d)}))
-    .filter(d=>!st||d.k===st||(st==="aktif"&&d.k==="hampir"))
-    .filter(d=>!q||[d.nama,d.mac,d.hp,d.ket].join(" ").toLowerCase().includes(q))
-    .sort((a,b)=>order[a.k]-order[b.k]||String(b.dibuat).localeCompare(String(a.dibuat)));
-  const label={aktif:"aktif",hampir:"aktif",menunggu:"menunggu",nonaktif:"nonaktif",habis:"habis"};
-  $("#tb").innerHTML=rows.length?rows.map(d=>`<tr>
-    <td><b>${esc(d.nama)}</b><div class="hint">${esc([d.hp,d.ket].filter(Boolean).join(" · "))}</div></td>
-    <td class="mono">${esc(d.mac)}${d.acak?'<div class="flag">⚠ MAC acak</div>':""}</td>
-    <td><span class="pill p-${label[d.k]==="aktif"?"aktif":label[d.k]}">${label[d.k]}</span></td>
-    <td>${expCell(d)}</td>
-    <td>${spdCell(d)}</td>
-    <td><div class="act">
-      <button class="btn sm green" data-bayar="${d.id}">Bayar</button>
-      ${d.status!=="aktif"?`<button class="btn sm ghost" data-a="aktif" data-id="${d.id}">${d.status==="menunggu"?"Setujui":"Aktifkan"}</button>`:`<button class="btn sm ghost" data-a="nonaktif" data-id="${d.id}">Nonaktifkan</button>`}
-      <button class="btn sm ghost" data-a="edit" data-id="${d.id}">Ubah</button>
-      <button class="btn sm red" data-a="hapus" data-id="${d.id}">Hapus</button>
-    </div></td></tr>`).join(""):'<tr><td colspan="6" class="empty">Tidak ada data.</td></tr>';
-}
-function spdTxt(r){ return !r||r==="0/0"?"Tanpa batas":r.replace("/"," ↑ / ")+" ↓"; }
 function spdCell(d){
   if(d.kecepatan==="0/0") return '<span class="spd free">Tanpa batas</span>';
   if(d.kecepatan) return `<span class="spd">${esc(d.kecepatan)}</span>`;
-  return defRate?`<span class="spd def" title="Ikut kecepatan default">${esc(defRate)}</span><div class="hint">default</div>`:'<span class="spd def">Tanpa batas</span><div class="hint">default</div>';
+  return `<span class="spd def">${defRate&&defRate!=="0/0"?esc(defRate):"Tanpa batas"}</span><div class="hint">default</div>`;
+}
+function bayarCell(d){
+  if(d.utang>0) return `<span class="pill p-habis">Utang ${rp(d.utang)}</span>${bisa("operator")?` <button class="btn sm green" data-lunas="${d.id}">Lunas</button>`:""}`;
+  if(d.bayar_terakhir) return `<span class="pill p-aktif">Lunas</span><div class="hint">${tgl(d.bayar_terakhir)}</div>`;
+  return '<span class="hint">–</span>';
+}
+function renderDev(){
+  const q=$("#q").value.toLowerCase().trim(), st=$("#fStatus").value, order={habis:0,hampir:1,aktif:2,menunggu:3,nonaktif:4};
+  const rows=data.map(d=>({...d,k:kondisi(d)}))
+    .filter(d=>!st||(st==="utang"?d.utang>0:d.k===st||(st==="aktif"&&d.k==="hampir")))
+    .filter(d=>!q||[d.nama,d.mac,d.hp,d.ket].join(" ").toLowerCase().includes(q))
+    .sort((a,b)=>(b.utang>0)-(a.utang>0)||order[a.k]-order[b.k]||String(a.nama).localeCompare(String(b.nama)));
+  const label={aktif:"aktif",hampir:"aktif",menunggu:"menunggu",nonaktif:"nonaktif",habis:"habis"};
+  const op=bisa("operator"), ad=bisa("admin");
+  $("#tb").innerHTML=rows.length?rows.map(d=>`<tr>
+    <td><b>${esc(d.nama)}</b><div class="hint">${esc([d.hp,d.ket].filter(Boolean).join(" · "))}</div></td>
+    <td class="mono">${esc(d.mac)}${d.acak?'<div class="flag">⚠ MAC acak</div>':""}</td>
+    <td><span class="pill p-${label[d.k]}">${label[d.k]}</span></td>
+    <td>${expCell(d)}</td>
+    <td>${spdCell(d)}</td>
+    <td>${bayarCell(d)}</td>
+    <td><div class="act">${op?`
+      <button class="btn sm green" data-bayar="${d.id}">Bayar</button>
+      ${d.status!=="aktif"?`<button class="btn sm ghost" data-a="aktif" data-id="${d.id}">Aktifkan</button>`:`<button class="btn sm ghost" data-a="nonaktif" data-id="${d.id}">Nonaktifkan</button>`}
+      <button class="btn sm ghost" data-a="edit" data-id="${d.id}">Ubah</button>`:""}
+      ${ad?`<button class="btn sm red" data-a="hapus" data-id="${d.id}">Hapus</button>`:""}
+    </div></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada HP terdaftar.</td></tr>';
 }
 $("#q").oninput=renderDev; $("#fStatus").onchange=renderDev; $("#bReload").onclick=loadDev;
 $("#tb").onclick=async e=>{
   const b=e.target.closest("button[data-a]"); if(!b) return;
   const d=data.find(x=>x.id===b.dataset.id), a=b.dataset.a; let j;
   if(a==="edit") return openEdit(d);
-  if(a==="hapus"){ if(!confirm("Hapus "+d.nama+" ("+d.mac+")?\nRiwayat pembayarannya tetap tersimpan.")) return; j=await api("/perangkat/"+d.id,{method:"DELETE"}); }
+  if(a==="hapus"){ if(!confirm("Hapus "+d.nama+" ("+d.mac+")?\nHP langsung tidak bisa konek. Riwayat pembayarannya tetap tersimpan.")) return; j=await api("/perangkat/"+d.id,{method:"DELETE"}); }
   else j=await api("/perangkat/"+d.id,{method:"PATCH",body:JSON.stringify({status:a})});
-  toast(j.ok?"Tersimpan. MikroTik menyesuaikan dalam ±2 menit.":j.pesan); loadDev();
+  toast(j.ok?"Tersimpan. Router menyesuaikan dalam ±2 menit.":j.pesan); loadDev();
 };
-$("#fTambah").onsubmit=async e=>{
-  e.preventDefault(); const f=e.target,mac=normMac(f.mac.value); if(!mac) return toast("Format MAC tidak valid.");
-  const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,mac,hp:f.hp.value,status:f.status.value,kecepatan:f.kecepatan.value})});
-  toast(j.ok?"Ditambahkan: "+j.data.nama:j.pesan); if(j.ok){f.reset();loadDev()}
-};
-$("#fImpor").onsubmit=async e=>{
-  e.preventDefault(); const m=$("#mImpor"),btn=e.target.querySelector("button"),status=$("#imporStatus").value;
-  const lines=$("#imporText").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean); if(!lines.length) return show(m,"bad","Belum ada data.");
-  let ok=0,ada=0,salah=[]; btn.disabled=true;
-  for(let i=0;i<lines.length;i++){
-    const parts=lines[i].split(/[;,\t]/), mac=normMac(parts[0]), nama=parts.slice(1).join(" ").trim()||"tanpa nama";
-    if(!mac){salah.push(lines[i]);continue}
-    show(m,"warn","Mengimpor "+(i+1)+" dari "+lines.length+"…");
-    const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama,mac,status})});
-    if(j.ok) ok++; else if(String(j.pesan||"").includes("sudah ada")) ada++; else salah.push(lines[i]);
+$("#fDaftar").onsubmit=async e=>{
+  e.preventDefault(); const f=e.target, m=$("#mDaftar"), mac=normMac(f.mac.value);
+  if(!mac) return show(m,"bad","Format MAC tidak valid. Contoh: A4:5E:60:12:34:56");
+  if(isRandom(mac)&&!confirm("MAC ini terlihat seperti MAC ACAK (Privasi).\nPastikan MAC acak di HP pelanggan sudah dimatikan.\n\nTetap daftarkan?")) return;
+  const btn=f.querySelector("button[type=submit]"); btn.disabled=true;
+  const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,mac,hp:f.hp.value,ket:f.ket.value,kecepatan:f.kecepatan.value,status:"aktif"})});
+  if(!j.ok){ btn.disabled=false; return show(m,"bad",j.pesan); }
+  const harga=+f.harga.value||0, hari=+f.hari.value||0, st=f.bayar.value;
+  let pesan="✅ "+j.data.nama+" terdaftar dan aktif. HP bisa konek dalam ±2 menit.";
+  if(harga>0||hari>0){
+    const k=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:j.data.id,harga,hari,status:st,paket:"Pendaftaran"})});
+    pesan+=" "+(k.ok?k.pesan:"(Pembayaran gagal dicatat: "+k.pesan+")");
   }
-  btn.disabled=false; show(m,salah.length?"warn":"ok","Selesai: "+ok+" ditambahkan, "+ada+" sudah ada"+(salah.length?", "+salah.length+" gagal":""));
-  if(!salah.length) $("#imporText").value=""; loadDev();
+  btn.disabled=false; show(m,st==="utang"&&harga>0?"warn":"ok",pesan);
+  f.nama.value=""; f.mac.value=""; f.hp.value=""; f.ket.value=""; f.harga.value=""; loadDev();
 };
-
 // ---------- Dialog Bayar ----------
 function openBayar(id){
   curDev=data.find(x=>x.id===id); if(!curDev) return;
   $("#bayarSiapa").textContent=curDev.nama+" · "+curDev.mac+(curDev.aktif_sampai?" · aktif s/d "+tgl(curDev.aktif_sampai):"");
-  $("#bayarPaket").innerHTML=paket.map(p=>`<option value="${p.id}">${esc(p.nama)} — ${rp(p.harga)}${p.hari?" / "+p.hari+" hari":""}</option>`).join("")+'<option value="">Lainnya (isi manual)</option>';
-  $("#bayarCatatan").value=""; fillPaket(); $("#dBayar").showModal();
+  $("#bayarHarga").value=""; $("#bayarHari").value=30; $("#bayarKec").value=""; $("#bayarCatatan").value="";
+  $$("input[name=bStat]")[0].checked=true; previewBayar(); $("#dBayar").showModal();
 }
-function fillPaket(){ const p=paket.find(x=>x.id===$("#bayarPaket").value); if(p){$("#bayarHarga").value=p.harga;$("#bayarHari").value=p.hari;$("#bayarKec").value=p.kecepatan||""} else {$("#bayarHarga").value="";$("#bayarHari").value=30;$("#bayarKec").value=""} previewBayar(); }
 function previewBayar(){
   const hari=+$("#bayarHari").value||0, base=curDev.aktif_sampai&&Date.parse(curDev.aktif_sampai)>Date.now()?Date.parse(curDev.aktif_sampai):Date.now();
-  $("#bayarPreview").innerHTML=hari?`Masa aktif menjadi sampai <b>${tgl(new Date(base+hari*86400000).toISOString())}</b>`+(base>Date.now()+60000?" (melanjutkan sisa masa aktif)":""):"Masa aktif tidak berubah (hanya dicatat sebagai pendapatan).";
-  const k=$("#bayarKec").value.trim();
-  $("#bayarPreview").innerHTML+="<br>"+(k?`Kecepatan menjadi <b>${esc(k)}</b> (upload/download)`:`Kecepatan tetap: <b>${esc(curDev.kecepatan||("default "+(defRate||"tanpa batas")))}</b>`);
+  const k=$("#bayarKec").value.trim(), st=$("input[name=bStat]:checked").value;
+  $("#bayarPreview").innerHTML=(hari?`Masa aktif sampai <b>${tgl(new Date(base+hari*86400000).toISOString())}</b>`:"Masa aktif tidak berubah")
+    +"<br>"+(k?`Kecepatan menjadi <b>${esc(k)}</b>`:`Kecepatan tetap: <b>${esc(curDev.kecepatan||("default "+(defRate||"tanpa batas")))}</b>`)
+    +"<br>"+(st==="lunas"?"✅ Langsung masuk pendapatan hari ini":"⏳ Dicatat sebagai <b>utang</b>, masuk pendapatan saat ditandai Lunas");
 }
-$("#bayarPaket").onchange=fillPaket; $("#bayarHari").oninput=previewBayar; $("#bayarKec").oninput=previewBayar;
+["#bayarHari","#bayarKec"].forEach(s=>$(s).oninput=previewBayar); $$("input[name=bStat]").forEach(r=>r.onchange=previewBayar);
 $("#fBayar").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
-  const pid=$("#bayarPaket").value, p=paket.find(x=>x.id===pid);
-  const body={perangkat_id:curDev.id,harga:$("#bayarHarga").value,hari:$("#bayarHari").value,catatan:$("#bayarCatatan").value,kecepatan:$("#bayarKec").value.trim()};
-  if(p) body.paket_id=p.id; else body.paket="Lainnya";
-  if(p && +body.hari!==p.hari){ delete body.paket_id; body.paket=p.nama; }
-  const j=await api("/bayar",{method:"POST",body:JSON.stringify(body)});
-  toast(j.ok?j.pesan:j.pesan); if(j.ok){ $("#dBayar").close(); if(!$("#s-pelanggan").classList.contains("hidden")) loadDev(); else loadKeuangan(); }
+  const j=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:curDev.id,harga:$("#bayarHarga").value,hari:$("#bayarHari").value,kecepatan:$("#bayarKec").value.trim(),status:$("input[name=bStat]:checked").value,catatan:$("#bayarCatatan").value})});
+  toast(j.pesan); if(j.ok){ $("#dBayar").close(); refreshNow(); }
 };
 
-// ---------- Dialog Edit ----------
-function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#eKec").value=d.kecepatan||""; $("#dEdit").showModal(); }
+// ---------- Dialog Ubah ----------
+function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eKec").value=d.kecepatan||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#dEdit").showModal(); }
 $("#eTanpa").onclick=()=>{$("#eSampai").value=""};
 $("#fEdit").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
@@ -627,55 +576,83 @@ $("#fEdit").onsubmit=async e=>{
 };
 
 // ---------- Pembayaran ----------
-$("#bulanPick").value=bulanNow(); $("#bulanPick").onchange=loadBayar;
+let bayarRows=[];
+$("#bulanPick").value=bulanNow(); $("#bulanPick").onchange=loadBayar; $("#bStatus").onchange=loadBayar;
 async function loadBayar(){
-  const j=await api("/pembayaran?bulan="+$("#bulanPick").value); if(!j.ok) return; bayarRows=j.data;
-  $("#totalBulan").textContent=rp(bayarRows.reduce((s,x)=>s+x.harga,0));
-  $("#tbBayar").innerHTML=bayarRows.length?bayarRows.map(x=>`<tr><td>${tglJam(x.tanggal)}</td><td><b>${esc(x.nama)}</b><div class="hint mono">${esc(x.mac)}</div></td><td>${esc(x.paket)}</td><td class="money">${rp(x.harga)}</td><td>${x.sampai?tgl(x.sampai):"–"}</td><td class="hint">${esc(x.catatan)}</td><td><button class="btn sm red" data-hapus-bayar="${x.id}">Hapus</button></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada pembayaran di bulan ini.</td></tr>';
+  const st=$("#bStatus").value, bln=$("#bulanPick").value||bulanNow();
+  const [j,k]=await Promise.all([api(st==="utang"?"/pembayaran?status=utang":"/pembayaran?bulan="+bln),api("/keuangan")]); if(!j.ok) return;
+  const inMonth=iso=>iso&&new Date(Date.parse(iso)+8*3600e3).toISOString().slice(0,7)===bln;
+  bayarRows=st==="lunas"?j.data.filter(x=>x.status==="lunas"):j.data;
+  const lunas=j.data.filter(x=>x.status==="lunas"&&inMonth(x.tanggal_lunas)), utang=j.data.filter(x=>x.status==="utang"&&inMonth(x.tanggal));
+  $("#pLunas").textContent=rp(lunas.reduce((a,x)=>a+x.harga,0)); $("#pLunasD").textContent=lunas.length+" pembayaran · "+namaBulan(bln)+" "+bln.slice(0,4);
+  $("#pUtang").textContent=st==="utang"?"–":rp(utang.reduce((a,x)=>a+x.harga,0)); $("#pUtangD").textContent=st==="utang"?"":utang.length+" tagihan";
+  if(k.ok){ $("#pUtangAll").textContent=rp(k.data.utang.t); $("#pUtangAllD").textContent=k.data.utang.n+" tagihan"; }
+  const op=bisa("operator"), ad=bisa("admin");
+  $("#tbBayar").innerHTML=bayarRows.length?bayarRows.map(x=>`<tr>
+    <td>${tglJam(x.tanggal)}${x.oleh?`<div class="hint">oleh ${esc(x.oleh)}</div>`:""}</td>
+    <td><b>${esc(x.nama)}</b><div class="hint mono">${esc(x.mac)}</div></td>
+    <td class="money">${rp(x.harga)}</td>
+    <td>${x.status==="utang"?'<span class="pill p-habis">Utang</span>':`<span class="pill p-aktif">Lunas</span><div class="hint">${tgl(x.tanggal_lunas)}</div>`}</td>
+    <td>${x.sampai?tgl(x.sampai):"–"}${x.kecepatan?`<div class="hint">${esc(x.kecepatan)}</div>`:""}</td>
+    <td class="hint">${esc(x.catatan)}</td>
+    <td><div class="act">${x.status==="utang"&&op?`<button class="btn sm green" data-bl="${x.id}">Lunas</button>`:""}${ad?`<button class="btn sm red" data-bh="${x.id}">Hapus</button>`:""}</div></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada pembayaran.</td></tr>';
 }
 $("#tbBayar").onclick=async e=>{
-  const b=e.target.closest("[data-hapus-bayar]"); if(!b||!confirm("Hapus catatan pembayaran ini?\nMasa aktif HP tidak ikut berubah.")) return;
-  const j=await api("/pembayaran/"+b.dataset.hapusBayar,{method:"DELETE"}); toast(j.pesan||"Dihapus."); loadBayar();
+  const l=e.target.closest("[data-bl]"), h=e.target.closest("[data-bh]"); let j;
+  if(l){ if(!confirm("Tandai LUNAS? Nominalnya masuk pendapatan hari ini.")) return; j=await api("/pembayaran/"+l.dataset.bl,{method:"PATCH",body:JSON.stringify({status:"lunas"})}); }
+  else if(h){ if(!confirm("Hapus catatan pembayaran ini?\nMasa aktif HP tidak ikut berubah.")) return; j=await api("/pembayaran/"+h.dataset.bh,{method:"DELETE"}); }
+  else return;
+  toast(j.pesan||"Tersimpan."); loadBayar();
 };
 
-// ---------- Paket ----------
-async function loadPaket(silent){
-  const j=await api("/paket"); if(!j.ok) return; paket=j.data; if(silent) return;
-  $("#tbPaket").innerHTML=paket.map(p=>`<tr data-id="${p.id}"><td><input value="${esc(p.nama)}" data-f="nama"></td><td><input type="number" min="0" value="${p.harga}" data-f="harga"></td><td><input type="number" min="0" value="${p.hari}" data-f="hari"></td><td><input class="mono" value="${esc(p.kecepatan||"")}" data-f="kecepatan" placeholder="ikut default"></td><td><div class="act"><button class="btn sm" data-p="simpan">Simpan</button><button class="btn sm red" data-p="hapus">Hapus</button></div></td></tr>`).join("")||'<tr><td colspan="5" class="empty">Belum ada paket.</td></tr>';
-  loadDefault();
-}
+// ---------- Kecepatan default ----------
 async function loadDefault(){ const j=await api("/pengaturan"); if(!j.ok) return; defRate=j.data.kecepatan_default||""; $("#defRate").value=defRate; $("#defNow").textContent="Sekarang: "+(defRate&&defRate!=="0/0"?defRate+" (upload/download)":"tanpa batas"); }
 $("#fDefault").onsubmit=async e=>{ e.preventDefault(); const j=await api("/pengaturan",{method:"PATCH",body:JSON.stringify({kecepatan_default:$("#defRate").value})}); toast(j.ok?j.pesan+". Router menyesuaikan dalam ±2 menit.":j.pesan); if(j.ok) loadDefault(); };
-$("#tbPaket").onclick=async e=>{
-  const b=e.target.closest("button[data-p]"); if(!b) return; const tr=b.closest("tr"), id=tr.dataset.id; let j;
-  if(b.dataset.p==="hapus"){ if(!confirm("Hapus paket ini?")) return; j=await api("/paket/"+id,{method:"DELETE"}); }
-  else { const v=f=>tr.querySelector(`[data-f=${f}]`).value; j=await api("/paket/"+id,{method:"PATCH",body:JSON.stringify({nama:v("nama"),harga:v("harga"),hari:v("hari"),kecepatan:v("kecepatan")})}); }
-  toast(j.ok?"Paket tersimpan.":j.pesan); loadPaket();
-};
-$("#fPaket").onsubmit=async e=>{
+
+// ---------- Pengguna ----------
+const roleTxt={admin:"Admin",operator:"Operator",lihat:"Lihat saja"};
+async function loadUsers(){
+  if(!bisa("admin")) return;
+  const j=await api("/pengguna"); if(!j.ok) return; users=j.data;
+  $("#tbUser").innerHTML=users.map(u=>`<tr>
+    <td><b>${esc(u.username)}</b><div class="hint">${esc(u.nama||"")}${u.utama?" · akun utama":""}</div></td>
+    <td><span class="pill ${u.role==="admin"?"p-aktif":u.role==="operator"?"p-menunggu":"p-nonaktif"}">${roleTxt[u.role]||u.role}</span></td>
+    <td>${u.aktif?'<span class="hint">aktif</span>':'<span class="pill p-habis">diblokir</span>'}</td>
+    <td class="hint">${u.utama?"–":(u.login_terakhir?tglJam(u.login_terakhir):"belum pernah")}</td>
+    <td>${u.utama?"":`<div class="act"><button class="btn sm ghost" data-u="edit" data-n="${esc(u.username)}">Ubah</button><button class="btn sm red" data-u="hapus" data-n="${esc(u.username)}">Hapus</button></div>`}</td></tr>`).join("");
+}
+$("#fUser").onsubmit=async e=>{
   e.preventDefault(); const f=e.target;
-  const j=await api("/paket",{method:"POST",body:JSON.stringify({nama:f.nama.value,harga:f.harga.value,hari:f.hari.value,kecepatan:f.kecepatan.value})});
-  toast(j.ok?"Paket ditambahkan.":j.pesan); if(j.ok){f.reset();loadPaket()}
+  const j=await api("/pengguna",{method:"POST",body:JSON.stringify({nama:f.nama.value,username:f.username.value,password:f.password.value,role:f.role.value})});
+  toast(j.pesan); if(j.ok){ f.reset(); loadUsers(); }
+};
+$("#tbUser").onclick=async e=>{
+  const b=e.target.closest("[data-u]"); if(!b) return; const u=users.find(x=>x.username===b.dataset.n);
+  if(b.dataset.u==="hapus"){ if(!confirm("Hapus pengguna "+u.username+"?")) return; const j=await api("/pengguna/"+encodeURIComponent(u.username),{method:"DELETE"}); toast(j.pesan); return loadUsers(); }
+  curUser=u; $("#uName").textContent=u.username; $("#uNama").value=u.nama||""; $("#uRole").value=u.role; $("#uPass").value=""; $("#uAktif").checked=!!u.aktif; $("#dUser").showModal();
+};
+$("#fUserEdit").onsubmit=async e=>{
+  if(e.submitter?.value!=="ok") return; e.preventDefault();
+  const body={nama:$("#uNama").value,role:$("#uRole").value,aktif:$("#uAktif").checked}; if($("#uPass").value) body.password=$("#uPass").value;
+  const j=await api("/pengguna/"+encodeURIComponent(curUser.username),{method:"PATCH",body:JSON.stringify(body)});
+  toast(j.pesan); if(j.ok){ $("#dUser").close(); loadUsers(); }
 };
 
 // ---------- Backup & Excel ----------
 function download(name,content,type){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500); }
 const csv=(rows,cols)=>"﻿"+[cols.map(c=>c[0]).join(";"),...rows.map(r=>cols.map(c=>{const v=String(c[1](r)??"");return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(";"))].join("\r\n");
 const today=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,10);
+const bayarCols=[["Tanggal",r=>tglJam(r.tanggal)],["Nama",r=>r.nama],["MAC",r=>r.mac],["Nominal",r=>r.harga],["Status",r=>r.status],["Tanggal lunas",r=>tglJam(r.tanggal_lunas)],["Hari",r=>r.hari],["Aktif sampai",r=>toDateInput(r.sampai)],["Kecepatan",r=>r.kecepatan],["Catatan",r=>r.catatan],["Oleh",r=>r.oleh]];
+$("#bCsvBayar").onclick=()=>download("pembayaran-"+($("#bStatus").value==="utang"?"utang":$("#bulanPick").value)+".csv",csv(bayarRows,bayarCols),"text/csv");
+$("#bCsvAll").onclick=async()=>{ const j=await api("/pembayaran"); if(!j.ok) return toast(j.pesan); download("pembayaran-semua-"+today()+".csv",csv(j.data,bayarCols),"text/csv"); };
+$("#bCsvPel").onclick=()=>download("daftar-mac-"+today()+".csv",csv(data,[["Nama",r=>r.nama],["No HP",r=>r.hp],["MAC",r=>r.mac],["Status",r=>r.habis?"habis":r.status],["Aktif sampai",r=>toDateInput(r.aktif_sampai)],["Kecepatan",r=>r.kecepatan||"default"],["Utang",r=>r.utang||0],["Keterangan",r=>r.ket]]),"text/csv");
 $("#bBackup").onclick=async()=>{ const j=await api("/backup"); if(!j.aplikasi) return toast(j.pesan||"Gagal backup."); download("backup-portal-mac-"+today()+".json",JSON.stringify(j,null,1),"application/json"); toast("Backup diunduh."); };
-$("#bCsvPel").onclick=async()=>{ const j=await api("/perangkat"); if(!j.ok) return;
-  download("pelanggan-"+today()+".csv",csv(j.data,[["Nama",r=>r.nama],["No HP",r=>r.hp],["MAC",r=>r.mac],["Status",r=>r.habis?"habis":r.status],["Aktif sampai",r=>toDateInput(r.aktif_sampai)],["Kecepatan",r=>r.kecepatan||"default"],["Keterangan",r=>r.ket],["Terdaftar",r=>toDateInput(r.dibuat)]]),"text/csv"); };
-const bayarCols=[["Tanggal",r=>tglJam(r.tanggal)],["Nama",r=>r.nama],["MAC",r=>r.mac],["Paket",r=>r.paket],["Nominal",r=>r.harga],["Hari",r=>r.hari],["Aktif sampai",r=>toDateInput(r.sampai)],["Catatan",r=>r.catatan]];
-$("#bCsvBayar").onclick=()=>download("pembayaran-"+$("#bulanPick").value+".csv",csv(bayarRows,bayarCols),"text/csv");
-$("#bCsvAll").onclick=async()=>{ const j=await api("/pembayaran"); if(!j.ok) return; download("pembayaran-semua-"+today()+".csv",csv(j.data,bayarCols),"text/csv"); };
 $("#bRestore").onclick=async()=>{
   const f=$("#restoreFile").files[0], m=$("#mRestore"); if(!f) return show(m,"bad","Pilih file backup dulu.");
   let isi; try{ isi=JSON.parse(await f.text()); }catch(e){ return show(m,"bad","File bukan backup yang valid."); }
   if(!confirm("Yakin restore? Semua data saat ini akan DIGANTI dengan isi file:\n"+(isi.perangkat||[]).length+" pelanggan, "+(isi.pembayaran||[]).length+" pembayaran.")) return;
   const j=await api("/restore",{method:"POST",body:JSON.stringify(isi)}); show(m,j.ok?"ok":"bad",j.pesan);
 };
-
-if(token) { /* tetap di tab Daftar; admin dibuka saat klik tab Admin */ }
 </script>
 </body>
 </html>
