@@ -3,131 +3,177 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Daftar MAC Address HP — Julfikar.Com Wifi</title>
+<title>Julfikar.Com Wifi (APP-NET) — Daftar HP</title>
+<meta name="theme-color" content="#0b3d91">
 <style>
-  :root{--bg:#f3f5f9;--card:#fff;--ink:#1c2433;--muted:#6b7588;--line:#e2e6ee;--pri:#0b6bcb;--pri2:#0954a0;
-        --ok:#1a8a4a;--okbg:#e6f6ec;--warn:#a96500;--warnbg:#fff4e0;--bad:#c0362c;--badbg:#fdecea}
-  *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
-  header{background:linear-gradient(135deg,#0b6bcb,#0a3f7a);color:#fff;padding:22px 16px 56px}
-  header h1{margin:0;font-size:1.35rem}
-  header p{margin:4px 0 0;opacity:.85;font-size:.92rem}
-  main{max-width:960px;margin:-40px auto 40px;padding:0 12px}
-  .tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-  .tab{border:0;background:rgba(255,255,255,.9);padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
-  .tab.on{background:var(--pri);color:#fff}
-  .card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(20,30,60,.07);margin-bottom:14px}
-  h2{margin:0 0 14px;font-size:1.1rem}
-  label{display:block;font-size:.85rem;font-weight:600;margin:12px 0 4px}
-  input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:1rem;background:#fff;color:var(--ink)}
-  input:focus,select:focus{outline:2px solid #b9d6f5;border-color:var(--pri)}
-  .mono{font-family:ui-monospace,Consolas,monospace;letter-spacing:.5px}
-  button.btn{border:0;background:var(--pri);color:#fff;padding:11px 18px;border-radius:9px;font-weight:600;font-size:.95rem;cursor:pointer}
-  button.btn:hover{background:var(--pri2)} button.btn:disabled{opacity:.6;cursor:wait}
-  button.ghost{background:#eef2f8;color:var(--ink)} button.ghost:hover{background:#e1e7f1}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-  @media(max-width:600px){.row{grid-template-columns:1fr}}
-  .msg{padding:11px 13px;border-radius:9px;margin-top:14px;font-size:.93rem;display:none}
-  .msg.ok{display:block;background:var(--okbg);color:var(--ok)}
-  .msg.warn{display:block;background:var(--warnbg);color:var(--warn)}
-  .msg.bad{display:block;background:var(--badbg);color:var(--bad)}
-  details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-top:10px}
-  summary{cursor:pointer;font-weight:600}
-  ol{padding-left:20px;margin:8px 0} li{margin:3px 0}
-  .hint{color:var(--muted);font-size:.85rem}
-  .hidden{display:none!important}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-  @media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
-  .stat{background:var(--card);border-radius:12px;padding:12px 14px;box-shadow:0 1px 6px rgba(20,30,60,.06)}
-  .stat b{display:block;font-size:1.5rem} .stat span{color:var(--muted);font-size:.8rem}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-  .toolbar input{flex:1;min-width:180px} .toolbar select{width:auto}
-  table{width:100%;border-collapse:collapse;font-size:.9rem}
-  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
-  th{font-size:.75rem;text-transform:uppercase;color:var(--muted);letter-spacing:.4px}
-  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.75rem;font-weight:700}
-  .p-aktif{background:var(--okbg);color:var(--ok)} .p-menunggu{background:var(--warnbg);color:var(--warn)} .p-nonaktif{background:#eceff4;color:var(--muted)}
-  .flag{color:var(--bad);font-size:.75rem;font-weight:600}
-  .act{display:flex;gap:4px;flex-wrap:wrap}
-  .act button{border:0;padding:5px 9px;border-radius:7px;font-size:.78rem;font-weight:600;cursor:pointer}
-  .a-ok{background:var(--okbg);color:var(--ok)} .a-off{background:#eceff4;color:var(--ink)} .a-del{background:var(--badbg);color:var(--bad)} .a-ed{background:#e8f0fb;color:var(--pri)}
-  .tablewrap{overflow-x:auto}
-  .empty{text-align:center;color:var(--muted);padding:26px}
-  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:10px 0 30px}
+:root{
+  --bg:#eef2f8;--card:#ffffff;--ink:#0f1b2d;--muted:#64708a;--line:#e3e8f1;--soft:#f6f8fc;
+  --pri:#1458d6;--pri2:#0b3d91;--acc:#13b5a6;
+  --ok:#14804a;--okbg:#e4f6ec;--warn:#9a5b00;--warnbg:#fff3dc;--bad:#c2372b;--badbg:#fdeceb;--gray:#5d6880;--graybg:#eef1f6;
+  --r:16px;--shadow:0 1px 2px rgba(16,30,60,.06),0 6px 24px rgba(16,30,60,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--pri)}
+.hero{background:radial-gradient(1200px 400px at 85% -10%,rgba(19,181,166,.45),transparent 60%),linear-gradient(135deg,#0b3d91,#1458d6 60%,#1d6fe8);color:#fff;padding:26px 18px 84px}
+.hero-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.logo{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none;backdrop-filter:blur(4px)}
+.hero h1{margin:0;font-size:1.35rem;letter-spacing:-.01em}
+.hero p{margin:2px 0 0;opacity:.85;font-size:.93rem}
+.wrap{max-width:1100px;margin:-62px auto 40px;padding:0 14px}
+.nav{display:flex;gap:6px;background:rgba(255,255,255,.14);padding:6px;border-radius:14px;width:max-content;max-width:100%;overflow-x:auto;margin-bottom:14px;backdrop-filter:blur(6px)}
+.nav button{border:0;background:transparent;color:#fff;font:inherit;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.nav button.on{background:#fff;color:var(--pri2);box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:14px}
+.card h2{margin:0 0 4px;font-size:1.08rem;letter-spacing:-.01em}
+.card .sub{color:var(--muted);font-size:.88rem;margin:0 0 14px}
+label{display:block;font-size:.82rem;font-weight:600;margin:12px 0 5px;color:#2b3850}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:.97rem;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:3px solid #cfe0ff;border-color:var(--pri)}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.3px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--pri);color:#fff;padding:10px 16px;border-radius:10px;font:inherit;font-weight:600;font-size:.93rem;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{filter:brightness(1.07)} .btn:disabled{opacity:.6;cursor:wait}
+.btn.ghost{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+.btn.green{background:#16a05d} .btn.red{background:var(--badbg);color:var(--bad)} .btn.sm{padding:6px 10px;font-size:.8rem;border-radius:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 14px}
+@media(max-width:640px){.row,.row3{grid-template-columns:1fr}}
+.msg{padding:11px 13px;border-radius:10px;margin-top:12px;font-size:.92rem;display:none}
+.msg.ok{display:block;background:var(--okbg);color:var(--ok)} .msg.warn{display:block;background:var(--warnbg);color:var(--warn)} .msg.bad{display:block;background:var(--badbg);color:var(--bad)}
+.hint{color:var(--muted);font-size:.84rem}
+.hidden{display:none!important}
+.steps{counter-reset:s;list-style:none;padding:0;margin:6px 0 0;display:grid;gap:10px}
+.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:.93rem}
+.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:#e7efff;color:var(--pri);font-weight:700;display:grid;place-items:center;font-size:.85rem}
+details{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:10px;background:var(--soft)}
+summary{cursor:pointer;font-weight:600}
+.grid-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+@media(max-width:860px){.grid-kpi{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.kpi .l{color:var(--muted);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.kpi .v{font-size:1.45rem;font-weight:800;margin-top:4px;letter-spacing:-.02em}
+.kpi .d{font-size:.8rem;color:var(--muted);margin-top:2px}
+.kpi.blue{background:linear-gradient(135deg,#1458d6,#0b3d91);color:#fff}.kpi.blue .l,.kpi.blue .d{color:rgba(255,255,255,.8)}
+.two{display:grid;grid-template-columns:1.6fr 1fr;gap:14px}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.chart{display:flex;align-items:flex-end;gap:8px;height:190px;padding-top:12px;border-bottom:1px solid var(--line)}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.bar i{display:block;width:100%;max-width:42px;background:linear-gradient(180deg,#3b82f6,#1458d6);border-radius:8px 8px 3px 3px;min-height:3px;transition:height .4s}
+.bar b{font-size:.68rem;color:var(--muted);font-weight:600;margin-bottom:4px;white-space:nowrap}
+.bar span{font-size:.72rem;color:var(--muted);margin-top:6px}
+.subnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.subnav button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 14px;border-radius:999px;font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;box-shadow:var(--shadow)}
+.subnav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.toolbar input{flex:1;min-width:180px}.toolbar select{width:auto}
+.tablewrap{overflow-x:auto;margin:0 -6px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:hover td{background:#fafcff}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.74rem;font-weight:700;white-space:nowrap}
+.p-aktif{background:var(--okbg);color:var(--ok)}.p-menunggu{background:var(--warnbg);color:var(--warn)}.p-nonaktif{background:var(--graybg);color:var(--gray)}.p-habis{background:var(--badbg);color:var(--bad)}
+.exp{font-size:.82rem;white-space:nowrap}.exp.soon{color:var(--warn);font-weight:700}.exp.gone{color:var(--bad);font-weight:700}
+.flag{color:var(--bad);font-size:.72rem;font-weight:600}
+.act{display:flex;gap:4px;flex-wrap:wrap}
+.empty{text-align:center;color:var(--muted);padding:28px}
+.list{display:grid;gap:8px}
+.li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-size:.9rem}
+.money{font-variant-numeric:tabular-nums;font-weight:700}
+dialog{border:0;border-radius:18px;padding:0;width:min(520px,94vw);box-shadow:0 20px 60px rgba(10,20,50,.35)}
+dialog::backdrop{background:rgba(10,20,40,.45);backdrop-filter:blur(2px)}
+.dlg-h{padding:18px 20px 0}.dlg-h h3{margin:0;font-size:1.1rem}.dlg-b{padding:4px 20px 8px}.dlg-f{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px 18px}
+.preview{background:#eef5ff;border:1px dashed #9cc0ff;color:#0b3d91;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:.9rem}
+.check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.9rem;font-weight:500}
+.check input{width:auto}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#0f1b2d;color:#fff;padding:11px 18px;border-radius:12px;font-size:.92rem;opacity:0;transition:.25s;z-index:99;max-width:90vw;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.wa{background:#16a05d}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
+.statusbox{display:flex;gap:14px;align-items:center;padding:16px;border-radius:14px;margin-top:14px}
+.statusbox .ic{font-size:1.8rem}
 </style>
 </head>
 <body>
-<header>
-  <h1>📶 Daftar MAC Address HP</h1>
-  <p>Julfikar.Com Wifi — daftarkan HP Anda agar bisa tersambung ke jaringan</p>
+<header class="hero">
+  <div class="hero-in">
+    <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5a15 15 0 0 1 20 0"/><path d="M5.5 12a10 10 0 0 1 13 0"/><path d="M9 15.5a5 5 0 0 1 6 0"/><circle cx="12" cy="19" r="1.3" fill="#fff"/></svg></div>
+    <div><h1>Julfikar.Com Wifi <span style="opacity:.8;font-weight:600">· APP-NET</span></h1><p>HP wajib didaftarkan agar bisa tersambung ke WiFi</p></div>
+  </div>
 </header>
 
-<main>
-  <div class="tabs">
-    <button class="tab on" data-tab="daftar">Daftar</button>
-    <button class="tab" data-tab="cek">Cek Status</button>
-    <button class="tab" data-tab="admin">Admin</button>
-  </div>
+<div class="wrap">
+  <nav class="nav" id="mainnav">
+    <button class="on" data-tab="daftar">Daftar HP</button>
+    <button data-tab="cek">Cek Status</button>
+    <button data-tab="admin">Admin</button>
+  </nav>
 
-  <!-- ===== DAFTAR ===== -->
+  <!-- ================= DAFTAR ================= -->
   <section id="t-daftar">
     <div class="card">
+      <h2>Cara Daftar</h2>
+      <ol class="steps">
+        <li><span>Buka halaman ini memakai <b>data seluler / kuota HP</b>. WiFi belum bisa dipakai sebelum HP terdaftar.</span></li>
+        <li><span>Matikan <b>MAC acak / Privasi</b> untuk WiFi kami (panduan di bawah), lalu salin <b>Alamat MAC</b> HP.</span></li>
+        <li><span>Isi formulir, kirim, lalu tekan <b>Konfirmasi via WhatsApp</b> ke admin.</span></li>
+        <li><span>Setelah disetujui admin, tunggu ±2 menit lalu sambungkan HP ke WiFi.</span></li>
+      </ol>
+    </div>
+    <div class="card">
       <h2>Formulir Pendaftaran</h2>
+      <p class="sub">Data hanya dipakai untuk mengatur akses WiFi.</p>
       <form id="fDaftar" autocomplete="off">
         <div class="row">
           <div><label>Nama</label><input name="nama" required maxlength="50" placeholder="Nama lengkap"></div>
-          <div><label>No. HP / WA</label><input name="hp" maxlength="20" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
+          <div><label>No. HP / WhatsApp</label><input name="hp" maxlength="20" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
         </div>
         <label>MAC Address WiFi HP</label>
         <input name="mac" class="mono" required maxlength="17" placeholder="A4:5E:60:12:34:56" autocapitalize="characters">
         <div class="hint">Boleh pakai titik dua, strip, atau tanpa pemisah.</div>
         <label>Keterangan (opsional)</label>
         <input name="ket" maxlength="80" placeholder="Misal: HP anak, rumah blok C">
-        <div style="margin-top:16px"><button class="btn" type="submit">Kirim Pendaftaran</button></div>
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" type="submit">Kirim Pendaftaran</button>
+          <a id="waDaftar" class="btn wa hidden" target="_blank" rel="noopener">Konfirmasi via WhatsApp</a>
+        </div>
         <div id="mDaftar" class="msg"></div>
       </form>
     </div>
-
     <div class="card">
-      <h2>Penting: matikan MAC acak dulu</h2>
-      <p class="hint" style="margin-top:-6px">HP sekarang memakai MAC acak (Private Address). Kalau tidak dimatikan, MAC yang didaftarkan tidak akan cocok dan HP tetap tidak bisa tersambung.</p>
-      <details open>
-        <summary>Android (Samsung, Xiaomi, Oppo, Vivo, dll.)</summary>
-        <ol>
-          <li>Buka <b>Pengaturan → WiFi</b>, sambungkan ke WiFi kami.</li>
-          <li>Ketuk ikon ⚙️ / panah di samping nama WiFi.</li>
-          <li>Cari <b>Privasi</b> / <b>Jenis alamat MAC</b> → pilih <b>MAC perangkat / MAC ponsel</b>.</li>
-          <li>Di halaman yang sama biasanya terlihat <b>Alamat MAC</b> — salin ke formulir di atas.</li>
-        </ol>
-      </details>
-      <details>
-        <summary>iPhone</summary>
-        <ol>
-          <li>Buka <b>Pengaturan → Wi-Fi</b>, ketuk ikon ⓘ di samping nama WiFi kami.</li>
-          <li>Ubah <b>Alamat Wi-Fi Pribadi</b> menjadi <b>Mati</b>.</li>
-          <li>Alamat yang tampil di bawahnya (<b>Alamat Wi-Fi</b>) adalah MAC yang didaftarkan.</li>
-        </ol>
-      </details>
+      <h2>Cara melihat MAC & mematikan MAC acak</h2>
+      <p class="sub">Kalau MAC acak tidak dimatikan, MAC yang didaftarkan tidak cocok dan HP tetap tidak bisa tersambung.</p>
+      <details open><summary>Android (Samsung, Xiaomi, Oppo, Vivo, Infinix, Realme)</summary>
+        <ol><li>Pengaturan → WiFi → ketuk ⚙️ di samping nama WiFi kami.</li>
+        <li><b>Privasi / Jenis alamat MAC</b> → pilih <b>MAC perangkat / MAC ponsel</b>.</li>
+        <li>Salin <b>Alamat MAC</b> yang tampil di halaman tersebut.</li></ol></details>
+      <details><summary>iPhone</summary>
+        <ol><li>Pengaturan → Wi-Fi → ketuk ⓘ di samping nama WiFi kami.</li>
+        <li>Ubah <b>Alamat Wi-Fi Pribadi</b> menjadi <b>Mati</b>.</li>
+        <li>Salin <b>Alamat Wi-Fi</b> yang tampil di bawahnya.</li></ol></details>
+      <p class="hint" style="margin:12px 0 0">Butuh bantuan? <a href="https://wa.me/6282151587277" target="_blank" rel="noopener">WhatsApp admin 0821-5158-7277</a></p>
     </div>
   </section>
 
-  <!-- ===== CEK ===== -->
+  <!-- ================= CEK ================= -->
   <section id="t-cek" class="hidden">
     <div class="card">
-      <h2>Cek Status Pendaftaran</h2>
+      <h2>Cek Status HP</h2>
+      <p class="sub">Masukkan MAC Address HP untuk melihat status dan masa aktif.</p>
       <form id="fCek">
-        <label>MAC Address</label>
         <input name="mac" class="mono" required placeholder="A4:5E:60:12:34:56">
-        <div style="margin-top:14px"><button class="btn" type="submit">Cek</button></div>
-        <div id="mCek" class="msg"></div>
+        <div style="margin-top:12px"><button class="btn" type="submit">Cek</button></div>
       </form>
+      <div id="cekHasil"></div>
     </div>
   </section>
 
-  <!-- ===== ADMIN ===== -->
+  <!-- ================= ADMIN ================= -->
   <section id="t-admin" class="hidden">
-    <div id="loginBox" class="card">
+    <div id="loginBox" class="card" style="max-width:420px">
       <h2>Masuk Admin</h2>
+      <p class="sub">Khusus pengelola Julfikar.Com Wifi.</p>
       <form id="fLogin">
         <label>Password</label>
         <input name="password" type="password" required autocomplete="current-password">
@@ -137,212 +183,418 @@
     </div>
 
     <div id="adminBox" class="hidden">
-      <div class="stats">
-        <div class="stat"><b id="sTotal">0</b><span>Total</span></div>
-        <div class="stat"><b id="sAktif" style="color:var(--ok)">0</b><span>Aktif</span></div>
-        <div class="stat"><b id="sTunggu" style="color:var(--warn)">0</b><span>Menunggu</span></div>
-        <div class="stat"><b id="sOff" style="color:var(--muted)">0</b><span>Nonaktif</span></div>
+      <div class="subnav" id="subnav">
+        <button class="on" data-sub="ringkasan">📊 Ringkasan</button>
+        <button data-sub="pelanggan">📱 Pelanggan</button>
+        <button data-sub="pembayaran">💰 Pembayaran</button>
+        <button data-sub="paket">🏷️ Paket</button>
+        <button data-sub="backup">🗄️ Backup</button>
+        <button id="bLogout" style="margin-left:auto">Keluar</button>
       </div>
 
-      <div class="card">
-        <div class="toolbar">
-          <input id="q" placeholder="Cari nama, MAC, no. HP…">
-          <select id="fStatus">
-            <option value="">Semua status</option><option value="menunggu">Menunggu</option>
-            <option value="aktif">Aktif</option><option value="nonaktif">Nonaktif</option>
-          </select>
-          <button class="btn ghost" id="bReload" type="button">↻ Muat ulang</button>
-          <button class="btn ghost" id="bLogout" type="button">Keluar</button>
+      <!-- RINGKASAN -->
+      <div id="s-ringkasan">
+        <div class="grid-kpi">
+          <div class="kpi blue"><div class="l">Pendapatan bulan ini</div><div class="v money" id="kBulan">–</div><div class="d" id="kBulanD"></div></div>
+          <div class="kpi"><div class="l">Hari ini</div><div class="v money" id="kHari">–</div><div class="d" id="kHariD"></div></div>
+          <div class="kpi"><div class="l">Total pendapatan</div><div class="v money" id="kTotal">–</div><div class="d" id="kTotalD"></div></div>
+          <div class="kpi"><div class="l">Pelanggan aktif</div><div class="v" id="kAktif">–</div><div class="d" id="kAktifD"></div></div>
         </div>
-        <div class="tablewrap">
-          <table>
-            <thead><tr><th>Nama</th><th>MAC Address</th><th>No. HP</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+        <div class="two">
+          <div class="card">
+            <h2>Pendapatan per bulan</h2>
+            <p class="sub">12 bulan terakhir</p>
+            <div class="chart" id="chart"></div>
+          </div>
+          <div class="card">
+            <h2>Segera habis (7 hari)</h2>
+            <p class="sub">Ingatkan pelanggan untuk bayar</p>
+            <div class="list" id="soonList"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Pendapatan bulan ini per paket</h2>
+          <div class="list" id="paketList" style="margin-top:10px"></div>
+        </div>
+      </div>
+
+      <!-- PELANGGAN -->
+      <div id="s-pelanggan" class="hidden">
+        <div class="card">
+          <div class="toolbar">
+            <input id="q" placeholder="Cari nama, MAC, no. HP…">
+            <select id="fStatus">
+              <option value="">Semua</option><option value="menunggu">Menunggu</option><option value="aktif">Aktif</option>
+              <option value="hampir">Segera habis</option><option value="habis">Habis</option><option value="nonaktif">Nonaktif</option>
+            </select>
+            <button class="btn ghost" id="bReload" type="button">↻</button>
+          </div>
+          <div class="tablewrap"><table>
+            <thead><tr><th>Pelanggan</th><th>MAC Address</th><th>Status</th><th>Masa aktif</th><th>Aksi</th></tr></thead>
             <tbody id="tb"></tbody>
-          </table>
+          </table></div>
         </div>
-        <div id="mAdmin" class="msg"></div>
+        <div class="two">
+          <div class="card">
+            <h2>Tambah Pelanggan</h2>
+            <form id="fTambah" autocomplete="off">
+              <div class="row">
+                <div><label>Nama</label><input name="nama" required maxlength="50"></div>
+                <div><label>No. HP</label><input name="hp" maxlength="20"></div>
+              </div>
+              <label>MAC Address</label><input name="mac" class="mono" required>
+              <label>Status</label><select name="status"><option value="aktif">Aktif</option><option value="menunggu">Menunggu</option><option value="nonaktif">Nonaktif</option></select>
+              <div style="margin-top:14px"><button class="btn" type="submit">Tambah</button></div>
+            </form>
+          </div>
+          <div class="card">
+            <h2>Impor Banyak</h2>
+            <p class="sub">Satu baris per HP: <span class="mono">MAC;Nama</span></p>
+            <form id="fImpor">
+              <textarea id="imporText" rows="6" class="mono" placeholder="AA:B8:C6:D5:6D:8A;V2026"></textarea>
+              <label>Status untuk semua</label><select id="imporStatus"><option value="aktif">Aktif</option><option value="menunggu">Menunggu</option></select>
+              <div style="margin-top:14px"><button class="btn" type="submit">Impor</button></div>
+              <div id="mImpor" class="msg"></div>
+            </form>
+          </div>
+        </div>
       </div>
 
-      <div class="card">
-        <h2>Tambah Perangkat Manual</h2>
-        <form id="fTambah" autocomplete="off">
-          <div class="row">
-            <div><label>Nama</label><input name="nama" required maxlength="50"></div>
-            <div><label>MAC Address</label><input name="mac" class="mono" required></div>
+      <!-- PEMBAYARAN -->
+      <div id="s-pembayaran" class="hidden">
+        <div class="card">
+          <div class="toolbar">
+            <input type="month" id="bulanPick" style="max-width:200px">
+            <button class="btn ghost" id="bCsvBayar" type="button">⬇ Excel (CSV)</button>
+            <div style="margin-left:auto;font-weight:700">Total: <span class="money" id="totalBulan">–</span></div>
           </div>
-          <div class="row">
-            <div><label>No. HP</label><input name="hp" maxlength="20"></div>
-            <div><label>Status</label><select name="status"><option value="aktif">Aktif</option><option value="menunggu">Menunggu</option><option value="nonaktif">Nonaktif</option></select></div>
-          </div>
-          <div style="margin-top:14px"><button class="btn" type="submit">Tambah</button></div>
-          <div id="mTambah" class="msg"></div>
-        </form>
+          <div class="tablewrap"><table>
+            <thead><tr><th>Tanggal</th><th>Pelanggan</th><th>Paket</th><th>Nominal</th><th>Masa aktif s/d</th><th>Catatan</th><th></th></tr></thead>
+            <tbody id="tbBayar"></tbody>
+          </table></div>
+        </div>
       </div>
 
-      <div class="card">
-        <h2>Impor Banyak</h2>
-        <p class="hint" style="margin-top:-6px">Tempel satu perangkat per baris dengan format <span class="mono">MAC;Nama</span>, misalnya <span class="mono">A4:5E:60:12:34:56;Budi</span>. MAC yang sudah terdaftar akan dilewati.</p>
-        <form id="fImpor" autocomplete="off">
-          <textarea id="imporText" rows="8" class="mono" style="width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:.9rem" placeholder="AA:B8:C6:D5:6D:8A;V2026&#10;C6:C5:EE:F2:F4:13;OPPO-A18"></textarea>
-          <div class="row">
-            <div><label>Status untuk semua</label><select id="imporStatus"><option value="aktif">Aktif</option><option value="menunggu">Menunggu</option></select></div>
+      <!-- PAKET -->
+      <div id="s-paket" class="hidden">
+        <div class="card">
+          <h2>Daftar Paket</h2>
+          <p class="sub">Dipakai saat mencatat pembayaran. Masa aktif 0 hari = tanpa batas waktu.</p>
+          <div class="tablewrap"><table>
+            <thead><tr><th>Nama paket</th><th>Harga (Rp)</th><th>Masa aktif (hari)</th><th></th></tr></thead>
+            <tbody id="tbPaket"></tbody>
+          </table></div>
+          <form id="fPaket" class="row3" style="margin-top:14px;align-items:end" autocomplete="off">
+            <div><label>Nama paket baru</label><input name="nama" required placeholder="Bulanan Rumah"></div>
+            <div><label>Harga (Rp)</label><input name="harga" type="number" min="0" required placeholder="100000"></div>
+            <div><label>Masa aktif (hari)</label><input name="hari" type="number" min="0" required placeholder="30"></div>
+            <div style="margin-top:12px"><button class="btn" type="submit">+ Tambah paket</button></div>
+          </form>
+        </div>
+      </div>
+
+      <!-- BACKUP -->
+      <div id="s-backup" class="hidden">
+        <div class="two">
+          <div class="card">
+            <h2>Backup database</h2>
+            <p class="sub">Unduh seluruh data (pelanggan, paket, pembayaran) ke satu file. Simpan di laptop / Google Drive secara rutin, misalnya seminggu sekali.</p>
+            <button class="btn" id="bBackup" type="button">⬇ Download backup</button>
+            <div style="margin-top:18px">
+              <h2>Download Excel</h2>
+              <p class="sub">File CSV, bisa dibuka di Excel / Google Sheets.</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn ghost" id="bCsvPel" type="button">Pelanggan (CSV)</button>
+                <button class="btn ghost" id="bCsvAll" type="button">Semua pembayaran (CSV)</button>
+              </div>
+            </div>
           </div>
-          <div style="margin-top:14px"><button class="btn" type="submit">Impor</button></div>
-          <div id="mImpor" class="msg"></div>
-        </form>
+          <div class="card">
+            <h2>Restore dari backup</h2>
+            <p class="sub">⚠️ Semua data saat ini akan <b>diganti</b> dengan isi file backup.</p>
+            <input type="file" id="restoreFile" accept=".json,application/json">
+            <div style="margin-top:12px"><button class="btn red" id="bRestore" type="button">Restore</button></div>
+            <div id="mRestore" class="msg"></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
-</main>
-<footer>Perangkat berstatus <b>Aktif</b> akan otomatis masuk ke MikroTik dalam beberapa menit.</footer>
+</div>
+<footer>Julfikar.Com Wifi (APP-NET) · Admin <a href="https://wa.me/6282151587277" target="_blank" rel="noopener">0821-5158-7277</a></footer>
+
+<!-- Dialog bayar -->
+<dialog id="dBayar">
+  <form method="dialog" id="fBayar">
+    <div class="dlg-h"><h3>Catat Pembayaran</h3><div class="hint" id="bayarSiapa"></div></div>
+    <div class="dlg-b">
+      <label>Paket</label><select id="bayarPaket"></select>
+      <div class="row">
+        <div><label>Nominal (Rp)</label><input id="bayarHarga" type="number" min="0"></div>
+        <div><label>Masa aktif (hari)</label><input id="bayarHari" type="number" min="0"></div>
+      </div>
+      <label>Catatan (opsional)</label><input id="bayarCatatan" maxlength="80" placeholder="Tunai / transfer / dll.">
+      <div class="preview" id="bayarPreview"></div>
+    </div>
+    <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn green" id="bayarOk" value="ok">Simpan pembayaran</button></div>
+  </form>
+</dialog>
+
+<!-- Dialog edit -->
+<dialog id="dEdit">
+  <form method="dialog" id="fEdit">
+    <div class="dlg-h"><h3>Ubah Pelanggan</h3><div class="hint mono" id="editMac"></div></div>
+    <div class="dlg-b">
+      <div class="row">
+        <div><label>Nama</label><input id="eNama" maxlength="50"></div>
+        <div><label>No. HP</label><input id="eHp" maxlength="20"></div>
+      </div>
+      <label>Keterangan</label><input id="eKet" maxlength="80">
+      <label>Aktif sampai</label>
+      <div style="display:flex;gap:8px"><input id="eSampai" type="date"><button class="btn ghost" type="button" id="eTanpa">Tanpa batas</button></div>
+      <label class="check"><input type="checkbox" id="ePutus"> Putus otomatis saat masa aktif habis</label>
+    </div>
+    <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const $ = (s) => document.querySelector(s);
-let token = "";
-try { token = sessionStorage.getItem("macToken") || ""; } catch (e) {}
-let data = [];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const WA="6282151587277", TZ="Asia/Makassar";
+let token=""; try{token=sessionStorage.getItem("macToken")||""}catch(e){}
+let data=[], paket=[], bayarRows=[], keu=null, curDev=null;
 
+const rp=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n||0);
+const rpShort=n=>n>=1e6?(n/1e6).toFixed(n%1e6?1:0).replace(".",",")+" jt":n>=1e3?Math.round(n/1e3)+" rb":String(n||0);
+const tgl=iso=>iso?new Date(iso).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric",timeZone:TZ}):"";
+const tglJam=iso=>iso?new Date(iso).toLocaleString("id-ID",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",timeZone:TZ}):"";
+const toDateInput=iso=>iso?new Date(Date.parse(iso)+8*3600e3).toISOString().slice(0,10):"";
+const fromDateInput=v=>v?v+"T23:59:59+08:00":null;
+const bulanNow=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,7);
+const namaBulan=b=>{const[y,m]=b.split("-");return new Date(Date.UTC(+y,+m-1,15)).toLocaleDateString("id-ID",{month:"short",timeZone:"UTC"})};
 function normMac(s){const h=String(s||"").toUpperCase().replace(/[^0-9A-F]/g,"");return h.length===12?h.match(/../g).join(":"):null}
-function isRandom(mac){return (parseInt(mac[1],16)&2)===2}
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+const isRandom=mac=>(parseInt(mac[1],16)&2)===2;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function show(el,type,txt){el.className="msg "+type;el.textContent=txt}
-function tgl(iso){try{return new Date(iso).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"})}catch(e){return""}}
+let tt; function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),2800)}
+const daysLeft=iso=>iso?Math.ceil((Date.parse(iso)-Date.now())/86400000):null;
+function kondisi(d){ if(d.status!=="aktif") return d.status; if(d.habis) return "habis"; const n=daysLeft(d.aktif_sampai); return (n!==null&&n<=7)?"hampir":"aktif"; }
 
 async function api(path,opt={}){
-  const headers={"content-type":"application/json"};
-  if(token) headers.authorization="Bearer "+token;
-  const r=await fetch("/api"+path,{...opt,headers});
-  let j={}; try{j=await r.json()}catch(e){j={ok:false,pesan:"Server tidak merespons dengan benar ("+r.status+")."}}
-  if(r.status===401 && path.startsWith("/perangkat")) logout("Sesi habis, silakan login lagi.");
+  const headers={"content-type":"application/json"}; if(token) headers.authorization="Bearer "+token;
+  let r; try{ r=await fetch("/api"+path,{...opt,headers}); }catch(e){ return {ok:false,pesan:"Tidak ada koneksi internet."}; }
+  let j={}; try{j=await r.json()}catch(e){j={ok:false,pesan:"Server tidak merespons ("+r.status+")."}}
+  if(r.status===401 && !path.startsWith("/login")) logout("Sesi habis, silakan login lagi.");
   return j;
 }
 
-// Tabs
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
-  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===b));
+// ---------- Navigasi ----------
+$$("#mainnav button").forEach(b=>b.onclick=()=>{
+  $$("#mainnav button").forEach(x=>x.classList.toggle("on",x===b));
   ["daftar","cek","admin"].forEach(t=>$("#t-"+t).classList.toggle("hidden",t!==b.dataset.tab));
-  if(b.dataset.tab==="admin"&&token) loadAdmin();
+  if(b.dataset.tab==="admin"&&token) openAdmin();
 });
+$$("#subnav button[data-sub]").forEach(b=>b.onclick=()=>subTab(b.dataset.sub));
+function subTab(s){
+  $$("#subnav button[data-sub]").forEach(x=>x.classList.toggle("on",x.dataset.sub===s));
+  ["ringkasan","pelanggan","pembayaran","paket","backup"].forEach(t=>$("#s-"+t).classList.toggle("hidden",t!==s));
+  if(s==="ringkasan") loadKeuangan(); if(s==="pelanggan") loadDev(); if(s==="pembayaran") loadBayar(); if(s==="paket") loadPaket();
+}
+$$("input[name=mac]").forEach(i=>i.addEventListener("blur",()=>{const m=normMac(i.value);if(m)i.value=m}));
 
-// Format MAC saat diketik
-document.querySelectorAll("input[name=mac]").forEach(i=>i.addEventListener("blur",()=>{const m=normMac(i.value);if(m)i.value=m}));
-
-// Daftar
-$("#fDaftar").onsubmit=async(e)=>{
-  e.preventDefault();
-  const f=e.target, m=$("#mDaftar"), mac=normMac(f.mac.value);
+// ---------- Publik ----------
+$("#fDaftar").onsubmit=async e=>{
+  e.preventDefault(); const f=e.target,m=$("#mDaftar"),mac=normMac(f.mac.value);
   if(!mac) return show(m,"bad","Format MAC Address tidak valid. Contoh: A4:5E:60:12:34:56");
-  if(isRandom(mac) && !confirm("MAC ini terlihat seperti MAC ACAK (Private Address).\nPastikan MAC acak sudah dimatikan, lalu salin ulang MAC-nya.\n\nTetap kirim?")) return;
+  if(isRandom(mac)&&!confirm("MAC ini terlihat seperti MAC ACAK (Privasi).\nPastikan MAC acak sudah dimatikan lalu salin ulang MAC-nya.\n\nTetap kirim?")) return;
   const btn=f.querySelector("button"); btn.disabled=true;
   const j=await api("/daftar",{method:"POST",body:JSON.stringify({nama:f.nama.value,hp:f.hp.value,mac,ket:f.ket.value})});
-  btn.disabled=false;
-  show(m,j.ok?(j.status==="aktif"?"ok":"warn"):"bad",j.pesan);
-  if(j.ok) f.reset();
+  btn.disabled=false; show(m,j.ok?(j.status==="aktif"?"ok":"warn"):"bad",j.pesan);
+  if(j.ok){
+    const teks="Assalamualaikum admin Julfikar.Com Wifi, saya sudah daftar HP.\nNama: "+f.nama.value+"\nNo. HP: "+f.hp.value+"\nMAC: "+mac+"\nMohon disetujui. Terima kasih.";
+    const wa=$("#waDaftar"); wa.href="https://wa.me/"+WA+"?text="+encodeURIComponent(teks); wa.classList.remove("hidden"); f.reset();
+  }
 };
-
-// Cek
-const statusTeks={aktif:"✅ AKTIF — HP sudah bisa tersambung.",menunggu:"⏳ MENUNGGU persetujuan admin.",nonaktif:"⛔ NONAKTIF — hubungi admin.","tidak-terdaftar":"❌ Belum terdaftar."};
-$("#fCek").onsubmit=async(e)=>{
-  e.preventDefault();
-  const m=$("#mCek"), mac=normMac(e.target.mac.value);
-  if(!mac) return show(m,"bad","Format MAC Address tidak valid.");
+const statusInfo={aktif:["✅","Aktif","HP sudah bisa tersambung ke WiFi.","var(--okbg)"],menunggu:["⏳","Menunggu persetujuan","Admin akan segera menyetujui. Konfirmasi lewat WhatsApp agar lebih cepat.","var(--warnbg)"],
+  nonaktif:["⛔","Nonaktif","Hubungi admin untuk mengaktifkan kembali.","var(--graybg)"],habis:["⌛","Masa aktif habis","Silakan lakukan pembayaran ke admin untuk memperpanjang.","var(--badbg)"],
+  "tidak-terdaftar":["❌","Belum terdaftar","Silakan daftar lewat menu Daftar HP.","var(--badbg)"]};
+$("#fCek").onsubmit=async e=>{
+  e.preventDefault(); const mac=normMac(e.target.mac.value), box=$("#cekHasil");
+  if(!mac){box.innerHTML='<div class="msg bad">Format MAC Address tidak valid.</div>';return}
   const j=await api("/cek?mac="+encodeURIComponent(mac));
-  if(!j.ok) return show(m,"bad",j.pesan);
-  show(m,j.status==="aktif"?"ok":j.status==="menunggu"?"warn":"bad",mac+" : "+statusTeks[j.status]);
+  if(!j.ok){box.innerHTML='<div class="msg bad">'+esc(j.pesan)+'</div>';return}
+  const [ic,t,d,bg]=statusInfo[j.status]||statusInfo["tidak-terdaftar"];
+  const exp=j.aktif_sampai?"<div class='hint'>Masa aktif sampai <b>"+tgl(j.aktif_sampai)+"</b></div>":"";
+  box.innerHTML=`<div class="statusbox" style="background:${bg}"><div class="ic">${ic}</div><div><b>${t}</b> <span class="mono hint">${mac}</span><div>${d}</div>${exp}</div></div>`;
 };
 
-// Login
-$("#fLogin").onsubmit=async(e)=>{
+// ---------- Login ----------
+$("#fLogin").onsubmit=async e=>{
   e.preventDefault();
   const j=await api("/login",{method:"POST",body:JSON.stringify({password:e.target.password.value})});
   if(!j.ok) return show($("#mLogin"),"bad",j.pesan);
   token=j.token; try{sessionStorage.setItem("macToken",token)}catch(e){}
-  e.target.reset(); $("#mLogin").className="msg"; loadAdmin();
+  e.target.reset(); $("#mLogin").className="msg"; openAdmin();
 };
-function logout(msg){
-  token=""; try{sessionStorage.removeItem("macToken")}catch(e){}
-  $("#adminBox").classList.add("hidden"); $("#loginBox").classList.remove("hidden");
-  if(msg) show($("#mLogin"),"warn",msg);
-}
+function openAdmin(){ $("#loginBox").classList.add("hidden"); $("#adminBox").classList.remove("hidden"); loadPaket(true); subTab($("#subnav button.on")?.dataset.sub||"ringkasan"); }
+function logout(msg){ token=""; try{sessionStorage.removeItem("macToken")}catch(e){} $("#adminBox").classList.add("hidden"); $("#loginBox").classList.remove("hidden"); if(msg) show($("#mLogin"),"warn",msg); }
 $("#bLogout").onclick=()=>logout();
-$("#bReload").onclick=()=>loadAdmin();
 
-async function loadAdmin(){
-  const j=await api("/perangkat");
-  if(!j.ok) return;
-  data=j.data||[];
-  $("#loginBox").classList.add("hidden"); $("#adminBox").classList.remove("hidden");
-  render();
+// ---------- Ringkasan ----------
+async function loadKeuangan(){
+  const [j,dv]=await Promise.all([api("/keuangan"),api("/perangkat")]); if(!j.ok) return; keu=j.data; if(dv.ok) data=dv.data;
+  $("#kBulan").textContent=rp(keu.bulan_ini.t); $("#kBulanD").textContent=keu.bulan_ini.n+" transaksi · bulan lalu "+rp(keu.bulan_lalu.t);
+  $("#kHari").textContent=rp(keu.hari_ini.t); $("#kHariD").textContent=keu.hari_ini.n+" transaksi";
+  $("#kTotal").textContent=rp(keu.total.t); $("#kTotalD").textContent=keu.total.n+" transaksi";
+  const akt=data.filter(d=>d.status==="aktif"&&!d.habis).length, tunggu=data.filter(d=>d.status==="menunggu").length;
+  $("#kAktif").textContent=akt; $("#kAktifD").textContent=tunggu+" menunggu · "+keu.jumlah_habis+" habis";
+  // grafik 12 bulan
+  const map=Object.fromEntries(keu.per_bulan.map(x=>[x.bulan,x.total])); const months=[]; const [y,m]=bulanNow().split("-").map(Number);
+  for(let i=11;i>=0;i--){const d=new Date(Date.UTC(y,m-1-i,1));months.push(d.toISOString().slice(0,7))}
+  const max=Math.max(1,...months.map(b=>map[b]||0));
+  $("#chart").innerHTML=months.map(b=>{const v=map[b]||0;return `<div class="bar" title="${namaBulan(b)}: ${rp(v)}"><b>${v?rpShort(v):""}</b><i style="height:${Math.max(2,v/max*100)}%;${b===bulanNow()?"":"opacity:.55"}"></i><span>${namaBulan(b)}</span></div>`}).join("");
+  $("#soonList").innerHTML=keu.hampir_habis.length?keu.hampir_habis.map(d=>`<div class="li"><div><b>${esc(d.nama)}</b><div class="hint">s/d ${tgl(d.aktif_sampai)} · ${daysLeft(d.aktif_sampai)} hari lagi</div></div><button class="btn sm green" data-bayar="${d.id}">Bayar</button></div>`).join(""):'<div class="empty">Tidak ada 🎉</div>';
+  $("#paketList").innerHTML=keu.per_paket.length?keu.per_paket.map(p=>`<div class="li"><div><b>${esc(p.paket)}</b> <span class="hint">× ${p.jumlah}</span></div><div class="money">${rp(p.total)}</div></div>`).join(""):'<div class="empty">Belum ada pembayaran bulan ini.</div>';
 }
-function render(){
-  const q=$("#q").value.toLowerCase().trim(), st=$("#fStatus").value;
-  $("#sTotal").textContent=data.length;
-  $("#sAktif").textContent=data.filter(d=>d.status==="aktif").length;
-  $("#sTunggu").textContent=data.filter(d=>d.status==="menunggu").length;
-  $("#sOff").textContent=data.filter(d=>d.status==="nonaktif").length;
-  const order={menunggu:0,aktif:1,nonaktif:2};
-  const rows=data
-    .filter(d=>!st||d.status===st)
+document.addEventListener("click",e=>{const b=e.target.closest("[data-bayar]");if(b) openBayar(b.dataset.bayar)});
+
+// ---------- Pelanggan ----------
+async function loadDev(){ const j=await api("/perangkat"); if(!j.ok) return; data=j.data; renderDev(); }
+function expCell(d){
+  if(!d.aktif_sampai) return '<span class="exp hint">Tanpa batas</span>';
+  const n=daysLeft(d.aktif_sampai), cls=d.habis||n<=0?"gone":n<=7?"soon":"";
+  const txt=d.habis||n<=0?"Habis "+tgl(d.aktif_sampai):tgl(d.aktif_sampai)+" ("+n+" hr)";
+  return `<span class="exp ${cls}">${txt}</span>${d.putus_otomatis?"":'<div class="hint">tidak diputus</div>'}`;
+}
+function renderDev(){
+  const q=$("#q").value.toLowerCase().trim(), st=$("#fStatus").value, order={menunggu:0,habis:1,hampir:2,aktif:3,nonaktif:4};
+  const rows=data.map(d=>({...d,k:kondisi(d)}))
+    .filter(d=>!st||d.k===st||(st==="aktif"&&d.k==="hampir"))
     .filter(d=>!q||[d.nama,d.mac,d.hp,d.ket].join(" ").toLowerCase().includes(q))
-    .sort((a,b)=>order[a.status]-order[b.status]||String(b.dibuat).localeCompare(String(a.dibuat)));
-  $("#tb").innerHTML=rows.length?rows.map(d=>`
-    <tr>
-      <td><b>${esc(d.nama)}</b>${d.ket?`<div class="hint">${esc(d.ket)}</div>`:""}</td>
-      <td class="mono">${esc(d.mac)}${d.acak?`<div class="flag">⚠ MAC acak</div>`:""}</td>
-      <td>${esc(d.hp)}</td>
-      <td><span class="pill p-${d.status}">${d.status}</span></td>
-      <td class="hint">${tgl(d.dibuat)}</td>
-      <td><div class="act">
-        ${d.status!=="aktif"?`<button class="a-ok" data-a="aktif" data-id="${d.id}">${d.status==="menunggu"?"Setujui":"Aktifkan"}</button>`:""}
-        ${d.status==="aktif"?`<button class="a-off" data-a="nonaktif" data-id="${d.id}">Nonaktifkan</button>`:""}
-        <button class="a-ed" data-a="edit" data-id="${d.id}">Ubah nama</button>
-        <button class="a-del" data-a="hapus" data-id="${d.id}">Hapus</button>
-      </div></td>
-    </tr>`).join(""):`<tr><td colspan="6" class="empty">Tidak ada data.</td></tr>`;
+    .sort((a,b)=>order[a.k]-order[b.k]||String(b.dibuat).localeCompare(String(a.dibuat)));
+  const label={aktif:"aktif",hampir:"aktif",menunggu:"menunggu",nonaktif:"nonaktif",habis:"habis"};
+  $("#tb").innerHTML=rows.length?rows.map(d=>`<tr>
+    <td><b>${esc(d.nama)}</b><div class="hint">${esc([d.hp,d.ket].filter(Boolean).join(" · "))}</div></td>
+    <td class="mono">${esc(d.mac)}${d.acak?'<div class="flag">⚠ MAC acak</div>':""}</td>
+    <td><span class="pill p-${label[d.k]==="aktif"?"aktif":label[d.k]}">${label[d.k]}</span></td>
+    <td>${expCell(d)}</td>
+    <td><div class="act">
+      <button class="btn sm green" data-bayar="${d.id}">Bayar</button>
+      ${d.status!=="aktif"?`<button class="btn sm ghost" data-a="aktif" data-id="${d.id}">${d.status==="menunggu"?"Setujui":"Aktifkan"}</button>`:`<button class="btn sm ghost" data-a="nonaktif" data-id="${d.id}">Nonaktifkan</button>`}
+      <button class="btn sm ghost" data-a="edit" data-id="${d.id}">Ubah</button>
+      <button class="btn sm red" data-a="hapus" data-id="${d.id}">Hapus</button>
+    </div></td></tr>`).join(""):'<tr><td colspan="5" class="empty">Tidak ada data.</td></tr>';
 }
-$("#q").oninput=render; $("#fStatus").onchange=render;
-
-$("#tb").onclick=async(e)=>{
+$("#q").oninput=renderDev; $("#fStatus").onchange=renderDev; $("#bReload").onclick=loadDev;
+$("#tb").onclick=async e=>{
   const b=e.target.closest("button[data-a]"); if(!b) return;
   const d=data.find(x=>x.id===b.dataset.id), a=b.dataset.a; let j;
-  if(a==="hapus"){ if(!confirm("Hapus "+d.nama+" ("+d.mac+")?")) return; j=await api("/perangkat/"+d.id,{method:"DELETE"}); }
-  else if(a==="edit"){ const n=prompt("Nama baru:",d.nama); if(n===null) return; j=await api("/perangkat/"+d.id,{method:"PATCH",body:JSON.stringify({nama:n})}); }
-  else { j=await api("/perangkat/"+d.id,{method:"PATCH",body:JSON.stringify({status:a})}); }
-  if(!j.ok) return show($("#mAdmin"),"bad",j.pesan);
-  $("#mAdmin").className="msg"; loadAdmin();
+  if(a==="edit") return openEdit(d);
+  if(a==="hapus"){ if(!confirm("Hapus "+d.nama+" ("+d.mac+")?\nRiwayat pembayarannya tetap tersimpan.")) return; j=await api("/perangkat/"+d.id,{method:"DELETE"}); }
+  else j=await api("/perangkat/"+d.id,{method:"PATCH",body:JSON.stringify({status:a})});
+  toast(j.ok?"Tersimpan. MikroTik menyesuaikan dalam ±2 menit.":j.pesan); loadDev();
 };
-
-$("#fTambah").onsubmit=async(e)=>{
-  e.preventDefault(); const f=e.target, m=$("#mTambah"), mac=normMac(f.mac.value);
-  if(!mac) return show(m,"bad","Format MAC tidak valid.");
+$("#fTambah").onsubmit=async e=>{
+  e.preventDefault(); const f=e.target,mac=normMac(f.mac.value); if(!mac) return toast("Format MAC tidak valid.");
   const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,mac,hp:f.hp.value,status:f.status.value})});
-  if(!j.ok) return show(m,"bad",j.pesan);
-  show(m,"ok","Ditambahkan: "+j.data.nama+" ("+j.data.mac+")"); f.reset(); loadAdmin();
+  toast(j.ok?"Ditambahkan: "+j.data.nama:j.pesan); if(j.ok){f.reset();loadDev()}
 };
-
-$("#fImpor").onsubmit=async(e)=>{
-  e.preventDefault();
-  const m=$("#mImpor"), btn=e.target.querySelector("button"), status=$("#imporStatus").value;
-  const lines=$("#imporText").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-  if(!lines.length) return show(m,"bad","Belum ada data yang ditempel.");
-  let ok=0, ada=0, salah=[];
-  btn.disabled=true;
+$("#fImpor").onsubmit=async e=>{
+  e.preventDefault(); const m=$("#mImpor"),btn=e.target.querySelector("button"),status=$("#imporStatus").value;
+  const lines=$("#imporText").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean); if(!lines.length) return show(m,"bad","Belum ada data.");
+  let ok=0,ada=0,salah=[]; btn.disabled=true;
   for(let i=0;i<lines.length;i++){
-    const parts=lines[i].split(/[;,\t]/);
-    const mac=normMac(parts[0]);
-    const nama=(parts.slice(1).join(" ").trim())||"tanpa nama";
-    if(!mac){ salah.push(lines[i]); continue; }
+    const parts=lines[i].split(/[;,\t]/), mac=normMac(parts[0]), nama=parts.slice(1).join(" ").trim()||"tanpa nama";
+    if(!mac){salah.push(lines[i]);continue}
     show(m,"warn","Mengimpor "+(i+1)+" dari "+lines.length+"…");
     const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama,mac,status})});
     if(j.ok) ok++; else if(String(j.pesan||"").includes("sudah ada")) ada++; else salah.push(lines[i]);
   }
-  btn.disabled=false;
-  let txt="Selesai: "+ok+" ditambahkan, "+ada+" sudah ada (dilewati)";
-  if(salah.length) txt+=", "+salah.length+" gagal: "+salah.slice(0,5).join(" | ");
-  show(m,salah.length?"warn":"ok",txt);
-  if(!salah.length) $("#imporText").value="";
-  loadAdmin();
+  btn.disabled=false; show(m,salah.length?"warn":"ok","Selesai: "+ok+" ditambahkan, "+ada+" sudah ada"+(salah.length?", "+salah.length+" gagal":""));
+  if(!salah.length) $("#imporText").value=""; loadDev();
 };
+
+// ---------- Dialog Bayar ----------
+function openBayar(id){
+  curDev=data.find(x=>x.id===id); if(!curDev) return;
+  $("#bayarSiapa").textContent=curDev.nama+" · "+curDev.mac+(curDev.aktif_sampai?" · aktif s/d "+tgl(curDev.aktif_sampai):"");
+  $("#bayarPaket").innerHTML=paket.map(p=>`<option value="${p.id}">${esc(p.nama)} — ${rp(p.harga)}${p.hari?" / "+p.hari+" hari":""}</option>`).join("")+'<option value="">Lainnya (isi manual)</option>';
+  $("#bayarCatatan").value=""; fillPaket(); $("#dBayar").showModal();
+}
+function fillPaket(){ const p=paket.find(x=>x.id===$("#bayarPaket").value); if(p){$("#bayarHarga").value=p.harga;$("#bayarHari").value=p.hari} else {$("#bayarHarga").value="";$("#bayarHari").value=30} previewBayar(); }
+function previewBayar(){
+  const hari=+$("#bayarHari").value||0, base=curDev.aktif_sampai&&Date.parse(curDev.aktif_sampai)>Date.now()?Date.parse(curDev.aktif_sampai):Date.now();
+  $("#bayarPreview").innerHTML=hari?`Masa aktif menjadi sampai <b>${tgl(new Date(base+hari*86400000).toISOString())}</b>`+(base>Date.now()+60000?" (melanjutkan sisa masa aktif)":""):"Masa aktif tidak berubah (hanya dicatat sebagai pendapatan).";
+}
+$("#bayarPaket").onchange=fillPaket; $("#bayarHari").oninput=previewBayar;
+$("#fBayar").onsubmit=async e=>{
+  if(e.submitter?.value!=="ok") return; e.preventDefault();
+  const pid=$("#bayarPaket").value, p=paket.find(x=>x.id===pid);
+  const body={perangkat_id:curDev.id,harga:$("#bayarHarga").value,hari:$("#bayarHari").value,catatan:$("#bayarCatatan").value};
+  if(p) body.paket_id=p.id; else body.paket="Lainnya";
+  if(p && +body.hari!==p.hari){ delete body.paket_id; body.paket=p.nama; }
+  const j=await api("/bayar",{method:"POST",body:JSON.stringify(body)});
+  toast(j.ok?j.pesan:j.pesan); if(j.ok){ $("#dBayar").close(); if(!$("#s-pelanggan").classList.contains("hidden")) loadDev(); else loadKeuangan(); }
+};
+
+// ---------- Dialog Edit ----------
+function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#dEdit").showModal(); }
+$("#eTanpa").onclick=()=>{$("#eSampai").value=""};
+$("#fEdit").onsubmit=async e=>{
+  if(e.submitter?.value!=="ok") return; e.preventDefault();
+  const j=await api("/perangkat/"+curDev.id,{method:"PATCH",body:JSON.stringify({nama:$("#eNama").value,hp:$("#eHp").value,ket:$("#eKet").value,aktif_sampai:fromDateInput($("#eSampai").value),putus_otomatis:$("#ePutus").checked})});
+  toast(j.ok?"Tersimpan.":j.pesan); if(j.ok){ $("#dEdit").close(); loadDev(); }
+};
+
+// ---------- Pembayaran ----------
+$("#bulanPick").value=bulanNow(); $("#bulanPick").onchange=loadBayar;
+async function loadBayar(){
+  const j=await api("/pembayaran?bulan="+$("#bulanPick").value); if(!j.ok) return; bayarRows=j.data;
+  $("#totalBulan").textContent=rp(bayarRows.reduce((s,x)=>s+x.harga,0));
+  $("#tbBayar").innerHTML=bayarRows.length?bayarRows.map(x=>`<tr><td>${tglJam(x.tanggal)}</td><td><b>${esc(x.nama)}</b><div class="hint mono">${esc(x.mac)}</div></td><td>${esc(x.paket)}</td><td class="money">${rp(x.harga)}</td><td>${x.sampai?tgl(x.sampai):"–"}</td><td class="hint">${esc(x.catatan)}</td><td><button class="btn sm red" data-hapus-bayar="${x.id}">Hapus</button></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada pembayaran di bulan ini.</td></tr>';
+}
+$("#tbBayar").onclick=async e=>{
+  const b=e.target.closest("[data-hapus-bayar]"); if(!b||!confirm("Hapus catatan pembayaran ini?\nMasa aktif HP tidak ikut berubah.")) return;
+  const j=await api("/pembayaran/"+b.dataset.hapusBayar,{method:"DELETE"}); toast(j.pesan||"Dihapus."); loadBayar();
+};
+
+// ---------- Paket ----------
+async function loadPaket(silent){
+  const j=await api("/paket"); if(!j.ok) return; paket=j.data; if(silent) return;
+  $("#tbPaket").innerHTML=paket.map(p=>`<tr data-id="${p.id}"><td><input value="${esc(p.nama)}" data-f="nama"></td><td><input type="number" min="0" value="${p.harga}" data-f="harga"></td><td><input type="number" min="0" value="${p.hari}" data-f="hari"></td><td><div class="act"><button class="btn sm" data-p="simpan">Simpan</button><button class="btn sm red" data-p="hapus">Hapus</button></div></td></tr>`).join("")||'<tr><td colspan="4" class="empty">Belum ada paket.</td></tr>';
+}
+$("#tbPaket").onclick=async e=>{
+  const b=e.target.closest("button[data-p]"); if(!b) return; const tr=b.closest("tr"), id=tr.dataset.id; let j;
+  if(b.dataset.p==="hapus"){ if(!confirm("Hapus paket ini?")) return; j=await api("/paket/"+id,{method:"DELETE"}); }
+  else { const v=f=>tr.querySelector(`[data-f=${f}]`).value; j=await api("/paket/"+id,{method:"PATCH",body:JSON.stringify({nama:v("nama"),harga:v("harga"),hari:v("hari")})}); }
+  toast(j.ok?"Paket tersimpan.":j.pesan); loadPaket();
+};
+$("#fPaket").onsubmit=async e=>{
+  e.preventDefault(); const f=e.target;
+  const j=await api("/paket",{method:"POST",body:JSON.stringify({nama:f.nama.value,harga:f.harga.value,hari:f.hari.value})});
+  toast(j.ok?"Paket ditambahkan.":j.pesan); if(j.ok){f.reset();loadPaket()}
+};
+
+// ---------- Backup & Excel ----------
+function download(name,content,type){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500); }
+const csv=(rows,cols)=>"﻿"+[cols.map(c=>c[0]).join(";"),...rows.map(r=>cols.map(c=>{const v=String(c[1](r)??"");return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(";"))].join("\r\n");
+const today=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,10);
+$("#bBackup").onclick=async()=>{ const j=await api("/backup"); if(!j.aplikasi) return toast(j.pesan||"Gagal backup."); download("backup-portal-mac-"+today()+".json",JSON.stringify(j,null,1),"application/json"); toast("Backup diunduh."); };
+$("#bCsvPel").onclick=async()=>{ const j=await api("/perangkat"); if(!j.ok) return;
+  download("pelanggan-"+today()+".csv",csv(j.data,[["Nama",r=>r.nama],["No HP",r=>r.hp],["MAC",r=>r.mac],["Status",r=>r.habis?"habis":r.status],["Aktif sampai",r=>toDateInput(r.aktif_sampai)],["Keterangan",r=>r.ket],["Terdaftar",r=>toDateInput(r.dibuat)]]),"text/csv"); };
+const bayarCols=[["Tanggal",r=>tglJam(r.tanggal)],["Nama",r=>r.nama],["MAC",r=>r.mac],["Paket",r=>r.paket],["Nominal",r=>r.harga],["Hari",r=>r.hari],["Aktif sampai",r=>toDateInput(r.sampai)],["Catatan",r=>r.catatan]];
+$("#bCsvBayar").onclick=()=>download("pembayaran-"+$("#bulanPick").value+".csv",csv(bayarRows,bayarCols),"text/csv");
+$("#bCsvAll").onclick=async()=>{ const j=await api("/pembayaran"); if(!j.ok) return; download("pembayaran-semua-"+today()+".csv",csv(j.data,bayarCols),"text/csv"); };
+$("#bRestore").onclick=async()=>{
+  const f=$("#restoreFile").files[0], m=$("#mRestore"); if(!f) return show(m,"bad","Pilih file backup dulu.");
+  let isi; try{ isi=JSON.parse(await f.text()); }catch(e){ return show(m,"bad","File bukan backup yang valid."); }
+  if(!confirm("Yakin restore? Semua data saat ini akan DIGANTI dengan isi file:\n"+(isi.perangkat||[]).length+" pelanggan, "+(isi.pembayaran||[]).length+" pembayaran.")) return;
+  const j=await api("/restore",{method:"POST",body:JSON.stringify(isi)}); show(m,j.ok?"ok":"bad",j.pesan);
+};
+
+if(token) { /* tetap di tab Daftar; admin dibuka saat klik tab Admin */ }
 </script>
 </body>
 </html>
