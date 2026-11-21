@@ -62,6 +62,18 @@ async function readBody(req) { try { return await req.json(); } catch { return {
 const expired = (d) => !!d.aktif_sampai && !!d.putus_otomatis && Date.parse(d.aktif_sampai) <= Date.now();
 const row = (r) => r && { ...r, acak: !!r.acak, putus_otomatis: !!r.putus_otomatis, habis: expired(r) };
 
+// Kecepatan "upload/download" seperti MikroTik: 2M/5M, 512k/1M. "" = ikut default, "0/0" = tanpa batas.
+function normRate(v) {
+  const s = String(v ?? "").trim().replace(/\s+/g, "").replace(/mbps/gi, "M").replace(/kbps/gi, "k");
+  if (!s) return "";
+  const m = s.match(/^(\d+(?:\.\d+)?)([kKmMgG]?)\/(\d+(?:\.\d+)?)([kKmMgG]?)$/);
+  if (!m) return null;
+  const u = (x) => (x === "k" || x === "K" ? "k" : x.toUpperCase());
+  if (Number(m[1]) === 0 && Number(m[3]) === 0) return "0/0";
+  return m[1] + u(m[2]) + "/" + m[3] + u(m[4]);
+}
+const RATE_ERR = "Format kecepatan salah. Contoh: 2M/5M (upload/download), 512k/1M, atau 0/0 untuk tanpa batas.";
+
 let schemaReady = false;
 async function ensureSchema(db) {
   if (schemaReady) return;
@@ -71,6 +83,7 @@ async function ensureSchema(db) {
   for (const sql of [
     "ALTER TABLE perangkat ADD COLUMN aktif_sampai TEXT",
     "ALTER TABLE perangkat ADD COLUMN putus_otomatis INTEGER DEFAULT 1",
+    "ALTER TABLE perangkat ADD COLUMN kecepatan TEXT",
   ]) { try { await db.prepare(sql).run(); } catch {} }
   await db.prepare(`CREATE TABLE IF NOT EXISTS paket (
       id TEXT PRIMARY KEY, nama TEXT NOT NULL, harga INTEGER NOT NULL DEFAULT 0,
@@ -79,6 +92,9 @@ async function ensureSchema(db) {
       id TEXT PRIMARY KEY, perangkat_id TEXT, mac TEXT, nama TEXT, paket TEXT,
       harga INTEGER NOT NULL DEFAULT 0, hari INTEGER DEFAULT 0, tanggal TEXT NOT NULL,
       dari TEXT, sampai TEXT, catatan TEXT)`).run();
+  try { await db.prepare("ALTER TABLE paket ADD COLUMN kecepatan TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE pembayaran ADD COLUMN kecepatan TEXT").run(); } catch {}
+  await db.prepare("CREATE TABLE IF NOT EXISTS pengaturan (kunci TEXT PRIMARY KEY, nilai TEXT)").run();
   const { n } = await db.prepare("SELECT COUNT(*) AS n FROM paket").first();
   if (!n) {
     await db.batch(DEFAULT_PAKET.map(([nama, harga, hari], i) =>
@@ -87,9 +103,9 @@ async function ensureSchema(db) {
   schemaReady = true;
 }
 
-const PERANGKAT_COLS = ["id", "mac", "nama", "hp", "ket", "status", "acak", "dibuat", "diubah", "aktif_sampai", "putus_otomatis"];
-const PAKET_COLS = ["id", "nama", "harga", "hari", "urutan"];
-const BAYAR_COLS = ["id", "perangkat_id", "mac", "nama", "paket", "harga", "hari", "tanggal", "dari", "sampai", "catatan"];
+const PERANGKAT_COLS = ["id", "mac", "nama", "hp", "ket", "status", "acak", "dibuat", "diubah", "aktif_sampai", "putus_otomatis", "kecepatan"];
+const PAKET_COLS = ["id", "nama", "harga", "hari", "urutan", "kecepatan"];
+const BAYAR_COLS = ["id", "perangkat_id", "mac", "nama", "paket", "harga", "hari", "tanggal", "dari", "sampai", "catatan", "kecepatan"];
 const insertSql = (table, cols) => `INSERT INTO ${table} (${cols.join(",")}) VALUES (${cols.map(() => "?").join(",")})`;
 
 // ---------- Handler utama ----------
@@ -108,13 +124,39 @@ export async function onRequest({ request, env }) {
     const insertPerangkat = (d) => db.prepare(insertSql("perangkat", PERANGKAT_COLS))
       .bind(...PERANGKAT_COLS.map((c) => c === "acak" || c === "putus_otomatis" ? (d[c] ? 1 : 0) : (d[c] ?? null))).run();
 
+    const getDefaultRate = async () => ((await db.prepare("SELECT nilai FROM pengaturan WHERE kunci = 'kecepatan_default'").first()) || {}).nilai || "";
+    const rateOf = (d, def) => { const r = d.kecepatan || def || ""; return r === "0/0" ? "" : r; };
+
     // ===== Untuk MikroTik: HP aktif yang belum habis masa aktifnya =====
     if (path === "/mikrotik" && method === "GET") {
       const key = env.SYNC_KEY || "";
       if (!key || !safeEqual(url.searchParams.get("key") || "", key)) return text("ERROR kunci salah\n", 403);
       const { results } = await db.prepare("SELECT * FROM perangkat WHERE status = 'aktif' ORDER BY mac").all();
-      const lines = results.filter((d) => !expired(d)).map((d) => d.mac + ";" + asciiName(d.nama));
+      const def = await getDefaultRate();
+      const lines = results.filter((d) => !expired(d)).map((d) => d.mac + ";" + asciiName(d.nama) + ";" + rateOf(d, def));
       return text(lines.join("\n") + "\nEND\n");
+    }
+
+    // ===== Dari MikroTik: laporan HP yang sedang tersambung =====
+    // Isi (text): satu baris per HP "MAC;IP;nama-host;bytes-upload/bytes-download"
+    if (path === "/online" && method === "POST") {
+      const key = env.SYNC_KEY || "";
+      if (!key || !safeEqual(url.searchParams.get("key") || "", key)) return text("ERROR kunci salah\n", 403);
+      const raw = (await request.text()).slice(0, 200000);
+      const list = [];
+      for (const line of raw.split(/\r?\n/)) {
+        const parts = line.split(";");
+        const mac = normMac(parts[0]);
+        if (!mac) continue;
+        const ip = /^\d{1,3}(\.\d{1,3}){3}$/.test(parts[1] || "") ? parts[1] : "";
+        const host = clean(parts.slice(2, parts.length > 3 ? -1 : undefined).join(";"), 40);
+        const bm = String(parts.length > 3 ? parts[parts.length - 1] : "").match(/^(\d+)\/(\d+)$/);
+        list.push({ mac, ip, host, up: bm ? Number(bm[1]) : null, down: bm ? Number(bm[2]) : null });
+        if (list.length >= 2000) break;
+      }
+      await db.prepare("INSERT INTO pengaturan (kunci, nilai) VALUES ('online', ?) ON CONFLICT(kunci) DO UPDATE SET nilai = excluded.nilai")
+        .bind(JSON.stringify({ waktu: now(), list })).run();
+      return text("OK " + list.length + "\n");
     }
 
     // ===== Publik =====
@@ -153,7 +195,7 @@ export async function onRequest({ request, env }) {
 
     // ===== Semua di bawah ini khusus admin =====
     if (!(await isAdmin(request, pw))) {
-      const known = ["/perangkat", "/paket", "/bayar", "/pembayaran", "/keuangan", "/backup", "/restore"];
+      const known = ["/perangkat", "/paket", "/bayar", "/pembayaran", "/keuangan", "/backup", "/restore", "/pengaturan", "/online"];
       if (known.some((p) => path === p || path.startsWith(p + "/"))) return json({ ok: false, pesan: "Sesi habis, silakan login lagi." }, 401);
       return json({ ok: false, pesan: "Alamat tidak dikenal." }, 404);
     }
@@ -164,7 +206,7 @@ export async function onRequest({ request, env }) {
     if (seg[1] === "perangkat") {
       if (!id && method === "GET") {
         const { results } = await db.prepare("SELECT * FROM perangkat ORDER BY dibuat DESC").all();
-        return json({ ok: true, data: results.map(row) });
+        return json({ ok: true, data: results.map(row), kecepatan_default: await getDefaultRate() });
       }
       if (!id && method === "POST") {
         const b = await readBody(request);
@@ -173,7 +215,8 @@ export async function onRequest({ request, env }) {
         if (await byMac(mac)) return json({ ok: false, pesan: "MAC sudah ada di daftar." }, 409);
         const item = { id: newId(), mac, nama: clean(b.nama, 50) || "tanpa nama", hp: clean(b.hp, 20), ket: clean(b.ket, 80),
           status: STATUSES.includes(b.status) ? b.status : "aktif", acak: isRandomMac(mac), dibuat: now(), diubah: now(),
-          aktif_sampai: validIso(b.aktif_sampai) ? new Date(b.aktif_sampai).toISOString() : null, putus_otomatis: b.putus_otomatis !== false };
+          aktif_sampai: validIso(b.aktif_sampai) ? new Date(b.aktif_sampai).toISOString() : null, putus_otomatis: b.putus_otomatis !== false, kecepatan: normRate(b.kecepatan) };
+        if (item.kecepatan === null) return json({ ok: false, pesan: RATE_ERR }, 400);
         await insertPerangkat(item);
         return json({ ok: true, data: row(item) });
       }
@@ -190,9 +233,10 @@ export async function onRequest({ request, env }) {
         if (b.ket !== undefined) d.ket = clean(b.ket, 80);
         if (b.aktif_sampai !== undefined) d.aktif_sampai = validIso(b.aktif_sampai) ? new Date(b.aktif_sampai).toISOString() : null;
         if (b.putus_otomatis !== undefined) d.putus_otomatis = b.putus_otomatis ? 1 : 0;
+        if (b.kecepatan !== undefined) { const r = normRate(b.kecepatan); if (r === null) return json({ ok: false, pesan: RATE_ERR }, 400); d.kecepatan = r; }
         d.diubah = now();
-        await db.prepare("UPDATE perangkat SET status=?, nama=?, hp=?, ket=?, aktif_sampai=?, putus_otomatis=?, diubah=? WHERE id=?")
-          .bind(d.status, d.nama, d.hp, d.ket, d.aktif_sampai, d.putus_otomatis ? 1 : 0, d.diubah, d.id).run();
+        await db.prepare("UPDATE perangkat SET status=?, nama=?, hp=?, ket=?, aktif_sampai=?, putus_otomatis=?, kecepatan=?, diubah=? WHERE id=?")
+          .bind(d.status, d.nama, d.hp, d.ket, d.aktif_sampai, d.putus_otomatis ? 1 : 0, d.kecepatan ?? "", d.diubah, d.id).run();
         return json({ ok: true, data: row(d) });
       }
       if (method === "DELETE") {
@@ -211,7 +255,8 @@ export async function onRequest({ request, env }) {
         const b = await readBody(request);
         const nama = clean(b.nama, 40);
         if (!nama) return json({ ok: false, pesan: "Nama paket wajib diisi." }, 400);
-        const item = { id: newId(), nama, harga: Math.max(0, int(b.harga)), hari: Math.max(0, int(b.hari)), urutan: int(b.urutan, 99) };
+        const item = { id: newId(), nama, harga: Math.max(0, int(b.harga)), hari: Math.max(0, int(b.hari)), urutan: int(b.urutan, 99), kecepatan: normRate(b.kecepatan) };
+        if (item.kecepatan === null) return json({ ok: false, pesan: RATE_ERR }, 400);
         await db.prepare(insertSql("paket", PAKET_COLS)).bind(...PAKET_COLS.map((c) => item[c])).run();
         return json({ ok: true, data: item });
       }
@@ -222,7 +267,8 @@ export async function onRequest({ request, env }) {
         if (b.nama !== undefined) p.nama = clean(b.nama, 40) || p.nama;
         if (b.harga !== undefined) p.harga = Math.max(0, int(b.harga));
         if (b.hari !== undefined) p.hari = Math.max(0, int(b.hari));
-        await db.prepare("UPDATE paket SET nama=?, harga=?, hari=? WHERE id=?").bind(p.nama, p.harga, p.hari, p.id).run();
+        if (b.kecepatan !== undefined) { const r = normRate(b.kecepatan); if (r === null) return json({ ok: false, pesan: RATE_ERR }, 400); p.kecepatan = r; }
+        await db.prepare("UPDATE paket SET nama=?, harga=?, hari=?, kecepatan=? WHERE id=?").bind(p.nama, p.harga, p.hari, p.kecepatan ?? "", p.id).run();
         return json({ ok: true, data: p });
       }
       if (method === "DELETE") {
@@ -236,13 +282,16 @@ export async function onRequest({ request, env }) {
       const b = await readBody(request);
       const d = await byId(b.perangkat_id);
       if (!d) return json({ ok: false, pesan: "Perangkat tidak ditemukan." }, 404);
+      let kecepatan = "";
       let paketNama = clean(b.paket, 40) || "Lainnya", harga = Math.max(0, int(b.harga)), hari = Math.max(0, int(b.hari));
       if (b.paket_id) {
         const p = await db.prepare("SELECT * FROM paket WHERE id = ?").bind(b.paket_id).first();
         if (!p) return json({ ok: false, pesan: "Paket tidak ditemukan." }, 404);
-        paketNama = p.nama; harga = p.harga; hari = p.hari;
+        paketNama = p.nama; harga = p.harga; hari = p.hari; kecepatan = p.kecepatan || "";
         if (b.harga !== undefined && b.harga !== "") harga = Math.max(0, int(b.harga)); // boleh diskon
       }
+      if (b.kecepatan !== undefined && b.kecepatan !== null) { const r = normRate(b.kecepatan); if (r === null) return json({ ok: false, pesan: RATE_ERR }, 400); if (r) kecepatan = r; }
+      const kecBaru = kecepatan || d.kecepatan || "";
       const tanggal = validIso(b.tanggal) ? new Date(b.tanggal).toISOString() : now();
       let dari = null, sampai = d.aktif_sampai || null;
       if (hari > 0) {
@@ -250,12 +299,12 @@ export async function onRequest({ request, env }) {
         dari = new Date(base).toISOString();
         sampai = new Date(base + hari * 86400000).toISOString();
       }
-      const bayar = { id: newId(), perangkat_id: d.id, mac: d.mac, nama: d.nama, paket: paketNama, harga, hari, tanggal, dari, sampai, catatan: clean(b.catatan, 80) };
+      const bayar = { id: newId(), perangkat_id: d.id, mac: d.mac, nama: d.nama, paket: paketNama, harga, hari, tanggal, dari, sampai, catatan: clean(b.catatan, 80), kecepatan: kecBaru };
       await db.batch([
         db.prepare(insertSql("pembayaran", BAYAR_COLS)).bind(...BAYAR_COLS.map((c) => bayar[c])),
-        db.prepare("UPDATE perangkat SET status='aktif', aktif_sampai=?, diubah=? WHERE id=?").bind(sampai, now(), d.id),
+        db.prepare("UPDATE perangkat SET status='aktif', aktif_sampai=?, kecepatan=?, diubah=? WHERE id=?").bind(sampai, kecBaru, now(), d.id),
       ]);
-      return json({ ok: true, data: bayar, pesan: "Pembayaran dicatat." + (sampai ? " Aktif sampai " + sampai.slice(0, 10) + "." : "") });
+      return json({ ok: true, data: bayar, pesan: "Pembayaran dicatat." + (sampai ? " Aktif sampai " + sampai.slice(0, 10) + "." : "") + (kecepatan ? " Kecepatan " + kecepatan + "." : "") });
     }
 
     // ----- Riwayat pembayaran -----
@@ -297,10 +346,39 @@ export async function onRequest({ request, env }) {
       } });
     }
 
+    // ----- User aktif (laporan terakhir dari router) -----
+    if (path === "/online" && method === "GET") {
+      const r = await db.prepare("SELECT nilai FROM pengaturan WHERE kunci = 'online'").first();
+      let rep = { waktu: null, list: [] };
+      try { if (r && r.nilai) rep = JSON.parse(r.nilai); } catch {}
+      const { results } = await db.prepare("SELECT * FROM perangkat").all();
+      const def = await getDefaultRate();
+      const byM = Object.fromEntries(results.map((d) => [d.mac, d]));
+      const data = rep.list.map((o) => {
+        const d = byM[o.mac];
+        return { ...o, terdaftar: !!d, id: d?.id || null, nama: d?.nama || null, hp: d?.hp || null,
+          status: d ? (expired(d) ? "habis" : d.status) : null, aktif_sampai: d?.aktif_sampai || null,
+          kecepatan: d ? (rateOf(d, def) || "") : "" };
+      });
+      return json({ ok: true, waktu: rep.waktu, data });
+    }
+
+    // ----- Pengaturan (kecepatan default) -----
+    if (path === "/pengaturan") {
+      if (method === "GET") return json({ ok: true, data: { kecepatan_default: await getDefaultRate() } });
+      if (method === "PATCH") {
+        const b = await readBody(request);
+        const r = normRate(b.kecepatan_default);
+        if (r === null) return json({ ok: false, pesan: RATE_ERR }, 400);
+        await db.prepare("INSERT INTO pengaturan (kunci, nilai) VALUES ('kecepatan_default', ?) ON CONFLICT(kunci) DO UPDATE SET nilai = excluded.nilai").bind(r).run();
+        return json({ ok: true, data: { kecepatan_default: r }, pesan: r && r !== "0/0" ? "Kecepatan default: " + r : "Kecepatan default: tanpa batas" });
+      }
+    }
+
     // ----- Backup & restore -----
     if (path === "/backup" && method === "GET") {
       const all = async (t) => (await db.prepare(`SELECT * FROM ${t}`).all()).results;
-      return json({ aplikasi: "portal-mac", versi: 2, dibuat: now(),
+      return json({ aplikasi: "portal-mac", versi: 4, dibuat: now(), pengaturan: await all("pengaturan"),
         perangkat: await all("perangkat"), paket: await all("paket"), pembayaran: await all("pembayaran") });
     }
     if (path === "/restore" && method === "POST") {
@@ -308,6 +386,10 @@ export async function onRequest({ request, env }) {
       if (b.aplikasi !== "portal-mac" || !Array.isArray(b.perangkat)) return json({ ok: false, pesan: "File backup tidak dikenali." }, 400);
       const pick = (o, cols) => cols.map((c) => (o[c] === undefined ? null : o[c]));
       const stmts = [db.prepare("DELETE FROM perangkat"), db.prepare("DELETE FROM paket"), db.prepare("DELETE FROM pembayaran")];
+      if (Array.isArray(b.pengaturan)) {
+        stmts.push(db.prepare("DELETE FROM pengaturan"));
+        for (const x of b.pengaturan) if (x && x.kunci) stmts.push(db.prepare("INSERT INTO pengaturan (kunci, nilai) VALUES (?, ?)").bind(String(x.kunci), String(x.nilai ?? "")));
+      }
       for (const d of b.perangkat) {
         const mac = normMac(d.mac);
         if (!mac || !d.id) continue;
