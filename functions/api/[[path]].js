@@ -9,6 +9,8 @@
 const TOKEN_TTL_MS = 12 * 60 * 60 * 1000;
 const MAX_PENDING = 300;
 const STATUSES = ["aktif", "menunggu", "nonaktif"];
+const KATEGORI = ["pelanggan", "pribadi", "keluarga"]; // jenis HP
+const normKat = (v) => (KATEGORI.includes(String(v || "").toLowerCase()) ? String(v).toLowerCase() : "pelanggan");
 const TZ_OFFSET = "+8 hours"; // WITA
 const enc = new TextEncoder();
 
@@ -140,6 +142,8 @@ async function ensureSchema(db) {
     try { await db.prepare(`CREATE INDEX IF NOT EXISTS idx_${t}_cabang ON ${t}(cabang)`).run(); } catch {}
   }
   try { await db.prepare("ALTER TABLE pengguna ADD COLUMN cabang TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE perangkat ADD COLUMN kategori TEXT DEFAULT 'pelanggan'").run(); } catch {}
+  await db.prepare("UPDATE perangkat SET kategori = 'pelanggan' WHERE kategori IS NULL OR kategori = ''").run();
   const { n } = await db.prepare("SELECT COUNT(*) AS n FROM paket").first();
   if (!n) {
     await db.batch(DEFAULT_PAKET.map(([nama, harga, hari], i) =>
@@ -148,7 +152,7 @@ async function ensureSchema(db) {
   schemaReady = true;
 }
 
-const PERANGKAT_COLS = ["id", "mac", "nama", "hp", "ket", "status", "acak", "dibuat", "diubah", "aktif_sampai", "putus_otomatis", "kecepatan", "oleh", "cabang"];
+const PERANGKAT_COLS = ["id", "mac", "nama", "hp", "ket", "status", "acak", "dibuat", "diubah", "aktif_sampai", "putus_otomatis", "kecepatan", "oleh", "cabang", "kategori"];
 const PAKET_COLS = ["id", "nama", "harga", "hari", "urutan", "kecepatan", "cabang"];
 const BAYAR_COLS = ["id", "perangkat_id", "mac", "nama", "paket", "harga", "hari", "tanggal", "dari", "sampai", "catatan", "kecepatan", "status", "tanggal_lunas", "oleh", "cabang"];
 const insertSql = (table, cols, orIgnore = false) => `INSERT${orIgnore ? " OR IGNORE" : ""} INTO ${table} (${cols.join(",")}) VALUES (${cols.map(() => "?").join(",")})`;
@@ -243,7 +247,7 @@ export async function onRequest({ request, env }) {
       const { n } = await db.prepare("SELECT COUNT(*) AS n FROM perangkat WHERE status = 'menunggu'").first();
       if (n >= MAX_PENDING) return json({ ok: false, pesan: "Antrian pendaftaran penuh. Silakan hubungi admin." }, 429);
       await insertPerangkat({ id: newId(), mac, nama, hp: clean(b.hp, 20), ket: clean(b.ket, 80), status: "menunggu",
-        acak: isRandomMac(mac), dibuat: now(), diubah: now(), aktif_sampai: null, putus_otomatis: true, cabang: cab });
+        acak: isRandomMac(mac), dibuat: now(), diubah: now(), aktif_sampai: null, putus_otomatis: true, cabang: cab, kategori: "pelanggan" });
       return json({ ok: true, pesan: "Pendaftaran terkirim. Tunggu persetujuan admin.", status: "menunggu" });
     }
 
@@ -376,7 +380,7 @@ export async function onRequest({ request, env }) {
         const item = { id: newId(), mac, nama: clean(b.nama, 50) || "tanpa nama", hp: clean(b.hp, 20), ket: clean(b.ket, 80),
           status: STATUSES.includes(b.status) ? b.status : "aktif", acak: isRandomMac(mac), dibuat: now(), diubah: now(),
           aktif_sampai: validIso(b.aktif_sampai) ? new Date(b.aktif_sampai).toISOString() : null, putus_otomatis: b.putus_otomatis !== false,
-          kecepatan: normRate(b.kecepatan), oleh: me.username, cabang: cab };
+          kecepatan: normRate(b.kecepatan), oleh: me.username, cabang: cab, kategori: normKat(b.kategori) };
         if (item.kecepatan === null) return json({ ok: false, pesan: RATE_ERR }, 400);
         await insertPerangkat(item);
         return json({ ok: true, data: row(item) });
@@ -392,12 +396,13 @@ export async function onRequest({ request, env }) {
         if (b.nama !== undefined) d.nama = clean(b.nama, 50) || d.nama;
         if (b.hp !== undefined) d.hp = clean(b.hp, 20);
         if (b.ket !== undefined) d.ket = clean(b.ket, 80);
+        if (b.kategori !== undefined) d.kategori = normKat(b.kategori);
         if (b.aktif_sampai !== undefined) d.aktif_sampai = validIso(b.aktif_sampai) ? new Date(b.aktif_sampai).toISOString() : null;
         if (b.putus_otomatis !== undefined) d.putus_otomatis = b.putus_otomatis ? 1 : 0;
         if (b.kecepatan !== undefined) { const r = normRate(b.kecepatan); if (r === null) return json({ ok: false, pesan: RATE_ERR }, 400); d.kecepatan = r; }
         d.diubah = now();
-        await db.prepare("UPDATE perangkat SET status=?, nama=?, hp=?, ket=?, aktif_sampai=?, putus_otomatis=?, kecepatan=?, diubah=? WHERE id=? AND cabang=?")
-          .bind(d.status, d.nama, d.hp, d.ket, d.aktif_sampai, d.putus_otomatis ? 1 : 0, d.kecepatan ?? "", d.diubah, d.id, cab).run();
+        await db.prepare("UPDATE perangkat SET status=?, nama=?, hp=?, ket=?, aktif_sampai=?, putus_otomatis=?, kecepatan=?, kategori=?, diubah=? WHERE id=? AND cabang=?")
+          .bind(d.status, d.nama, d.hp, d.ket, d.aktif_sampai, d.putus_otomatis ? 1 : 0, d.kecepatan ?? "", normKat(d.kategori), d.diubah, d.id, cab).run();
         return json({ ok: true, data: row(d) });
       }
       if (method === "DELETE") {
@@ -547,7 +552,7 @@ export async function onRequest({ request, env }) {
       const byM = Object.fromEntries(results.map((d) => [d.mac, d]));
       const data = rep.list.map((o) => {
         const d = byM[o.mac];
-        return { ...o, terdaftar: !!d, id: d?.id || null, nama: d?.nama || null, hp: d?.hp || null,
+        return { ...o, terdaftar: !!d, id: d?.id || null, nama: d?.nama || null, hp: d?.hp || null, kategori: d ? normKat(d.kategori) : null,
           status: d ? (expired(d) ? "habis" : d.status) : null, aktif_sampai: d?.aktif_sampai || null,
           kecepatan: d ? (rateOf(d, def) || "") : "" };
       });
@@ -624,7 +629,7 @@ export async function onRequest({ request, env }) {
         if (macLain.has(mac)) { dilewati++; continue; }
         seen.add(mac); nPerangkat++;
         stmts.push(db.prepare(insertSql("perangkat", PERANGKAT_COLS, true)).bind(...pick({ ...d, mac, cabang: cab,
-          acak: d.acak ? 1 : 0, putus_otomatis: d.putus_otomatis === undefined ? 1 : (d.putus_otomatis ? 1 : 0),
+          kategori: normKat(d.kategori), acak: d.acak ? 1 : 0, putus_otomatis: d.putus_otomatis === undefined ? 1 : (d.putus_otomatis ? 1 : 0),
           status: STATUSES.includes(d.status) ? d.status : "menunggu" }, PERANGKAT_COLS)));
       }
       for (const p of b.paket || []) if (p.id && p.nama) stmts.push(db.prepare(insertSql("paket", PAKET_COLS, true)).bind(...pick({ ...p, cabang: cab }, PAKET_COLS)));
