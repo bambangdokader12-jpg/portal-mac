@@ -144,6 +144,9 @@ async function ensureSchema(db) {
   try { await db.prepare("ALTER TABLE pengguna ADD COLUMN cabang TEXT").run(); } catch {}
   try { await db.prepare("ALTER TABLE perangkat ADD COLUMN kategori TEXT DEFAULT 'pelanggan'").run(); } catch {}
   await db.prepare("UPDATE perangkat SET kategori = 'pelanggan' WHERE kategori IS NULL OR kategori = ''").run();
+  // Grup: beberapa HP milik satu pelanggan (Paket 2/3/4 HP) berbagi status, masa aktif, dan kecepatan
+  try { await db.prepare("ALTER TABLE perangkat ADD COLUMN grup TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE pembayaran ADD COLUMN grup TEXT").run(); } catch {}
   const { n } = await db.prepare("SELECT COUNT(*) AS n FROM paket").first();
   if (!n) {
     await db.batch(DEFAULT_PAKET.map(([nama, harga, hari], i) =>
@@ -152,9 +155,9 @@ async function ensureSchema(db) {
   schemaReady = true;
 }
 
-const PERANGKAT_COLS = ["id", "mac", "nama", "hp", "ket", "status", "acak", "dibuat", "diubah", "aktif_sampai", "putus_otomatis", "kecepatan", "oleh", "cabang", "kategori"];
+const PERANGKAT_COLS = ["id", "mac", "nama", "hp", "ket", "status", "acak", "dibuat", "diubah", "aktif_sampai", "putus_otomatis", "kecepatan", "oleh", "cabang", "kategori", "grup"];
 const PAKET_COLS = ["id", "nama", "harga", "hari", "urutan", "kecepatan", "cabang"];
-const BAYAR_COLS = ["id", "perangkat_id", "mac", "nama", "paket", "harga", "hari", "tanggal", "dari", "sampai", "catatan", "kecepatan", "status", "tanggal_lunas", "oleh", "cabang"];
+const BAYAR_COLS = ["id", "perangkat_id", "mac", "nama", "paket", "harga", "hari", "tanggal", "dari", "sampai", "catatan", "kecepatan", "status", "tanggal_lunas", "oleh", "cabang", "grup"];
 const insertSql = (table, cols, orIgnore = false) => `INSERT${orIgnore ? " OR IGNORE" : ""} INTO ${table} (${cols.join(",")}) VALUES (${cols.map(() => "?").join(",")})`;
 
 // Pengaturan per cabang. Cabang BHP memakai kunci lama (tanpa akhiran) supaya data lama tetap terbaca.
@@ -185,8 +188,9 @@ export async function onRequest({ request, env }) {
     await ensureSchema(db);
     const byMac = (mac) => db.prepare("SELECT * FROM perangkat WHERE mac = ?").bind(mac).first();
     const byId = (id) => db.prepare("SELECT * FROM perangkat WHERE id = ? AND cabang = ?").bind(id, cab).first();
-    const insertPerangkat = (d) => db.prepare(insertSql("perangkat", PERANGKAT_COLS))
-      .bind(...PERANGKAT_COLS.map((c) => c === "acak" || c === "putus_otomatis" ? (d[c] ? 1 : 0) : (d[c] ?? null))).run();
+    const perangkatStmt = (d) => db.prepare(insertSql("perangkat", PERANGKAT_COLS))
+      .bind(...PERANGKAT_COLS.map((c) => c === "acak" || c === "putus_otomatis" ? (d[c] ? 1 : 0) : (d[c] ?? null)));
+    const insertPerangkat = (d) => perangkatStmt(d).run();
     const getSet = async (k) => ((await db.prepare("SELECT nilai FROM pengaturan WHERE kunci = ?").bind(kunci(k, cab)).first()) || {}).nilai;
     const putSet = (k, v) => db.prepare("INSERT INTO pengaturan (kunci, nilai) VALUES (?, ?) ON CONFLICT(kunci) DO UPDATE SET nilai = excluded.nilai").bind(kunci(k, cab), v).run();
 
@@ -368,22 +372,31 @@ export async function onRequest({ request, env }) {
         const { results: ut } = await db.prepare("SELECT perangkat_id, SUM(harga) AS t, COUNT(*) AS n FROM pembayaran WHERE status = 'utang' AND cabang = ? GROUP BY perangkat_id").bind(cab).all();
         const { results: lb } = await db.prepare("SELECT perangkat_id, MAX(tanggal) AS tgl FROM pembayaran WHERE cabang = ? GROUP BY perangkat_id").bind(cab).all();
         const U = Object.fromEntries(ut.map((x) => [x.perangkat_id, x])), LB = Object.fromEntries(lb.map((x) => [x.perangkat_id, x.tgl]));
-        return json({ ok: true, data: results.map((r) => ({ ...row(r), utang: U[r.id]?.t || 0, utang_n: U[r.id]?.n || 0, bayar_terakhir: LB[r.id] || null })),
+        const G = {}, GB = {};
+        for (const r of results) if (r.grup) { G[r.grup] = (G[r.grup] || 0) + 1; const t = LB[r.id]; if (t && (!GB[r.grup] || t > GB[r.grup])) GB[r.grup] = t; }
+        return json({ ok: true, data: results.map((r) => ({ ...row(r), grup_n: r.grup ? G[r.grup] : 1, utang: U[r.id]?.t || 0, utang_n: U[r.id]?.n || 0, bayar_terakhir: (r.grup ? GB[r.grup] : LB[r.id]) || null })),
           kecepatan_default: await getDefaultRate() });
       }
       if (!id && method === "POST") {
         const b = await readBody(request);
-        const mac = normMac(b.mac);
-        if (!mac) return json({ ok: false, pesan: "Format MAC tidak valid." }, 400);
-        const ada = await byMac(mac);
-        if (ada) return json({ ok: false, pesan: macDipakai(ada) }, 409);
-        const item = { id: newId(), mac, nama: clean(b.nama, 50) || "tanpa nama", hp: clean(b.hp, 20), ket: clean(b.ket, 80),
+        // satu HP: {mac}; beberapa HP satu pelanggan: {macs:[...]}
+        const raw = Array.isArray(b.macs) && b.macs.length ? b.macs : [b.mac];
+        if (raw.length > 10) return json({ ok: false, pesan: "Maksimal 10 HP sekaligus." }, 400);
+        const macs = raw.map(normMac);
+        const banyak = macs.length > 1;
+        const ke = (i) => (banyak ? "HP ke-" + (i + 1) + ": " : "");
+        for (let i = 0; i < macs.length; i++) if (!macs[i]) return json({ ok: false, pesan: ke(i) + "Format MAC tidak valid." }, 400);
+        if (new Set(macs).size !== macs.length) return json({ ok: false, pesan: "Ada MAC yang sama dimasukkan dua kali." }, 400);
+        for (let i = 0; i < macs.length; i++) { const ada = await byMac(macs[i]); if (ada) return json({ ok: false, pesan: ke(i) + macDipakai(ada) }, 409); }
+        const kecepatan = normRate(b.kecepatan);
+        if (kecepatan === null) return json({ ok: false, pesan: RATE_ERR }, 400);
+        const nama = clean(b.nama, 44) || "tanpa nama", grup = banyak ? newId() : null;
+        const items = macs.map((mac, i) => ({ id: newId(), mac, nama: banyak ? nama + " HP" + (i + 1) : nama, hp: clean(b.hp, 20), ket: clean(b.ket, 80),
           status: STATUSES.includes(b.status) ? b.status : "aktif", acak: isRandomMac(mac), dibuat: now(), diubah: now(),
           aktif_sampai: validIso(b.aktif_sampai) ? new Date(b.aktif_sampai).toISOString() : null, putus_otomatis: b.putus_otomatis !== false,
-          kecepatan: normRate(b.kecepatan), oleh: me.username, cabang: cab, kategori: normKat(b.kategori) };
-        if (item.kecepatan === null) return json({ ok: false, pesan: RATE_ERR }, 400);
-        await insertPerangkat(item);
-        return json({ ok: true, data: row(item) });
+          kecepatan, oleh: me.username, cabang: cab, kategori: normKat(b.kategori), grup }));
+        await db.batch(items.map(perangkatStmt));
+        return json({ ok: true, data: row(items[0]), items: items.map(row), grup });
       }
       const d = await byId(id);
       if (!d) return json({ ok: false, pesan: "Data tidak ditemukan di cabang " + namaCab + "." }, 404);
@@ -403,6 +416,9 @@ export async function onRequest({ request, env }) {
         d.diubah = now();
         await db.prepare("UPDATE perangkat SET status=?, nama=?, hp=?, ket=?, aktif_sampai=?, putus_otomatis=?, kecepatan=?, kategori=?, diubah=? WHERE id=? AND cabang=?")
           .bind(d.status, d.nama, d.hp, d.ket, d.aktif_sampai, d.putus_otomatis ? 1 : 0, d.kecepatan ?? "", normKat(d.kategori), d.diubah, d.id, cab).run();
+        if (d.grup && ["status", "aktif_sampai", "putus_otomatis", "kecepatan"].some((k) => b[k] !== undefined))
+          await db.prepare("UPDATE perangkat SET status=?, aktif_sampai=?, putus_otomatis=?, kecepatan=?, diubah=? WHERE grup=? AND cabang=? AND id!=?")
+            .bind(d.status, d.aktif_sampai, d.putus_otomatis ? 1 : 0, d.kecepatan ?? "", d.diubah, d.grup, cab, d.id).run();
         return json({ ok: true, data: row(d) });
       }
       if (method === "DELETE") {
@@ -467,12 +483,13 @@ export async function onRequest({ request, env }) {
         sampai = new Date(base + hari * 86400000).toISOString();
       }
       const bayar = { id: newId(), perangkat_id: d.id, mac: d.mac, nama: d.nama, paket: paketNama, harga, hari, tanggal, dari, sampai, catatan: clean(b.catatan, 80), kecepatan: kecBaru,
-        status: stBayar, tanggal_lunas: stBayar === "lunas" ? tanggal : null, oleh: me.username, cabang: cab };
+        status: stBayar, tanggal_lunas: stBayar === "lunas" ? tanggal : null, oleh: me.username, cabang: cab, grup: d.grup || null };
+      const nGrup = d.grup ? ((await db.prepare("SELECT COUNT(*) AS n FROM perangkat WHERE grup = ? AND cabang = ?").bind(d.grup, cab).first()) || {}).n || 1 : 1;
       await db.batch([
         db.prepare(insertSql("pembayaran", BAYAR_COLS)).bind(...BAYAR_COLS.map((c) => bayar[c])),
-        db.prepare("UPDATE perangkat SET status='aktif', aktif_sampai=?, kecepatan=?, diubah=? WHERE id=? AND cabang=?").bind(sampai, kecBaru, now(), d.id, cab),
+        db.prepare("UPDATE perangkat SET status='aktif', aktif_sampai=?, kecepatan=?, diubah=? WHERE cabang=? AND (id=? OR (grup IS NOT NULL AND grup=?))").bind(sampai, kecBaru, now(), cab, d.id, d.grup || ""),
       ]);
-      return json({ ok: true, data: bayar, pesan: (stBayar === "utang" ? "Dicatat sebagai UTANG." : "Pembayaran LUNAS dicatat.") + (sampai ? " Aktif sampai " + sampai.slice(0, 10) + "." : "") + (kecepatan ? " Kecepatan " + kecepatan + "." : "") });
+      return json({ ok: true, data: bayar, pesan: (stBayar === "utang" ? "Dicatat sebagai UTANG." : "Pembayaran LUNAS dicatat.") + (sampai ? " Aktif sampai " + sampai.slice(0, 10) + "." : "") + (kecepatan ? " Kecepatan " + kecepatan + "." : "") + (nGrup > 1 ? " Berlaku untuk " + nGrup + " HP." : "") });
     }
 
     // ----- Lunasi semua utang satu pelanggan -----
