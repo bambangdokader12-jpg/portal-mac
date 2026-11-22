@@ -111,6 +111,14 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 .cabchk label{display:flex;align-items:center;gap:6px;margin:0;padding:8px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-weight:600;font-size:.88rem;background:#fff}
 .cabchk label:has(input:checked){border-color:var(--pri);background:#eef4ff;color:var(--pri2)}
 .cabchk input{width:auto;margin:0}
+.kat{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:.7rem;font-weight:700;vertical-align:middle}
+.kat-pribadi{background:#efe7ff;color:#5b2bb5}.kat-keluarga{background:#ffe9f1;color:#b0285e}
+.seg3 label{font-size:.88rem}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chips button{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:.78rem;font-weight:600;padding:5px 9px;border-radius:8px;cursor:pointer}
+.chips button b{color:var(--pri2)}
+.chips button.on{border-color:var(--pri);background:#eef4ff}
+.rpIn{font-variant-numeric:tabular-nums;font-weight:600}
 </style>
 </head>
 <body>
@@ -201,6 +209,8 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
         <h2>➕ Daftar HP Baru</h2>
         <p class="sub">Sekali klik: HP langsung aktif, dan pembayarannya tercatat sebagai <b>Lunas</b> atau <b>Utang</b>.</p>
         <form id="fDaftar" autocomplete="off">
+          <label>Kategori HP</label>
+          <div class="seg seg3" style="max-width:520px"><label><input type="radio" name="kategori" value="pelanggan" checked> 👥 Pelanggan</label><label><input type="radio" name="kategori" value="pribadi"> 🙋 Pribadi</label><label><input type="radio" name="kategori" value="keluarga"> 🏠 Keluarga</label></div>
           <div class="row3">
             <div><label>Nama pelanggan</label><input name="nama" required maxlength="50" placeholder="Nama"></div>
             <div><label>MAC Address HP</label><input name="mac" class="mono" required placeholder="A4:5E:60:12:34:56"></div>
@@ -209,7 +219,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
           <div class="row3">
             <div><label>Kecepatan</label><select name="kecepatan"></select></div>
             <div><label>Masa aktif</label><select name="hari" class="hariSel"><option value="1">1 hari</option><option value="3">3 hari</option><option value="7">1 minggu (7 hari)</option><option value="14">2 minggu (14 hari)</option><option value="30" selected>1 bulan (30 hari)</option><option value="60">2 bulan (60 hari)</option><option value="90">3 bulan (90 hari)</option><option value="180">6 bulan (180 hari)</option><option value="365">1 tahun (365 hari)</option><option value="0">Tanpa batas waktu</option><option value="lain">Lainnya (isi sendiri)…</option></select><input class="hariLain hidden" type="number" min="1" placeholder="jumlah hari" style="margin-top:6px"></div>
-            <div><label>Nominal (Rp)</label><input name="harga" type="number" min="0" placeholder="0 = gratis"></div>
+            <div><label>Nominal (Rp)</label><input name="harga" class="rpIn" type="text" inputmode="numeric" autocomplete="off" placeholder="0 = gratis"><div class="chips rpChips"></div></div>
           </div>
           <div class="row3">
             <div><label>Pembayaran</label>
@@ -230,6 +240,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
             <option value="">Semua</option><option value="aktif">Aktif</option><option value="hampir">Segera habis</option>
             <option value="habis">Habis</option><option value="nonaktif">Nonaktif</option><option value="utang">Punya utang</option>
           </select>
+          <select id="fKat"><option value="">Semua kategori</option><option value="pelanggan">👥 Pelanggan</option><option value="pribadi">🙋 Pribadi</option><option value="keluarga">🏠 Keluarga</option></select>
           <button class="btn ghost" id="bReload" type="button">↻</button>
           <button class="btn ghost" id="bCsvPel" type="button">⬇ Excel</button>
         </div>
@@ -352,7 +363,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
     <div class="dlg-h"><h3>Catat Pembayaran</h3><div class="hint" id="bayarSiapa"></div></div>
     <div class="dlg-b">
       <div class="row">
-        <div><label>Nominal (Rp)</label><input id="bayarHarga" type="number" min="0"></div>
+        <div><label>Nominal (Rp)</label><input id="bayarHarga" class="rpIn" type="text" inputmode="numeric" autocomplete="off" placeholder="0"><div class="chips rpChips"></div></div>
         <div><label>Tambah masa aktif</label><select id="bayarHari" class="hariSel"><option value="1">1 hari</option><option value="3">3 hari</option><option value="7">1 minggu (7 hari)</option><option value="14">2 minggu (14 hari)</option><option value="30" selected>1 bulan (30 hari)</option><option value="60">2 bulan (60 hari)</option><option value="90">3 bulan (90 hari)</option><option value="180">6 bulan (180 hari)</option><option value="365">1 tahun (365 hari)</option><option value="0">Tidak ditambah</option><option value="lain">Lainnya (isi sendiri)…</option></select><input class="hariLain hidden" id="bayarHariLain" type="number" min="1" placeholder="jumlah hari" style="margin-top:6px"></div>
       </div>
       <label>Kecepatan</label><select id="bayarKec"></select>
@@ -374,7 +385,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
         <div><label>Nama</label><input id="eNama" maxlength="50"></div>
         <div><label>No. HP</label><input id="eHp" maxlength="20"></div>
       </div>
-      <label>Keterangan</label><input id="eKet" maxlength="80">
+      <div class="row"><div><label>Kategori HP</label><select id="eKat"><option value="pelanggan">👥 Pelanggan</option><option value="pribadi">🙋 Pribadi</option><option value="keluarga">🏠 Keluarga</option></select></div><div><label>Keterangan</label><input id="eKet" maxlength="80"></div></div>
       <label>Kecepatan</label><select id="eKec"></select>
       <label>Aktif sampai</label>
       <div style="display:flex;gap:8px"><input id="eSampai" type="date"><button class="btn ghost" type="button" id="eTanpa">Tanpa batas</button></div>
@@ -461,6 +472,8 @@ const bulanNow=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,7);
 const namaBulan=b=>{const[y,m]=b.split("-");return new Date(Date.UTC(+y,+m-1,15)).toLocaleDateString("id-ID",{month:"short",timeZone:"UTC"})};
 function normMac(s){const h=String(s||"").toUpperCase().replace(/[^0-9A-F]/g,"");return h.length===12?h.match(/../g).join(":"):null}
 const isRandom=mac=>(parseInt(mac[1],16)&2)===2;
+const KAT={pribadi:"Pribadi",keluarga:"Keluarga"};
+const katBadge=k=>KAT[k]?`<span class="kat kat-${k}">${KAT[k]}</span>`:"";
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function show(el,type,txt){el.className="msg "+type;el.textContent=txt}
 let tt; function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),3200)}
@@ -560,7 +573,7 @@ function renderOnline(){
   const q=$("#oq").value.toLowerCase().trim();
   const rows=onRows.filter(x=>!q||[x.nama,x.mac,x.ip,x.host,x.hp].join(" ").toLowerCase().includes(q)).sort((a,b)=>(b.down||0)-(a.down||0));
   $("#tbOnline").innerHTML=rows.length?rows.map(x=>`<tr>
-    <td>${x.terdaftar?`<b>${esc(x.nama)}</b><div class="hint">${esc(x.hp||"")}</div>`:'<span class="pill p-habis">tidak dikenal</span>'}</td>
+    <td>${x.terdaftar?`<b>${esc(x.nama)}</b>${katBadge(x.kategori)}<div class="hint">${esc(x.hp||"")}</div>`:'<span class="pill p-habis">tidak dikenal</span>'}</td>
     <td><span class="mono">${esc(x.mac)}</span><div class="hint">${esc(x.host||"")}</div></td>
     <td class="mono">${esc(x.ip)}</td>
     <td>${x.kecepatan?`<span class="spd">${esc(x.kecepatan)}</span>`:'<span class="spd free">Tanpa batas</span>'}</td>
@@ -577,7 +590,7 @@ $("#tbOnline").onclick=async e=>{
 };
 
 // ---------- Daftar MAC ----------
-async function loadDev(){ const j=await api("/perangkat"); if(!j.ok) return; data=j.data; defRate=j.kecepatan_default||""; renderDev(); }
+async function loadDev(){ renderRpChips(); const j=await api("/perangkat"); if(!j.ok) return; data=j.data; defRate=j.kecepatan_default||""; renderDev(); }
 function expCell(d){
   if(!d.aktif_sampai) return '<span class="exp hint">Tanpa batas</span>';
   const n=daysLeft(d.aktif_sampai), cls=d.habis||n<=0?"gone":n<=7?"soon":"";
@@ -595,15 +608,16 @@ function bayarCell(d){
   return '<span class="hint">–</span>';
 }
 function renderDev(){
-  const q=$("#q").value.toLowerCase().trim(), st=$("#fStatus").value, order={habis:0,hampir:1,aktif:2,menunggu:3,nonaktif:4};
+  const q=$("#q").value.toLowerCase().trim(), st=$("#fStatus").value, kt=$("#fKat").value, order={habis:0,hampir:1,aktif:2,menunggu:3,nonaktif:4};
   const rows=data.map(d=>({...d,k:kondisi(d)}))
     .filter(d=>!st||(st==="utang"?d.utang>0:d.k===st||(st==="aktif"&&d.k==="hampir")))
+    .filter(d=>!kt||(d.kategori||"pelanggan")===kt)
     .filter(d=>!q||[d.nama,d.mac,d.hp,d.ket].join(" ").toLowerCase().includes(q))
     .sort((a,b)=>(b.utang>0)-(a.utang>0)||order[a.k]-order[b.k]||String(a.nama).localeCompare(String(b.nama)));
   const label={aktif:"aktif",hampir:"aktif",menunggu:"menunggu",nonaktif:"nonaktif",habis:"habis"};
   const op=bisa("operator"), ad=bisa("admin");
   $("#tb").innerHTML=rows.length?rows.map(d=>`<tr>
-    <td><b>${esc(d.nama)}</b><div class="hint">${esc([d.hp,d.ket].filter(Boolean).join(" · "))}</div></td>
+    <td><b>${esc(d.nama)}</b>${katBadge(d.kategori)}<div class="hint">${esc([d.hp,d.ket].filter(Boolean).join(" · "))}</div></td>
     <td class="mono">${esc(d.mac)}${d.acak?'<div class="flag">⚠ MAC acak</div>':""}</td>
     <td><span class="pill p-${label[d.k]}">${label[d.k]}</span></td>
     <td>${expCell(d)}</td>
@@ -616,7 +630,7 @@ function renderDev(){
       ${ad?`<button class="btn sm red" data-a="hapus" data-id="${d.id}">Hapus</button>`:""}
     </div></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada HP terdaftar.</td></tr>';
 }
-$("#q").oninput=renderDev; $("#fStatus").onchange=renderDev; $("#bReload").onclick=loadDev;
+$("#q").oninput=renderDev; $("#fStatus").onchange=renderDev; $("#fKat").onchange=renderDev; $("#bReload").onclick=loadDev;
 $("#tb").onclick=async e=>{
   const b=e.target.closest("button[data-a]"); if(!b) return;
   const d=data.find(x=>x.id===b.dataset.id), a=b.dataset.a; let j;
@@ -630,44 +644,82 @@ $("#fDaftar").onsubmit=async e=>{
   if(!mac) return show(m,"bad","Format MAC tidak valid. Contoh: A4:5E:60:12:34:56");
   if(isRandom(mac)&&!confirm("MAC ini terlihat seperti MAC ACAK (Privasi).\nPastikan MAC acak di HP pelanggan sudah dimatikan.\n\nTetap daftarkan?")) return;
   const btn=f.querySelector("button[type=submit]"); btn.disabled=true;
-  const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,mac,hp:f.hp.value,ket:f.ket.value,kecepatan:f.kecepatan.value,status:"aktif"})});
+  const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,mac,hp:f.hp.value,ket:f.ket.value,kecepatan:f.kecepatan.value,kategori:f.kategori.value,status:"aktif"})});
   if(!j.ok){ btn.disabled=false; return show(m,"bad",j.pesan); }
-  const harga=+f.harga.value||0, hari=hariVal(f.hari), st=f.bayar.value;
+  const harga=parseRp(f.harga.value), hari=hariVal(f.hari), st=f.bayar.value, paketNm=f.harga.dataset.paket||"Pendaftaran";
   let pesan="✅ "+j.data.nama+" terdaftar dan aktif. HP bisa konek dalam ±2 menit.";
   if(harga>0||hari>0){
-    const k=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:j.data.id,harga,hari,status:st,paket:"Pendaftaran"})});
+    const k=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:j.data.id,harga,hari,status:st,paket:paketNm})});
     pesan+=" "+(k.ok?k.pesan:"(Pembayaran gagal dicatat: "+k.pesan+")");
   }
   btn.disabled=false; show(m,st==="utang"&&harga>0?"warn":"ok",pesan);
-  f.nama.value=""; f.mac.value=""; f.hp.value=""; f.ket.value=""; f.harga.value=""; loadDev();
+  f.nama.value=""; f.mac.value=""; f.hp.value=""; f.ket.value=""; setRp(f.harga,""); f.kategori.value="pelanggan"; setKatForm("pelanggan"); loadDev();
 };
+
+// Kategori: HP pribadi/keluarga otomatis tanpa batas waktu & gratis (masih bisa diubah)
+function setKatForm(k){
+  const f=$("#fDaftar"), lain=k!=="pelanggan";
+  $("#fDaftar [name=nama]").previousElementSibling.textContent=lain?"Nama pemilik HP":"Nama pelanggan";
+  if(lain){ f.hari.value="0"; f.querySelector(".hariLain").classList.add("hidden"); setRp(f.harga,""); }
+  else { f.hari.value="30"; }
+}
+$$("#fDaftar input[name=kategori]").forEach(r=>r.onchange=()=>setKatForm(r.value));
+
+// ---------- Nominal (Rp): pilihan cepat + ketik manual dengan titik ribuan ----------
+// Pilihan cepat harga per cabang
+const HARGA_CAB={
+  khl2:[["Paket 1 HP",130000],["Paket 2 HP",200000],["Paket 3 HP",250000],["Paket 4 HP",335000]],
+  bhp: [["Paket 1 HP",100000],["Paket 2 HP",200000],["Paket 3 HP",300000],["Paket 4 HP",400000]],
+  bsi: [["Paket 1 HP",100000],["Paket 2 HP",200000],["Paket 3 HP",300000],["Paket 4 HP",400000]]
+};
+const hargaNow=()=>HARGA_CAB[cabang]||[];
+const parseRp=v=>parseInt(String(v||"").replace(/\D/g,""),10)||0;
+const fmtRp=n=>n?Number(n).toLocaleString("id-ID"):"";
+function setRp(inp,n,paket){ inp.value=fmtRp(parseRp(n)); inp.dataset.paket=paket||""; inp.parentElement.querySelectorAll(".chips button").forEach(b=>b.classList.toggle("on",!!paket&&b.dataset.pk===paket)); }
+function renderRpChips(){ $$(".rpChips").forEach(c=>{ c.innerHTML=hargaNow().map(([nm,n])=>`<button type="button" data-rp="${n}" data-pk="${esc(nm)}">${esc(nm.replace("Paket ",""))} · <b>${fmtRp(n)}</b></button>`).join(""); c.classList.toggle("hidden",!hargaNow().length); }); }
+document.addEventListener("input",e=>{
+  if(!e.target.classList.contains("rpIn")) return;
+  const el=e.target, n=parseRp(el.value), pk=hargaNow().find(h=>h[0]===el.dataset.paket);
+  setRp(el,n,pk&&pk[1]===n?pk[0]:"");
+  el.setSelectionRange(el.value.length,el.value.length);
+  if(el.id==="bayarHarga") previewBayar();
+});
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-rp]"); if(!b) return;
+  const inp=b.closest("div").parentElement.querySelector(".rpIn"); setRp(inp,b.dataset.rp,b.dataset.pk);
+  // harga paket = per bulan: masa aktif ikut 1 bulan
+  const sel=inp.id==="bayarHarga"?$("#bayarHari"):$("#fDaftar [name=hari]");
+  sel.value="30"; sel.parentElement.querySelector(".hariLain").classList.add("hidden");
+  if(inp.id==="bayarHarga") previewBayar();
+});
 // ---------- Dialog Bayar ----------
 function openBayar(id){
-  curDev=data.find(x=>x.id===id); if(!curDev) return;
+  curDev=data.find(x=>x.id===id); if(!curDev) return; renderRpChips();
   $("#bayarSiapa").textContent=curDev.nama+" · "+curDev.mac+(curDev.aktif_sampai?" · aktif s/d "+tgl(curDev.aktif_sampai):"");
-  $("#bayarHarga").value=""; $("#bayarHari").value="30"; $("#bayarHariLain").value=""; $("#bayarHariLain").classList.add("hidden"); $("#bayarKec").innerHTML=kecOptions([["","Tidak diubah"],["0/0","Tanpa batas"]]); $("#bayarKec").value=""; $("#bayarCatatan").value="";
+  setRp($("#bayarHarga"),""); $("#bayarHari").value="30"; $("#bayarHariLain").value=""; $("#bayarHariLain").classList.add("hidden"); $("#bayarKec").innerHTML=kecOptions([["","Tidak diubah"],["0/0","Tanpa batas"]]); $("#bayarKec").value=""; $("#bayarCatatan").value="";
   $$("input[name=bStat]")[0].checked=true; previewBayar(); $("#dBayar").showModal();
 }
 function previewBayar(){
   const hari=hariVal($("#bayarHari")), base=curDev.aktif_sampai&&Date.parse(curDev.aktif_sampai)>Date.now()?Date.parse(curDev.aktif_sampai):Date.now();
   const k=$("#bayarKec").value.trim(), st=$("input[name=bStat]:checked").value;
-  $("#bayarPreview").innerHTML=(hari?`Masa aktif sampai <b>${tgl(new Date(base+hari*86400000).toISOString())}</b>`:"Masa aktif tidak berubah")
+  const nom=parseRp($("#bayarHarga").value), pk=$("#bayarHarga").dataset.paket;
+  $("#bayarPreview").innerHTML="💵 Nominal <b>"+rp(nom)+"</b>"+(pk?" ("+esc(pk)+")":"")+"<br>"+(hari?`Masa aktif sampai <b>${tgl(new Date(base+hari*86400000).toISOString())}</b>`:"Masa aktif tidak berubah")
     +"<br>"+(k?`Kecepatan menjadi <b>${esc(rateTxt(k))}</b>`:`Kecepatan tetap: <b>${esc(curDev.kecepatan||("default "+(defRate||"tanpa batas")))}</b>`)
     +"<br>"+(st==="lunas"?"✅ Langsung masuk pendapatan hari ini":"⏳ Dicatat sebagai <b>utang</b>, masuk pendapatan saat ditandai Lunas");
 }
 $("#bayarHari").addEventListener("change",previewBayar); $("#bayarHariLain").oninput=previewBayar; $("#bayarKec").onchange=previewBayar; $$("input[name=bStat]").forEach(r=>r.onchange=previewBayar);
 $("#fBayar").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
-  const j=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:curDev.id,harga:$("#bayarHarga").value,hari:hariVal($("#bayarHari")),kecepatan:$("#bayarKec").value.trim(),status:$("input[name=bStat]:checked").value,catatan:$("#bayarCatatan").value})});
+  const j=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:curDev.id,harga:parseRp($("#bayarHarga").value),paket:$("#bayarHarga").dataset.paket||"Pembayaran",hari:hariVal($("#bayarHari")),kecepatan:$("#bayarKec").value.trim(),status:$("input[name=bStat]:checked").value,catatan:$("#bayarCatatan").value})});
   toast(j.pesan); if(j.ok){ $("#dBayar").close(); refreshNow(); }
 };
 
 // ---------- Dialog Ubah ----------
-function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eKec").innerHTML=kecOptions([["","Default"],["0/0","Tanpa batas"]],d.kecepatan); $("#eKec").value=d.kecepatan||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#dEdit").showModal(); }
+function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eKat").value=d.kategori||"pelanggan"; $("#eKec").innerHTML=kecOptions([["","Default"],["0/0","Tanpa batas"]],d.kecepatan); $("#eKec").value=d.kecepatan||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#dEdit").showModal(); }
 $("#eTanpa").onclick=()=>{$("#eSampai").value=""};
 $("#fEdit").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
-  const j=await api("/perangkat/"+curDev.id,{method:"PATCH",body:JSON.stringify({nama:$("#eNama").value,hp:$("#eHp").value,ket:$("#eKet").value,kecepatan:$("#eKec").value.trim(),aktif_sampai:fromDateInput($("#eSampai").value),putus_otomatis:$("#ePutus").checked})});
+  const j=await api("/perangkat/"+curDev.id,{method:"PATCH",body:JSON.stringify({nama:$("#eNama").value,hp:$("#eHp").value,ket:$("#eKet").value,kategori:$("#eKat").value,kecepatan:$("#eKec").value.trim(),aktif_sampai:fromDateInput($("#eSampai").value),putus_otomatis:$("#ePutus").checked})});
   toast(j.ok?"Tersimpan. Router menyesuaikan dalam ±2 menit.":j.pesan); if(j.ok){ $("#dEdit").close(); loadDev(); }
 };
 
@@ -765,7 +817,7 @@ const today=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,10);
 const bayarCols=[["Tanggal",r=>tglJam(r.tanggal)],["Nama",r=>r.nama],["MAC",r=>r.mac],["Nominal",r=>r.harga],["Status",r=>r.status],["Tanggal lunas",r=>tglJam(r.tanggal_lunas)],["Hari",r=>r.hari],["Aktif sampai",r=>toDateInput(r.sampai)],["Kecepatan",r=>r.kecepatan],["Catatan",r=>r.catatan],["Oleh",r=>r.oleh]];
 $("#bCsvBayar").onclick=()=>download(cabNow().nama+"-pembayaran-"+($("#bStatus").value==="utang"?"utang":$("#bulanPick").value)+".csv",csv(bayarRows,bayarCols),"text/csv");
 $("#bCsvAll").onclick=async()=>{ const j=await api("/pembayaran"); if(!j.ok) return toast(j.pesan); download(cabNow().nama+"-pembayaran-semua-"+today()+".csv",csv(j.data,bayarCols),"text/csv"); };
-$("#bCsvPel").onclick=()=>download(cabNow().nama+"-daftar-mac-"+today()+".csv",csv(data,[["Nama",r=>r.nama],["No HP",r=>r.hp],["MAC",r=>r.mac],["Status",r=>r.habis?"habis":r.status],["Aktif sampai",r=>toDateInput(r.aktif_sampai)],["Kecepatan",r=>r.kecepatan||"default"],["Utang",r=>r.utang||0],["Keterangan",r=>r.ket]]),"text/csv");
+$("#bCsvPel").onclick=()=>download(cabNow().nama+"-daftar-mac-"+today()+".csv",csv(data,[["Nama",r=>r.nama],["Kategori",r=>r.kategori||"pelanggan"],["No HP",r=>r.hp],["MAC",r=>r.mac],["Status",r=>r.habis?"habis":r.status],["Aktif sampai",r=>toDateInput(r.aktif_sampai)],["Kecepatan",r=>r.kecepatan||"default"],["Utang",r=>r.utang||0],["Keterangan",r=>r.ket]]),"text/csv");
 $("#bBackup").onclick=async()=>{ const j=await api("/backup"); if(!j.aplikasi) return toast(j.pesan||"Gagal backup."); download("backup-"+cabNow().nama+"-"+today()+".json",JSON.stringify(j,null,1),"application/json"); toast("Backup diunduh."); };
 $("#bRestore").onclick=async()=>{
   const f=$("#restoreFile").files[0], m=$("#mRestore"); if(!f) return show(m,"bad","Pilih file backup dulu.");
