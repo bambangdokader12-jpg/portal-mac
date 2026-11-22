@@ -119,6 +119,9 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 .chips button b{color:var(--pri2)}
 .chips button.on{border-color:var(--pri);background:#eef4ff}
 .rpIn{font-variant-numeric:tabular-nums;font-weight:600}
+.maclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.maclist .mi{display:flex;align-items:center;gap:6px}.maclist .mi span{font-size:.78rem;font-weight:700;color:var(--muted);white-space:nowrap;min-width:36px}
+.grp{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:.7rem;font-weight:700;vertical-align:middle;background:#e6f6f4;color:#0b7a6f}
 </style>
 </head>
 <body>
@@ -213,9 +216,11 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
           <div class="seg seg3" style="max-width:520px"><label><input type="radio" name="kategori" value="pelanggan" checked> 👥 Pelanggan</label><label><input type="radio" name="kategori" value="pribadi"> 🙋 Pribadi</label><label><input type="radio" name="kategori" value="keluarga"> 🏠 Keluarga</label></div>
           <div class="row3">
             <div><label>Nama pelanggan</label><input name="nama" required maxlength="50" placeholder="Nama"></div>
-            <div><label>MAC Address HP</label><input name="mac" class="mono" required placeholder="A4:5E:60:12:34:56"></div>
+            <div><label>Jumlah HP</label><select id="jmlHp"><option value="1">1 HP</option><option value="2">2 HP</option><option value="3">3 HP</option><option value="4">4 HP</option><option value="5">5 HP</option><option value="6">6 HP</option></select></div>
             <div><label>No. HP / WA (opsional)</label><input name="hp" maxlength="20" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
           </div>
+          <label id="macLbl">MAC Address HP</label>
+          <div class="maclist" id="macList"></div>
           <div class="row3">
             <div><label>Kecepatan</label><select name="kecepatan"></select></div>
             <div><label>Masa aktif</label><select name="hari" class="hariSel"><option value="1">1 hari</option><option value="3">3 hari</option><option value="7">1 minggu (7 hari)</option><option value="14">2 minggu (14 hari)</option><option value="30" selected>1 bulan (30 hari)</option><option value="60">2 bulan (60 hari)</option><option value="90">3 bulan (90 hari)</option><option value="180">6 bulan (180 hari)</option><option value="365">1 tahun (365 hari)</option><option value="0">Tanpa batas waktu</option><option value="lain">Lainnya (isi sendiri)…</option></select><input class="hariLain hidden" type="number" min="1" placeholder="jumlah hari" style="margin-top:6px"></div>
@@ -550,7 +555,8 @@ async function loadKeuangan(){
   for(let i=11;i>=0;i--){months.push(new Date(Date.UTC(y,m-1-i,1)).toISOString().slice(0,7))}
   const max=Math.max(1,...months.map(b=>map[b]||0));
   $("#chart").innerHTML=months.map(b=>{const v=map[b]||0;return `<div class="bar" title="${namaBulan(b)}: ${rp(v)}"><b>${v?rpShort(v):""}</b><i style="height:${Math.max(2,v/max*100)}%;${b===bulanNow()?"":"opacity:.55"}"></i><span>${namaBulan(b)}</span></div>`}).join("");
-  $("#soonList").innerHTML=keu.hampir_habis.length?keu.hampir_habis.map(d=>`<div class="li"><div><b>${esc(d.nama)}</b><div class="hint">s/d ${tgl(d.aktif_sampai)} · ${daysLeft(d.aktif_sampai)} hari lagi</div></div>${bisa("operator")?`<button class="btn sm green" data-bayar="${d.id}">Bayar</button>`:""}</div>`).join(""):'<div class="empty">Tidak ada 🎉</div>';
+  const sg=new Set(), soon=keu.hampir_habis.filter(d=>!d.grup||(!sg.has(d.grup)&&sg.add(d.grup))); const gn=g=>data.filter(x=>x.grup===g).length;
+  $("#soonList").innerHTML=soon.length?soon.map(d=>`<div class="li"><div><b>${esc(d.grup?d.nama.replace(/ HP\d+$/,""):d.nama)}</b>${d.grup?`<span class="grp">👪 ${gn(d.grup)} HP</span>`:""}<div class="hint">s/d ${tgl(d.aktif_sampai)} · ${daysLeft(d.aktif_sampai)} hari lagi</div></div>${bisa("operator")?`<button class="btn sm green" data-bayar="${d.id}">Bayar</button>`:""}</div>`).join(""):'<div class="empty">Tidak ada 🎉</div>';
 }
 async function lunasi(id){
   const d=data.find(x=>x.id===id); const nama=d?d.nama:"pelanggan ini";
@@ -609,15 +615,16 @@ function bayarCell(d){
 }
 function renderDev(){
   const q=$("#q").value.toLowerCase().trim(), st=$("#fStatus").value, kt=$("#fKat").value, order={habis:0,hampir:1,aktif:2,menunggu:3,nonaktif:4};
+  const GU={}; data.forEach(d=>{ const g=d.grup||d.id; GU[g]=(GU[g]||0)+(d.utang||0); });
   const rows=data.map(d=>({...d,k:kondisi(d)}))
     .filter(d=>!st||(st==="utang"?d.utang>0:d.k===st||(st==="aktif"&&d.k==="hampir")))
     .filter(d=>!kt||(d.kategori||"pelanggan")===kt)
     .filter(d=>!q||[d.nama,d.mac,d.hp,d.ket].join(" ").toLowerCase().includes(q))
-    .sort((a,b)=>(b.utang>0)-(a.utang>0)||order[a.k]-order[b.k]||String(a.nama).localeCompare(String(b.nama)));
+    .sort((a,b)=>(GU[b.grup||b.id]>0)-(GU[a.grup||a.id]>0)||order[a.k]-order[b.k]||String(a.nama).localeCompare(String(b.nama)));
   const label={aktif:"aktif",hampir:"aktif",menunggu:"menunggu",nonaktif:"nonaktif",habis:"habis"};
   const op=bisa("operator"), ad=bisa("admin");
   $("#tb").innerHTML=rows.length?rows.map(d=>`<tr>
-    <td><b>${esc(d.nama)}</b>${katBadge(d.kategori)}<div class="hint">${esc([d.hp,d.ket].filter(Boolean).join(" · "))}</div></td>
+    <td><b>${esc(d.nama)}</b>${katBadge(d.kategori)}${d.grup_n>1?`<span class="grp" title="Satu grup: status, masa aktif & kecepatan bersama">👪 ${d.grup_n} HP</span>`:""}<div class="hint">${esc([d.hp,d.ket].filter(Boolean).join(" · "))}</div></td>
     <td class="mono">${esc(d.mac)}${d.acak?'<div class="flag">⚠ MAC acak</div>':""}</td>
     <td><span class="pill p-${label[d.k]}">${label[d.k]}</span></td>
     <td>${expCell(d)}</td>
@@ -637,23 +644,25 @@ $("#tb").onclick=async e=>{
   if(a==="edit") return openEdit(d);
   if(a==="hapus"){ if(!confirm("Hapus "+d.nama+" ("+d.mac+")?\nHP langsung tidak bisa konek. Riwayat pembayarannya tetap tersimpan.")) return; j=await api("/perangkat/"+d.id,{method:"DELETE"}); }
   else j=await api("/perangkat/"+d.id,{method:"PATCH",body:JSON.stringify({status:a})});
-  toast(j.ok?"Tersimpan. Router menyesuaikan dalam ±2 menit.":j.pesan); loadDev();
+  toast(j.ok?"Tersimpan"+(d.grup_n>1&&a!=="hapus"?" untuk "+d.grup_n+" HP":"")+". Router menyesuaikan dalam ±2 menit.":j.pesan); loadDev();
 };
 $("#fDaftar").onsubmit=async e=>{
-  e.preventDefault(); const f=e.target, m=$("#mDaftar"), mac=normMac(f.mac.value);
-  if(!mac) return show(m,"bad","Format MAC tidak valid. Contoh: A4:5E:60:12:34:56");
-  if(isRandom(mac)&&!confirm("MAC ini terlihat seperti MAC ACAK (Privasi).\nPastikan MAC acak di HP pelanggan sudah dimatikan.\n\nTetap daftarkan?")) return;
+  e.preventDefault(); const f=e.target, m=$("#mDaftar"), macs=$$("#macList input").map(i=>normMac(i.value)), banyak=macs.length>1;
+  const bi=macs.findIndex(x=>!x); if(bi>=0) return show(m,"bad",(banyak?"HP ke-"+(bi+1)+": ":"")+"Format MAC tidak valid. Contoh: A4:5E:60:12:34:56");
+  if(new Set(macs).size!==macs.length) return show(m,"bad","Ada MAC yang sama dimasukkan dua kali.");
+  const acak=macs.map((x,i)=>isRandom(x)?"HP "+(i+1):null).filter(Boolean);
+  if(acak.length&&!confirm((banyak?acak.join(", ")+": ":"")+"MAC terlihat seperti MAC ACAK (Privasi).\nPastikan MAC acak di HP pelanggan sudah dimatikan.\n\nTetap daftarkan?")) return;
   const btn=f.querySelector("button[type=submit]"); btn.disabled=true;
-  const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,mac,hp:f.hp.value,ket:f.ket.value,kecepatan:f.kecepatan.value,kategori:f.kategori.value,status:"aktif"})});
+  const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,...(banyak?{macs}:{mac:macs[0]}),hp:f.hp.value,ket:f.ket.value,kecepatan:f.kecepatan.value,kategori:f.kategori.value,status:"aktif"})});
   if(!j.ok){ btn.disabled=false; return show(m,"bad",j.pesan); }
   const harga=parseRp(f.harga.value), hari=hariVal(f.hari), st=f.bayar.value, paketNm=f.harga.dataset.paket||"Pendaftaran";
-  let pesan="✅ "+j.data.nama+" terdaftar dan aktif. HP bisa konek dalam ±2 menit.";
+  let pesan="✅ "+(banyak?f.nama.value.trim()+" ("+macs.length+" HP)":j.data.nama)+" terdaftar dan aktif. HP bisa konek dalam ±2 menit.";
   if(harga>0||hari>0){
     const k=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:j.data.id,harga,hari,status:st,paket:paketNm})});
     pesan+=" "+(k.ok?k.pesan:"(Pembayaran gagal dicatat: "+k.pesan+")");
   }
   btn.disabled=false; show(m,st==="utang"&&harga>0?"warn":"ok",pesan);
-  f.nama.value=""; f.mac.value=""; f.hp.value=""; f.ket.value=""; setRp(f.harga,""); f.kategori.value="pelanggan"; setKatForm("pelanggan"); loadDev();
+  f.nama.value=""; $("#jmlHp").value="1"; renderMacInputs(true); f.hp.value=""; f.ket.value=""; setRp(f.harga,""); f.kategori.value="pelanggan"; setKatForm("pelanggan"); loadDev();
 };
 
 // Kategori: HP pribadi/keluarga otomatis tanpa batas waktu & gratis (masih bisa diubah)
@@ -691,11 +700,22 @@ document.addEventListener("click",e=>{
   const sel=inp.id==="bayarHarga"?$("#bayarHari"):$("#fDaftar [name=hari]");
   sel.value="30"; sel.parentElement.querySelector(".hariLain").classList.add("hidden");
   if(inp.id==="bayarHarga") previewBayar();
+  const nHp=+((b.dataset.pk.match(/(\d+)\s*HP/)||[])[1]||0);
+  if(inp.name==="harga"&&nHp){ $("#jmlHp").value=String(nHp); renderMacInputs(); }
 });
+
+// ---------- Jumlah HP: kolom MAC sebanyak jumlah HP ----------
+function renderMacInputs(kosong){
+  const n=+$("#jmlHp").value||1, lama=kosong?[]:$$("#macList input").map(i=>i.value);
+  $("#macLbl").textContent=n>1?"MAC Address "+n+" HP (satu grup, sekali bayar)":"MAC Address HP";
+  $("#macList").innerHTML=Array.from({length:n},(_,i)=>`<div class="mi">${n>1?`<span>HP ${i+1}</span>`:""}<input name="mac" class="mono" required placeholder="A4:5E:60:12:34:56" value="${esc(lama[i]||"")}"></div>`).join("");
+}
+$("#jmlHp").onchange=()=>renderMacInputs();
+renderMacInputs(true);
 // ---------- Dialog Bayar ----------
 function openBayar(id){
   curDev=data.find(x=>x.id===id); if(!curDev) return; renderRpChips();
-  $("#bayarSiapa").textContent=curDev.nama+" · "+curDev.mac+(curDev.aktif_sampai?" · aktif s/d "+tgl(curDev.aktif_sampai):"");
+  $("#bayarSiapa").textContent=curDev.nama+" · "+curDev.mac+(curDev.aktif_sampai?" · aktif s/d "+tgl(curDev.aktif_sampai):"")+(curDev.grup_n>1?" · 👪 grup "+curDev.grup_n+" HP: semua ikut diperpanjang":"");
   setRp($("#bayarHarga"),""); $("#bayarHari").value="30"; $("#bayarHariLain").value=""; $("#bayarHariLain").classList.add("hidden"); $("#bayarKec").innerHTML=kecOptions([["","Tidak diubah"],["0/0","Tanpa batas"]]); $("#bayarKec").value=""; $("#bayarCatatan").value="";
   $$("input[name=bStat]")[0].checked=true; previewBayar(); $("#dBayar").showModal();
 }
@@ -715,7 +735,7 @@ $("#fBayar").onsubmit=async e=>{
 };
 
 // ---------- Dialog Ubah ----------
-function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eKat").value=d.kategori||"pelanggan"; $("#eKec").innerHTML=kecOptions([["","Default"],["0/0","Tanpa batas"]],d.kecepatan); $("#eKec").value=d.kecepatan||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#dEdit").showModal(); }
+function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eKat").value=d.kategori||"pelanggan"; $("#eKec").innerHTML=kecOptions([["","Default"],["0/0","Tanpa batas"]],d.kecepatan); $("#eKec").value=d.kecepatan||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#editMac").textContent=d.mac+(d.grup_n>1?" · 👪 grup "+d.grup_n+" HP: kecepatan, masa aktif & putus otomatis berlaku untuk semua":""); $("#dEdit").showModal(); }
 $("#eTanpa").onclick=()=>{$("#eSampai").value=""};
 $("#fEdit").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
