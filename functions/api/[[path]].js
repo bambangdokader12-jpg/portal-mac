@@ -1,850 +1,663 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>APP-BHP (APP-NET) — Panel Daftar MAC</title>
-<meta name="theme-color" content="#0b3d91">
-<meta name="robots" content="noindex">
-<style>
-:root{
-  --bg:#eef2f8;--card:#ffffff;--ink:#0f1b2d;--muted:#64708a;--line:#e3e8f1;--soft:#f6f8fc;
-  --pri:#1458d6;--pri2:#0b3d91;--acc:#13b5a6;
-  --ok:#14804a;--okbg:#e4f6ec;--warn:#9a5b00;--warnbg:#fff3dc;--bad:#c2372b;--badbg:#fdeceb;--gray:#5d6880;--graybg:#eef1f6;
-  --r:16px;--shadow:0 1px 2px rgba(16,30,60,.06),0 6px 24px rgba(16,30,60,.07);
-}
-*{box-sizing:border-box}
-html,body{margin:0}
-body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
-a{color:var(--pri)}
-.hero{background:radial-gradient(1200px 400px at 85% -10%,rgba(19,181,166,.45),transparent 60%),linear-gradient(135deg,#0b3d91,#1458d6 60%,#1d6fe8);color:#fff;padding:26px 18px 84px}
-.hero-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:14px}
-.logo{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none;backdrop-filter:blur(4px)}
-.hero h1{margin:0;font-size:1.35rem;letter-spacing:-.01em}
-.hero p{margin:2px 0 0;opacity:.85;font-size:.93rem}
-.wrap{max-width:1100px;margin:-62px auto 40px;padding:0 14px}
-.nav{display:flex;gap:6px;background:rgba(255,255,255,.14);padding:6px;border-radius:14px;width:max-content;max-width:100%;overflow-x:auto;margin-bottom:14px;backdrop-filter:blur(6px)}
-.nav button{border:0;background:transparent;color:#fff;font:inherit;font-weight:600;padding:9px 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
-.nav button.on{background:#fff;color:var(--pri2);box-shadow:0 2px 8px rgba(0,0,0,.12)}
-.card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:14px}
-.card h2{margin:0 0 4px;font-size:1.08rem;letter-spacing:-.01em}
-.card .sub{color:var(--muted);font-size:.88rem;margin:0 0 14px}
-label{display:block;font-size:.82rem;font-weight:600;margin:12px 0 5px;color:#2b3850}
-input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:.97rem;background:#fff;color:var(--ink)}
-input:focus,select:focus,textarea:focus{outline:3px solid #cfe0ff;border-color:var(--pri)}
-.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.3px}
-.btn{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--pri);color:#fff;padding:10px 16px;border-radius:10px;font:inherit;font-weight:600;font-size:.93rem;cursor:pointer;text-decoration:none;white-space:nowrap}
-.btn:hover{filter:brightness(1.07)} .btn:disabled{opacity:.6;cursor:wait}
-.btn.ghost{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
-.btn.green{background:#16a05d} .btn.red{background:var(--badbg);color:var(--bad)} .btn.sm{padding:6px 10px;font-size:.8rem;border-radius:8px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 14px}
-@media(max-width:640px){.row,.row3{grid-template-columns:1fr}}
-.msg{padding:11px 13px;border-radius:10px;margin-top:12px;font-size:.92rem;display:none}
-.msg.ok{display:block;background:var(--okbg);color:var(--ok)} .msg.warn{display:block;background:var(--warnbg);color:var(--warn)} .msg.bad{display:block;background:var(--badbg);color:var(--bad)}
-.hint{color:var(--muted);font-size:.84rem}
-.hidden{display:none!important}
-.steps{counter-reset:s;list-style:none;padding:0;margin:6px 0 0;display:grid;gap:10px}
-.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:.93rem}
-.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:#e7efff;color:var(--pri);font-weight:700;display:grid;place-items:center;font-size:.85rem}
-details{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:10px;background:var(--soft)}
-summary{cursor:pointer;font-weight:600}
-.grid-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
-@media(max-width:860px){.grid-kpi{grid-template-columns:repeat(2,1fr)}}
-.kpi{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
-.kpi .l{color:var(--muted);font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.kpi .v{font-size:1.45rem;font-weight:800;margin-top:4px;letter-spacing:-.02em}
-.kpi .d{font-size:.8rem;color:var(--muted);margin-top:2px}
-.kpi.blue{background:linear-gradient(135deg,#1458d6,#0b3d91);color:#fff}.kpi.blue .l,.kpi.blue .d{color:rgba(255,255,255,.8)}
-.two{display:grid;grid-template-columns:1.6fr 1fr;gap:14px}
-@media(max-width:860px){.two{grid-template-columns:1fr}}
-.chart{display:flex;align-items:flex-end;gap:8px;height:190px;padding-top:12px;border-bottom:1px solid var(--line)}
-.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
-.bar i{display:block;width:100%;max-width:42px;background:linear-gradient(180deg,#3b82f6,#1458d6);border-radius:8px 8px 3px 3px;min-height:3px;transition:height .4s}
-.bar b{font-size:.68rem;color:var(--muted);font-weight:600;margin-bottom:4px;white-space:nowrap}
-.bar span{font-size:.72rem;color:var(--muted);margin-top:6px}
-.subnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.subnav button{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 14px;border-radius:999px;font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;box-shadow:var(--shadow)}
-.subnav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
-.toolbar input{flex:1;min-width:180px}.toolbar select{width:auto}
-.tablewrap{overflow-x:auto;margin:0 -6px}
-table{width:100%;border-collapse:collapse;font-size:.9rem}
-th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:11px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
-tr:hover td{background:#fafcff}
-.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.74rem;font-weight:700;white-space:nowrap}
-.p-aktif{background:var(--okbg);color:var(--ok)}.p-menunggu{background:var(--warnbg);color:var(--warn)}.p-nonaktif{background:var(--graybg);color:var(--gray)}.p-habis{background:var(--badbg);color:var(--bad)}
-.exp{font-size:.82rem;white-space:nowrap}.exp.soon{color:var(--warn);font-weight:700}.exp.gone{color:var(--bad);font-weight:700}
-.flag{color:var(--bad);font-size:.72rem;font-weight:600}
-.spd{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.78rem;font-weight:700;background:#e7efff;color:#0b3d91;white-space:nowrap;font-family:ui-monospace,Consolas,monospace}
-.spd.def{background:var(--graybg);color:var(--gray)}.spd.free{background:var(--okbg);color:var(--ok)}
-.act{display:flex;gap:4px;flex-wrap:wrap}
-.empty{text-align:center;color:var(--muted);padding:28px}
-.list{display:grid;gap:8px}
-.li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-size:.9rem}
-.money{font-variant-numeric:tabular-nums;font-weight:700}
-dialog{border:0;border-radius:18px;padding:0;width:min(520px,94vw);box-shadow:0 20px 60px rgba(10,20,50,.35)}
-dialog::backdrop{background:rgba(10,20,40,.45);backdrop-filter:blur(2px)}
-.dlg-h{padding:18px 20px 0}.dlg-h h3{margin:0;font-size:1.1rem}.dlg-b{padding:4px 20px 8px}.dlg-f{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px 18px}
-.preview{background:#eef5ff;border:1px dashed #9cc0ff;color:#0b3d91;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:.9rem}
-.check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.9rem;font-weight:500}
-.check input{width:auto}
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#0f1b2d;color:#fff;padding:11px 18px;border-radius:12px;font-size:.92rem;opacity:0;transition:.25s;z-index:99;max-width:90vw;box-shadow:0 8px 30px rgba(0,0,0,.25)}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.wa{background:#16a05d}
-footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
-.statusbox{display:flex;gap:14px;align-items:center;padding:16px;border-radius:14px;margin-top:14px}
-.statusbox .ic{font-size:1.8rem}
+// Portal Daftar HP Julfikar.Com Wifi (APP-NET) — backend Cloudflare Pages Functions + D1
+// Versi 3 cabang: APP-BHP (bhp), APP-KHL2 (khl2), APP-BSI (bsi).
+// Binding: DB (D1). Secrets: ADMIN_PASSWORD, SYNC_KEY.
+//
+// Cabang dipilih lewat header "x-cabang" (panel web) atau "?cabang=" (router MikroTik).
+// Kalau tidak disebut, dianggap "bhp" — jadi router BHP yang lama tetap jalan tanpa diubah.
+// Data lama (sebelum versi cabang) otomatis menjadi data APP-BHP.
 
-.seg{display:flex;gap:6px;margin-top:2px}
-.seg label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;margin:0;padding:10px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-weight:600;font-size:.92rem;background:#fff}
-.seg label:has(input:checked){border-color:var(--pri);background:#eef4ff;color:var(--pri2)}
-.seg input{width:auto;margin:0}
-@media(max-width:640px){#whoBox{display:none}}
-.cabbar{max-width:1100px;margin:14px auto 0;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.cabbar .lbl{font-size:.8rem;opacity:.8;margin-right:4px;font-weight:600}
-.cabbar button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:700;font-size:.88rem;padding:7px 14px;border-radius:999px;cursor:pointer}
-.cabbar button.on{background:#fff;color:var(--pri2);border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.hero{padding-bottom:96px}
-.cabchk{display:flex;gap:6px;flex-wrap:wrap}
-.cabchk label{display:flex;align-items:center;gap:6px;margin:0;padding:8px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-weight:600;font-size:.88rem;background:#fff}
-.cabchk label:has(input:checked){border-color:var(--pri);background:#eef4ff;color:var(--pri2)}
-.cabchk input{width:auto;margin:0}
-.kat{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:.7rem;font-weight:700;vertical-align:middle}
-.kat-pribadi{background:#efe7ff;color:#5b2bb5}.kat-keluarga{background:#ffe9f1;color:#b0285e}
-.seg3 label{font-size:.88rem}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.chips button{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:.78rem;font-weight:600;padding:5px 9px;border-radius:8px;cursor:pointer}
-.chips button b{color:var(--pri2)}
-.chips button.on{border-color:var(--pri);background:#eef4ff}
-.rpIn{font-variant-numeric:tabular-nums;font-weight:600}
-.maclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
-.maclist .mi{display:flex;align-items:center;gap:6px}.maclist .mi span{font-size:.78rem;font-weight:700;color:var(--muted);white-space:nowrap;min-width:36px}
-.grp{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:.7rem;font-weight:700;vertical-align:middle;background:#e6f6f4;color:#0b7a6f}
-</style>
-</head>
-<body>
-<header class="hero">
-  <div class="hero-in">
-    <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5a15 15 0 0 1 20 0"/><path d="M5.5 12a10 10 0 0 1 13 0"/><path d="M9 15.5a5 5 0 0 1 6 0"/><circle cx="12" cy="19" r="1.3" fill="#fff"/></svg></div>
-    <div style="flex:1"><h1><span id="brandName">APP-NET</span> <span style="opacity:.8;font-weight:600">· APP-NET</span></h1><p>Panel admin daftar MAC HP · <span id="brandSub">3 cabang</span></p></div>
-    <div id="whoBox" class="hidden" style="text-align:right"><div style="font-weight:700" id="whoName"></div><div style="opacity:.8;font-size:.85rem" id="whoRole"></div></div>
-  </div>
-  <div class="cabbar hidden" id="cabBar"><span class="lbl">Cabang:</span></div>
-</header>
+const TOKEN_TTL_MS = 12 * 60 * 60 * 1000;
+const MAX_PENDING = 300;
+const STATUSES = ["aktif", "menunggu", "nonaktif"];
+const KATEGORI = ["pelanggan", "pribadi", "keluarga"]; // jenis HP
+const normKat = (v) => (KATEGORI.includes(String(v || "").toLowerCase()) ? String(v).toLowerCase() : "pelanggan");
+const TZ_OFFSET = "+8 hours"; // WITA
+const enc = new TextEncoder();
 
-<div class="wrap">
-  <!-- ================= LOGIN ================= -->
-  <section id="loginBox" class="card" style="max-width:420px;margin:0 auto">
-    <h2>Masuk</h2>
-    <p class="sub">Pilih cabang, lalu masuk dengan akun yang sudah didaftarkan admin.</p>
-    <form id="fLogin" autocomplete="on">
-      <label>Cabang</label>
-      <select id="loginCab" name="cabang" required></select>
-      <label>Username</label>
-      <input name="username" required autocomplete="username" autocapitalize="none" placeholder="admin">
-      <label>Password</label>
-      <input name="password" type="password" required autocomplete="current-password">
-      <div style="margin-top:16px"><button class="btn" type="submit" style="width:100%;justify-content:center">Masuk</button></div>
-      <div id="mLogin" class="msg"></div>
-    </form>
-  </section>
+const CABANG = { bhp: "APP-BHP", khl2: "APP-KHL2", bsi: "APP-BSI" };
+const CABANG_IDS = Object.keys(CABANG);
+const CABANG_DEFAULT = "bhp";
 
-  <!-- ================= APLIKASI ================= -->
-  <section id="app" class="hidden">
-    <div class="subnav" id="subnav">
-      <button class="on" data-sub="ringkasan">📊 Ringkasan</button>
-      <button data-sub="online">🟢 User Aktif</button>
-      <button data-sub="pelanggan">📱 Pelanggan</button>
-      <button data-sub="pembayaran">💰 Pembayaran</button>
-      <button data-sub="kecepatan" data-role="admin">⚡ Kecepatan</button>
-      <button data-sub="backup" data-role="admin">🗄️ Backup</button>
-      <button id="bLogout" style="margin-left:auto">Keluar</button>
-    </div>
-
-    <!-- RINGKASAN -->
-    <div id="s-ringkasan">
-      <div class="grid-kpi">
-        <div class="kpi blue"><div class="l">Pendapatan bulan ini</div><div class="v money" id="kBulan">–</div><div class="d" id="kBulanD"></div></div>
-        <div class="kpi"><div class="l">Hari ini</div><div class="v money" id="kHari">–</div><div class="d" id="kHariD"></div></div>
-        <div class="kpi"><div class="l">Utang belum lunas</div><div class="v money" id="kUtang" style="color:var(--bad)">–</div><div class="d" id="kUtangD"></div></div>
-        <div class="kpi"><div class="l">HP aktif</div><div class="v" id="kAktif">–</div><div class="d" id="kAktifD"></div></div>
-      </div>
-      <div class="two">
-        <div class="card">
-          <h2>Pendapatan per bulan</h2>
-          <p class="sub">Hanya pembayaran yang sudah lunas · total <span id="kTotal"></span></p>
-          <div class="chart" id="chart"></div>
-        </div>
-        <div class="card">
-          <h2>Segera habis (7 hari)</h2>
-          <p class="sub">Ingatkan pelanggan untuk bayar</p>
-          <div class="list" id="soonList"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- USER AKTIF -->
-    <div id="s-online" class="hidden">
-      <div class="grid-kpi">
-        <div class="kpi blue"><div class="l">Sedang tersambung</div><div class="v" id="oJumlah">–</div><div class="d" id="oWaktu"></div></div>
-        <div class="kpi"><div class="l">Pemakaian download</div><div class="v" id="oDown">–</div><div class="d">total HP yang tersambung</div></div>
-        <div class="kpi"><div class="l">Pemakaian upload</div><div class="v" id="oUp">–</div><div class="d">total HP yang tersambung</div></div>
-        <div class="kpi"><div class="l">Tidak dikenal</div><div class="v" id="oAsing">–</div><div class="d">tersambung tapi tidak ada di daftar</div></div>
-      </div>
-      <div class="card">
-        <div class="toolbar">
-          <input id="oq" placeholder="Cari nama, MAC, IP…">
-          <button class="btn ghost" id="oReload" type="button">↻ Muat ulang</button>
-          <span class="hint">Data dikirim router setiap ±2 menit. Pemakaian dihitung sejak HP tersambung.</span>
-        </div>
-        <div class="tablewrap"><table>
-          <thead><tr><th>Pelanggan</th><th>MAC / Nama HP</th><th>IP</th><th>Kecepatan</th><th>Pemakaian ↓ / ↑</th><th>Masa aktif</th><th></th></tr></thead>
-          <tbody id="tbOnline"></tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- DAFTAR MAC -->
-    <div id="s-pelanggan" class="hidden">
-      <div class="card" data-role="operator">
-        <h2>➕ Daftar HP Baru</h2>
-        <p class="sub">Sekali klik: HP langsung aktif, dan pembayarannya tercatat sebagai <b>Lunas</b> atau <b>Utang</b>.</p>
-        <form id="fDaftar" autocomplete="off">
-          <label>Kategori HP</label>
-          <div class="seg seg3" style="max-width:520px"><label><input type="radio" name="kategori" value="pelanggan" checked> 👥 Pelanggan</label><label><input type="radio" name="kategori" value="pribadi"> 🙋 Pribadi</label><label><input type="radio" name="kategori" value="keluarga"> 🏠 Keluarga</label></div>
-          <div class="row3">
-            <div><label>Nama pelanggan</label><input name="nama" required maxlength="50" placeholder="Nama"></div>
-            <div><label>Jumlah HP</label><select id="jmlHp"><option value="1">1 HP</option><option value="2">2 HP</option><option value="3">3 HP</option><option value="4">4 HP</option><option value="5">5 HP</option><option value="6">6 HP</option></select></div>
-            <div><label>No. HP / WA (opsional)</label><input name="hp" maxlength="20" inputmode="tel" placeholder="08xxxxxxxxxx"></div>
-          </div>
-          <label id="macLbl">MAC Address HP</label>
-          <div class="maclist" id="macList"></div>
-          <div class="row3">
-            <div><label>Kecepatan</label><select name="kecepatan"></select></div>
-            <div><label>Masa aktif</label><select name="hari" class="hariSel"><option value="1">1 hari</option><option value="3">3 hari</option><option value="7">1 minggu (7 hari)</option><option value="14">2 minggu (14 hari)</option><option value="30" selected>1 bulan (30 hari)</option><option value="60">2 bulan (60 hari)</option><option value="90">3 bulan (90 hari)</option><option value="180">6 bulan (180 hari)</option><option value="365">1 tahun (365 hari)</option><option value="0">Tanpa batas waktu</option><option value="lain">Lainnya (isi sendiri)…</option></select><input class="hariLain hidden" type="number" min="1" placeholder="jumlah hari" style="margin-top:6px"></div>
-            <div><label>Nominal (Rp)</label><input name="harga" class="rpIn" type="text" inputmode="numeric" autocomplete="off" placeholder="0 = gratis"><div class="chips rpChips"></div></div>
-          </div>
-          <div class="row3">
-            <div><label>Pembayaran</label>
-              <div class="seg"><label><input type="radio" name="bayar" value="lunas" checked> ✅ Lunas</label><label><input type="radio" name="bayar" value="utang"> ⏳ Utang</label></div></div>
-            <div><label>Keterangan (opsional)</label><input name="ket" maxlength="80" placeholder="Rumah blok C, dll."></div>
-            <div style="display:flex;align-items:flex-end"><button class="btn" type="submit" style="width:100%;justify-content:center;margin-top:12px">Daftarkan & Aktifkan</button></div>
-          </div>
-          <div id="mDaftar" class="msg"></div>
-        </form>
-        <details style="margin-top:12px"><summary>Cara melihat MAC di HP pelanggan</summary>
-          <ol><li><b>Android:</b> Pengaturan → WiFi → ⚙️ di samping WiFi → <b>Privasi</b> → pilih <b>MAC perangkat</b>, lalu salin <b>Alamat MAC</b>.</li>
-          <li><b>iPhone:</b> Pengaturan → Wi-Fi → ⓘ → <b>Alamat Wi-Fi Pribadi</b> = <b>Mati</b>, lalu salin <b>Alamat Wi-Fi</b>.</li></ol></details>
-      </div>
-      <div class="card">
-        <div class="toolbar">
-          <input id="q" placeholder="Cari nama, MAC, no. HP…">
-          <select id="fStatus">
-            <option value="">Semua</option><option value="aktif">Aktif</option><option value="hampir">Segera habis</option>
-            <option value="habis">Habis</option><option value="nonaktif">Nonaktif</option><option value="utang">Punya utang</option>
-          </select>
-          <select id="fKat"><option value="">Semua kategori</option><option value="pelanggan">👥 Pelanggan</option><option value="pribadi">🙋 Pribadi</option><option value="keluarga">🏠 Keluarga</option></select>
-          <button class="btn ghost" id="bReload" type="button">↻</button>
-          <button class="btn ghost" id="bCsvPel" type="button">⬇ Excel</button>
-        </div>
-        <div class="tablewrap"><table>
-          <thead><tr><th>Pelanggan</th><th>MAC Address</th><th>Status</th><th>Masa aktif</th><th>Kecepatan</th><th>Pembayaran</th><th>Aksi</th></tr></thead>
-          <tbody id="tb"></tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- PEMBAYARAN -->
-    <div id="s-pembayaran" class="hidden">
-      <div class="grid-kpi" style="grid-template-columns:repeat(3,1fr)">
-        <div class="kpi blue"><div class="l">Lunas di bulan ini</div><div class="v money" id="pLunas">–</div><div class="d" id="pLunasD"></div></div>
-        <div class="kpi"><div class="l">Utang dicatat bulan ini</div><div class="v money" id="pUtang" style="color:var(--bad)">–</div><div class="d" id="pUtangD"></div></div>
-        <div class="kpi"><div class="l">Semua utang belum lunas</div><div class="v money" id="pUtangAll" style="color:var(--bad)">–</div><div class="d" id="pUtangAllD"></div></div>
-      </div>
-      <div class="card">
-        <div class="toolbar">
-          <input type="month" id="bulanPick" style="max-width:190px">
-          <select id="bStatus"><option value="">Semua</option><option value="lunas">Lunas</option><option value="utang">Utang (semua bulan)</option></select>
-          <button class="btn ghost" id="bCsvBayar" type="button">⬇ Excel</button>
-        </div>
-        <div class="tablewrap"><table>
-          <thead><tr><th>Tanggal</th><th>Pelanggan</th><th>Nominal</th><th>Status</th><th>Masa aktif s/d</th><th>Catatan</th><th></th></tr></thead>
-          <tbody id="tbBayar"></tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- KECEPATAN -->
-    <div id="s-kecepatan" class="hidden">
-      <div class="two">
-        <div class="card">
-          <h2>⚡ Daftar Kecepatan</h2>
-          <p class="sub">Pilihan kecepatan yang muncul saat mendaftarkan HP, Bayar, dan Ubah.</p>
-          <div class="tablewrap"><table>
-            <thead><tr><th>Nama</th><th>Upload / Download</th><th>Dipakai</th><th></th></tr></thead>
-            <tbody id="tbKec"></tbody>
-          </table></div>
-        </div>
-        <div class="card">
-          <h2>➕ Tambah Kecepatan</h2>
-          <form id="fKec" autocomplete="off">
-            <label>Nama</label><input name="nama" required maxlength="30" placeholder="contoh: Paket 5 Mbps">
-            <div class="row">
-              <div><label>Upload</label><input name="up" class="mono" required placeholder="2M"></div>
-              <div><label>Download</label><input name="down" class="mono" required placeholder="5M"></div>
-            </div>
-            <div class="hint" style="margin-top:6px">Pakai <b>M</b> untuk Mbps atau <b>k</b> untuk Kbps, misalnya <span class="mono">512k</span>, <span class="mono">2M</span>, <span class="mono">10M</span>.</div>
-            <div style="margin-top:14px"><button class="btn" type="submit">Tambah</button></div>
-          </form>
-          <form id="fDefault" autocomplete="off" style="margin-top:22px;border-top:1px solid var(--line);padding-top:16px">
-            <h2>Kecepatan Default</h2>
-            <p class="sub">Dipakai HP yang tidak dipilihkan kecepatan (pilihan "Default").</p>
-            <select id="defRate"></select>
-            <div style="margin-top:12px;display:flex;gap:10px;align-items:center"><button class="btn" type="submit">Simpan</button><span class="hint" id="defNow"></span></div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- BACKUP -->
-    <div id="s-backup" class="hidden">
-      <div class="two">
-        <div class="card">
-          <h2>Backup database</h2>
-          <p class="sub">Unduh data cabang yang sedang dipilih (pelanggan, pembayaran, pengaturan) ke satu file. Backup tiap cabang terpisah. Simpan secara rutin, misalnya seminggu sekali.</p>
-          <button class="btn" id="bBackup" type="button">⬇ Download backup</button>
-          <div style="margin-top:18px">
-            <h2>Download Excel</h2>
-            <p class="sub">File CSV, bisa dibuka di Excel / Google Sheets.</p>
-            <button class="btn ghost" id="bCsvAll" type="button">Semua pembayaran (CSV)</button>
-          </div>
-        </div>
-        <div class="card">
-          <h2>Restore dari backup</h2>
-          <p class="sub">⚠️ Data <b>cabang yang sedang dipilih</b> akan <b>diganti</b> dengan isi file backup. Pastikan cabangnya benar.</p>
-          <input type="file" id="restoreFile" accept=".json,application/json">
-          <div style="margin-top:12px"><button class="btn red" id="bRestore" type="button">Restore</button></div>
-          <div id="mRestore" class="msg"></div>
-        </div>
-      </div>
-    <!-- PENGGUNA -->
-    <div id="s-pengguna">
-      <div class="two">
-        <div class="card">
-          <h2>👤 Pengguna Login</h2>
-          <p class="sub">Akun yang bisa masuk ke panel ini. Tiap akun hanya bisa masuk ke cabang yang dicentang. Akun utama bisa masuk ke semua cabang.</p>
-          <div class="tablewrap"><table>
-            <thead><tr><th>Username</th><th>Hak akses</th><th>Cabang</th><th>Status</th><th>Login terakhir</th><th></th></tr></thead>
-            <tbody id="tbUser"></tbody>
-          </table></div>
-        </div>
-        <div class="card">
-          <h2>➕ Daftar Pengguna Baru</h2>
-          <form id="fUser" autocomplete="off">
-            <label>Nama</label><input name="nama" maxlength="40" placeholder="Nama lengkap">
-            <label>Username</label><input name="username" required autocapitalize="none" placeholder="contoh: andi">
-            <label>Password</label><input name="password" type="text" required minlength="6" placeholder="minimal 6 karakter">
-            <label>Hak akses</label>
-            <select name="role"><option value="operator">Operator: daftar HP, bayar, lunas, ubah</option><option value="lihat">Lihat saja</option><option value="admin">Admin: semua fitur</option></select>
-            <label>Boleh masuk ke cabang</label>
-            <div class="cabchk" id="fUserCab"></div>
-            <div style="margin-top:14px"><button class="btn" type="submit">Daftarkan pengguna</button></div>
-          </form>
-          <div class="hint" style="margin-top:12px">Akun utama <b>admin</b> memakai password <b>ADMIN_PASSWORD</b> di Cloudflare dan tidak bisa dihapus dari sini.</div>
-        </div>
-      </div>
-    </div>
-
-    </div>
-  </section>
-</div>
-<footer>APP-NET · APP-BHP · APP-KHL2 · APP-BSI · Admin <a href="https://wa.me/6282151587277" target="_blank" rel="noopener">0821-5158-7277</a></footer>
-
-<!-- Dialog bayar -->
-<dialog id="dBayar">
-  <form method="dialog" id="fBayar">
-    <div class="dlg-h"><h3>Catat Pembayaran</h3><div class="hint" id="bayarSiapa"></div></div>
-    <div class="dlg-b">
-      <div class="row">
-        <div><label>Nominal (Rp)</label><input id="bayarHarga" class="rpIn" type="text" inputmode="numeric" autocomplete="off" placeholder="0"><div class="chips rpChips"></div></div>
-        <div><label>Tambah masa aktif</label><select id="bayarHari" class="hariSel"><option value="1">1 hari</option><option value="3">3 hari</option><option value="7">1 minggu (7 hari)</option><option value="14">2 minggu (14 hari)</option><option value="30" selected>1 bulan (30 hari)</option><option value="60">2 bulan (60 hari)</option><option value="90">3 bulan (90 hari)</option><option value="180">6 bulan (180 hari)</option><option value="365">1 tahun (365 hari)</option><option value="0">Tidak ditambah</option><option value="lain">Lainnya (isi sendiri)…</option></select><input class="hariLain hidden" id="bayarHariLain" type="number" min="1" placeholder="jumlah hari" style="margin-top:6px"></div>
-      </div>
-      <label>Kecepatan</label><select id="bayarKec"></select>
-      <label>Pembayaran</label>
-      <div class="seg"><label><input type="radio" name="bStat" value="lunas" checked> ✅ Lunas</label><label><input type="radio" name="bStat" value="utang"> ⏳ Utang</label></div>
-      <label>Catatan (opsional)</label><input id="bayarCatatan" maxlength="80" placeholder="Tunai / transfer / dll.">
-      <div class="preview" id="bayarPreview"></div>
-    </div>
-    <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn green" id="bayarOk" value="ok">Simpan</button></div>
-  </form>
-</dialog>
-
-<!-- Dialog edit -->
-<dialog id="dEdit">
-  <form method="dialog" id="fEdit">
-    <div class="dlg-h"><h3>Ubah Pelanggan</h3><div class="hint mono" id="editMac"></div></div>
-    <div class="dlg-b">
-      <div class="row">
-        <div><label>Nama</label><input id="eNama" maxlength="50"></div>
-        <div><label>No. HP</label><input id="eHp" maxlength="20"></div>
-      </div>
-      <div class="row"><div><label>Kategori HP</label><select id="eKat"><option value="pelanggan">👥 Pelanggan</option><option value="pribadi">🙋 Pribadi</option><option value="keluarga">🏠 Keluarga</option></select></div><div><label>Keterangan</label><input id="eKet" maxlength="80"></div></div>
-      <label>Kecepatan</label><select id="eKec"></select>
-      <label>Aktif sampai</label>
-      <div style="display:flex;gap:8px"><input id="eSampai" type="date"><button class="btn ghost" type="button" id="eTanpa">Tanpa batas</button></div>
-      <label class="check"><input type="checkbox" id="ePutus"> Putus otomatis saat masa aktif habis</label>
-    </div>
-    <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
-  </form>
-</dialog>
-
-<!-- Dialog pengguna -->
-<dialog id="dUser">
-  <form method="dialog" id="fUserEdit">
-    <div class="dlg-h"><h3>Ubah Pengguna</h3><div class="hint mono" id="uName"></div></div>
-    <div class="dlg-b">
-      <label>Nama</label><input id="uNama" maxlength="40">
-      <label>Hak akses</label>
-      <select id="uRole"><option value="operator">Operator</option><option value="lihat">Lihat saja</option><option value="admin">Admin</option></select>
-      <label>Password baru (kosongkan jika tidak diganti)</label><input id="uPass" type="text" minlength="6">
-      <label>Boleh masuk ke cabang</label>
-      <div class="cabchk" id="uCab"></div>
-      <label class="check"><input type="checkbox" id="uAktif"> Akun aktif (boleh login)</label>
-    </div>
-    <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
-  </form>
-</dialog>
-
-<div class="toast" id="toast"></div>
-
-<script>
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const TZ="Asia/Makassar";
-let token="", me=null; try{token=localStorage.getItem("macToken")||""}catch(e){}
-
-// ---------- Cabang ----------
-// id = kode yang dikirim ke server (header x-cabang); nama = yang tampil di layar
-const CABANG=[
-  {id:"bhp", nama:"APP-BHP", ket:"BHP Starlink"},
-  {id:"khl2",nama:"APP-KHL2",ket:"Cabang KHL2"},
-  {id:"bsi", nama:"APP-BSI", ket:"Syakila BSI PKS"}
+const DEFAULT_PAKET = [
+  ["2GB 1 Hari", 5000, 1], ["5GB 7 Hari", 25000, 7], ["10GB 14 Hari", 50000, 14],
+  ["15GB 20 Hari", 75000, 20], ["20GB 1 Bulan", 100000, 30], ["50GB 1 Bulan", 175000, 30],
+  ["100GB 1 Bulan", 300000, 30],
 ];
-let cabang="bhp"; try{ const c=localStorage.getItem("macCabang"); if(CABANG.some(x=>x.id===c)) cabang=c; }catch(e){}
-const cabNow=()=>CABANG.find(x=>x.id===cabang)||CABANG[0];
-// Akun utama: semua cabang. Akun lama tanpa data cabang dianggap akun BHP.
-const aksesCab=u=>u&&u.utama?CABANG.map(c=>c.id):(Array.isArray(u&&u.cabang)&&u.cabang.length?u.cabang:["bhp"]);
-function renderCabang(){
-  const c=cabNow();
-  $("#brandName").textContent=c.nama; $("#brandSub").textContent=c.ket;
-  document.title=c.nama+" (APP-NET) — Panel Daftar MAC";
-  $$("#cabBar button").forEach(b=>b.classList.toggle("on",b.dataset.cab===cabang));
-  const ls=$("#loginCab"); if(ls) ls.value=cabang;
-}
-function setCabang(id){
-  if(id===cabang) return; cabang=id; try{localStorage.setItem("macCabang",id)}catch(e){}
-  renderCabang(); data=[]; onRows=[]; keu=null;
-  if(!me) return;
-  loadKec(); subTab($("#subnav button.on")?.dataset.sub||"ringkasan");
-  toast("Pindah ke cabang "+cabNow().nama);
-}
-let kecList=[];
-function hariVal(sel){ if(sel.value!=="lain") return +sel.value||0; const i=sel.parentElement.querySelector(".hariLain"); return Math.max(0,+i.value||0); }
-document.addEventListener("change",e=>{ if(e.target.classList.contains("hariSel")){ const i=e.target.parentElement.querySelector(".hariLain"); i.classList.toggle("hidden",e.target.value!=="lain"); if(e.target.value==="lain") i.focus(); } });
-const rateTxt=r=>{ if(!r||r==="0/0") return "Tanpa batas"; const [u,d]=r.split("/"); return "↑"+u+" / ↓"+d; };
-const kecName=r=>{ const k=kecList.find(x=>x.rate===r); return k?k.nama:null; };
-function kecOptions(first, cur){
-  let o=first.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join("");
-  o+=kecList.map(k=>`<option value="${esc(k.rate)}">${esc(k.nama)} (${esc(rateTxt(k.rate))})</option>`).join("");
-  if(cur&&cur!=="0/0"&&!kecList.some(k=>k.rate===cur)&&!first.some(f=>f[0]===cur)) o+=`<option value="${esc(cur)}">${esc(rateTxt(cur))}</option>`;
-  return o;
-}
-async function loadKec(){ const j=await api("/kecepatan"); if(j.ok){ kecList=j.data; defRate=j.kecepatan_default||""; } fillKecSelects(); }
-function fillKecSelects(){
-  const dlab="Default ("+(defRate&&defRate!=="0/0"?(kecName(defRate)||rateTxt(defRate)):"tanpa batas")+")";
-  const sd=$("#fDaftar [name=kecepatan]"); if(sd){ const v=sd.value; sd.innerHTML=kecOptions([["",dlab],["0/0","Tanpa batas"]]); if(v) sd.value=v; }
-}
-let data=[], keu=null, curDev=null, defRate="", onRows=[], users=[], curUser=null;
 
-const rp=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n||0);
-const rpShort=n=>n>=1e6?(n/1e6).toFixed(n%1e6?1:0).replace(".",",")+" jt":n>=1e3?Math.round(n/1e3)+" rb":String(n||0);
-const tgl=iso=>iso?new Date(iso).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric",timeZone:TZ}):"";
-const tglJam=iso=>iso?new Date(iso).toLocaleString("id-ID",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",timeZone:TZ}):"";
-const toDateInput=iso=>iso?new Date(Date.parse(iso)+8*3600e3).toISOString().slice(0,10):"";
-const fromDateInput=v=>v?v+"T23:59:59+08:00":null;
-const bulanNow=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,7);
-const namaBulan=b=>{const[y,m]=b.split("-");return new Date(Date.UTC(+y,+m-1,15)).toLocaleDateString("id-ID",{month:"short",timeZone:"UTC"})};
-function normMac(s){const h=String(s||"").toUpperCase().replace(/[^0-9A-F]/g,"");return h.length===12?h.match(/../g).join(":"):null}
-const isRandom=mac=>(parseInt(mac[1],16)&2)===2;
-const KAT={pribadi:"Pribadi",keluarga:"Keluarga"};
-const katBadge=k=>KAT[k]?`<span class="kat kat-${k}">${KAT[k]}</span>`:"";
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function show(el,type,txt){el.className="msg "+type;el.textContent=txt}
-let tt; function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),3200)}
-const daysLeft=iso=>iso?Math.ceil((Date.parse(iso)-Date.now())/86400000):null;
-function kondisi(d){ if(d.status!=="aktif") return d.status; if(d.habis) return "habis"; const n=daysLeft(d.aktif_sampai); return (n!==null&&n<=7)?"hampir":"aktif"; }
-const bisa=role=>me&&({lihat:1,operator:2,admin:3}[me.role]||0)>=({lihat:1,operator:2,admin:3}[role]);
+const json = (data, status = 200) =>
+  new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+const text = (body, status = 200) =>
+  new Response(body, { status, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
 
-async function api(path,opt={}){
-  const headers={"content-type":"application/json","x-cabang":cabang}; if(token) headers.authorization="Bearer "+token;
-  let r; try{ r=await fetch("/api"+path,{...opt,headers}); }catch(e){ return {ok:false,pesan:"Tidak ada koneksi internet."}; }
-  let j={}; try{j=await r.json()}catch(e){j={ok:false,pesan:"Server tidak merespons ("+r.status+")."}}
-  if(r.status===401 && path!=="/login") logout("Sesi habis, silakan masuk lagi.");
-  return j;
+// ---------- Bantuan ----------
+export function normMac(s) {
+  const hex = String(s || "").toUpperCase().replace(/[^0-9A-F]/g, "");
+  if (hex.length !== 12 || hex === "000000000000" || hex === "FFFFFFFFFFFF") return null;
+  return hex.match(/../g).join(":");
 }
+const isRandomMac = (mac) => (parseInt(mac[1], 16) & 2) === 2;
+function clean(s, max = 60) {
+  return String(s ?? "").replace(/[\u0000-\u001f\u007f;"\\$]/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
+}
+const asciiName = (s) => clean(s, 40).replace(/[^A-Za-z0-9 ._\-]/g, "").replace(/\s+/g, " ").trim() || "tanpa-nama";
+const int = (v, def = 0) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? n : def; };
+function safeEqual(a, b) {
+  a = String(a); b = String(b);
+  let r = a.length ^ b.length;
+  for (let i = 0; i < Math.max(a.length, b.length); i++) r |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  return r === 0;
+}
+const toHex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+async function hmac(key, msg) {
+  const k = await crypto.subtle.importKey("raw", enc.encode(key), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return toHex(await crypto.subtle.sign("HMAC", k, enc.encode(msg)));
+}
+const newId = () => toHex(crypto.getRandomValues(new Uint8Array(6)));
+const now = () => new Date().toISOString();
+const validIso = (s) => typeof s === "string" && !isNaN(Date.parse(s));
 
-// ---------- Login ----------
-$("#fLogin").onsubmit=async e=>{
-  e.preventDefault(); const f=e.target, btn=f.querySelector("button"); btn.disabled=true;
-  const j=await api("/login",{method:"POST",body:JSON.stringify({username:f.username.value,password:f.password.value,cabang})});
-  btn.disabled=false;
-  if(!j.ok) return show($("#mLogin"),"bad",j.pesan);
-  token=j.token; try{localStorage.setItem("macToken",token)}catch(e){}
-  f.password.value=""; $("#mLogin").className="msg"; start(j.user);
-};
-function start(user){
-  const izin=aksesCab(user);
-  if(!izin.includes(cabang)){ token=""; try{localStorage.removeItem("macToken")}catch(e){} return show($("#mLogin"),"bad","Akun "+user.username+" tidak punya akses ke cabang "+cabNow().nama+"."); }
-  me=user; $("#loginBox").classList.add("hidden"); $("#app").classList.remove("hidden");
-  $("#whoBox").classList.remove("hidden"); $("#whoName").textContent=me.nama||me.username;
-  $("#whoRole").textContent=me.username+" · "+({admin:"Admin",operator:"Operator",lihat:"Lihat saja"}[me.role]||me.role);
-  $$("[data-role]").forEach(el=>el.classList.toggle("hidden",!bisa(el.dataset.role)));
-  $("#s-pengguna").classList.toggle("hidden",!me.utama);
-  $$("#cabBar button").forEach(b=>b.classList.toggle("hidden",!izin.includes(b.dataset.cab)));
-  $("#cabBar").classList.remove("hidden"); renderCabang();
-  loadKec();
-  subTab("ringkasan");
-}
-function logout(msg){
-  token=""; me=null; try{localStorage.removeItem("macToken")}catch(e){}
-  $("#app").classList.add("hidden"); $("#whoBox").classList.add("hidden"); $("#cabBar").classList.add("hidden"); $("#loginBox").classList.remove("hidden");
-  if(msg) show($("#mLogin"),"warn",msg);
-}
-$("#bLogout").onclick=()=>logout();
-$("#cabBar").insertAdjacentHTML("beforeend",CABANG.map(c=>`<button type="button" data-cab="${c.id}">${esc(c.nama)}</button>`).join(""));
-$("#loginCab").innerHTML=CABANG.map(c=>`<option value="${c.id}">${esc(c.nama)} — ${esc(c.ket)}</option>`).join("");
-$("#loginCab").onchange=e=>setCabang(e.target.value);
-$("#cabBar").onclick=e=>{ const b=e.target.closest("[data-cab]"); if(b) setCabang(b.dataset.cab); };
-renderCabang();
-(async()=>{ if(!token) return; const j=await api("/saya"); if(j.ok) start(j.user); })();
+// Kode cabang dari teks bebas. null = tidak dikenal.
+const normCab = (v) => { const c = String(v ?? "").trim().toLowerCase(); return CABANG_IDS.includes(c) ? c : null; };
+// Daftar cabang tersimpan sebagai teks "bhp,khl2". Kosong = akun lama = hanya BHP.
+const parseCabList = (s) => { const l = String(s || "").split(",").map(normCab).filter(Boolean); return l.length ? [...new Set(l)] : [CABANG_DEFAULT]; };
+const cleanCabList = (arr) => (Array.isArray(arr) ? [...new Set(arr.map(normCab).filter(Boolean))] : []);
 
-// ---------- Navigasi ----------
-$$("#subnav button[data-sub]").forEach(b=>b.onclick=()=>subTab(b.dataset.sub));
-function subTab(s){
-  $$("#subnav button[data-sub]").forEach(x=>x.classList.toggle("on",x.dataset.sub===s));
-  ["ringkasan","online","pelanggan","pembayaran","kecepatan","backup"].forEach(t=>$("#s-"+t).classList.toggle("hidden",t!==s));
-  ({ringkasan:loadKeuangan,online:loadOnline,pelanggan:()=>{loadKec();loadDev();},pembayaran:loadBayar,kecepatan:loadKecPage,backup:loadUsers})[s]?.();
+// ---------- Akun login ----------
+// Akun utama "admin" memakai ADMIN_PASSWORD (tidak bisa dihapus) dan boleh masuk ke semua cabang.
+// Akun lain disimpan di tabel pengguna, masing-masing dengan daftar cabang yang boleh dibuka.
+const ROLES = ["admin", "operator", "lihat"];
+const RANK = { lihat: 1, operator: 2, admin: 3 };
+const b64u = (str) => btoa(unescape(encodeURIComponent(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const unb64u = (s) => decodeURIComponent(escape(atob(s.replace(/-/g, "+").replace(/_/g, "/"))));
+const cleanUser = (u) => String(u || "").trim().toLowerCase().replace(/[^a-z0-9._-]/g, "").slice(0, 30);
+async function hashPassword(password, saltHex) {
+  const salt = saltHex || toHex(crypto.getRandomValues(new Uint8Array(16)));
+  const key = await crypto.subtle.importKey("raw", enc.encode(String(password)), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: enc.encode(salt), iterations: 10000 }, key, 256);
+  return salt + ":" + toHex(bits);
 }
-document.addEventListener("focusout",e=>{ if(e.target.matches("input[name=mac]")){const m=normMac(e.target.value);if(m)e.target.value=m} });
-document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-bayar]"); if(b) openBayar(b.dataset.bayar);
-  const l=e.target.closest("[data-lunas]"); if(l) lunasi(l.dataset.lunas);
-});
+async function makeToken(secret, username) {
+  const exp = String(Date.now() + TOKEN_TTL_MS);
+  const u = b64u(username);
+  return u + "." + exp + "." + (await hmac(secret, "u:" + username + ":" + exp));
+}
+async function readToken(request, secret) {
+  if (!secret) return null;
+  const t = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  const [u, exp, sig] = t.split(".");
+  if (!u || !exp || !sig || Number(exp) < Date.now()) return null;
+  let username; try { username = unb64u(u); } catch { return null; }
+  return safeEqual(sig, await hmac(secret, "u:" + username + ":" + exp)) ? username : null;
+}
+async function readBody(req) { try { return await req.json(); } catch { return {}; } }
 
-// ---------- Ringkasan ----------
-async function loadKeuangan(){
-  const [j,dv]=await Promise.all([api("/keuangan"),api("/perangkat")]); if(!j.ok) return; keu=j.data; if(dv.ok){ data=dv.data; defRate=dv.kecepatan_default||""; }
-  $("#kBulan").textContent=rp(keu.bulan_ini.t); $("#kBulanD").textContent=keu.bulan_ini.n+" lunas · bulan lalu "+rp(keu.bulan_lalu.t);
-  $("#kHari").textContent=rp(keu.hari_ini.t); $("#kHariD").textContent=keu.hari_ini.n+" lunas";
-  $("#kUtang").textContent=rp(keu.utang.t); $("#kUtangD").textContent=keu.utang.n+" tagihan";
-  $("#kTotal").textContent=rp(keu.total.t);
-  const akt=data.filter(d=>d.status==="aktif"&&!d.habis).length;
-  $("#kAktif").textContent=akt; $("#kAktifD").textContent=data.length+" terdaftar · "+keu.jumlah_habis+" habis";
-  const map=Object.fromEntries(keu.per_bulan.map(x=>[x.bulan,x.total])); const months=[]; const [y,m]=bulanNow().split("-").map(Number);
-  for(let i=11;i>=0;i--){months.push(new Date(Date.UTC(y,m-1-i,1)).toISOString().slice(0,7))}
-  const max=Math.max(1,...months.map(b=>map[b]||0));
-  $("#chart").innerHTML=months.map(b=>{const v=map[b]||0;return `<div class="bar" title="${namaBulan(b)}: ${rp(v)}"><b>${v?rpShort(v):""}</b><i style="height:${Math.max(2,v/max*100)}%;${b===bulanNow()?"":"opacity:.55"}"></i><span>${namaBulan(b)}</span></div>`}).join("");
-  const sg=new Set(), soon=keu.hampir_habis.filter(d=>!d.grup||(!sg.has(d.grup)&&sg.add(d.grup))); const gn=g=>data.filter(x=>x.grup===g).length;
-  $("#soonList").innerHTML=soon.length?soon.map(d=>`<div class="li"><div><b>${esc(d.grup?d.nama.replace(/ HP\d+$/,""):d.nama)}</b>${d.grup?`<span class="grp">👪 ${gn(d.grup)} HP</span>`:""}<div class="hint">s/d ${tgl(d.aktif_sampai)} · ${daysLeft(d.aktif_sampai)} hari lagi</div></div>${bisa("operator")?`<button class="btn sm green" data-bayar="${d.id}">Bayar</button>`:""}</div>`).join(""):'<div class="empty">Tidak ada 🎉</div>';
-}
-async function lunasi(id){
-  const d=data.find(x=>x.id===id); const nama=d?d.nama:"pelanggan ini";
-  if(!confirm("Tandai semua utang "+nama+" sudah LUNAS?\nNominalnya masuk pendapatan hari ini.")) return;
-  const j=await api("/lunas",{method:"POST",body:JSON.stringify({perangkat_id:id})}); toast(j.pesan);
-  refreshNow();
-}
-function refreshNow(){ const s=$("#subnav button.on")?.dataset.sub; if(s==="pelanggan") loadDev(); else if(s==="pembayaran") loadBayar(); else loadKeuangan(); }
+// HP dianggap "habis" kalau punya masa aktif, putus otomatis menyala, dan tanggalnya sudah lewat
+const expired = (d) => !!d.aktif_sampai && !!d.putus_otomatis && Date.parse(d.aktif_sampai) <= Date.now();
+const row = (r) => r && { ...r, acak: !!r.acak, putus_otomatis: !!r.putus_otomatis, habis: expired(r) };
 
-// ---------- User aktif ----------
-const bytes=n=>{ if(n==null) return "–"; const u=["B","KB","MB","GB","TB"]; let i=0; while(n>=1024&&i<u.length-1){n/=1024;i++} return (i?n.toFixed(n<10?2:1):n).toString().replace(".",",")+" "+u[i]; };
-function sejak(iso){ if(!iso) return "belum ada laporan dari router"; const m=Math.round((Date.now()-Date.parse(iso))/60000); return "diperbarui "+(m<1?"baru saja":m+" menit lalu")+(m>5?" ⚠ router belum lapor lagi":""); }
-async function loadOnline(){
-  const j=await api("/online"); if(!j.ok) return; onRows=j.data;
-  $("#oJumlah").textContent=onRows.length; $("#oWaktu").textContent=sejak(j.waktu);
-  $("#oDown").textContent=bytes(onRows.reduce((a,x)=>a+(x.down||0),0)); $("#oUp").textContent=bytes(onRows.reduce((a,x)=>a+(x.up||0),0));
-  $("#oAsing").textContent=onRows.filter(x=>!x.terdaftar).length; renderOnline();
+// Kecepatan "upload/download" seperti MikroTik: 2M/5M, 512k/1M. "" = ikut default, "0/0" = tanpa batas.
+function normRate(v) {
+  const s = String(v ?? "").trim().replace(/\s+/g, "").replace(/mbps/gi, "M").replace(/kbps/gi, "k");
+  if (!s) return "";
+  const m = s.match(/^(\d+(?:\.\d+)?)([kKmMgG]?)\/(\d+(?:\.\d+)?)([kKmMgG]?)$/);
+  if (!m) return null;
+  const u = (x) => (x === "k" || x === "K" ? "k" : x.toUpperCase());
+  if (Number(m[1]) === 0 && Number(m[3]) === 0) return "0/0";
+  return m[1] + u(m[2]) + "/" + m[3] + u(m[4]);
 }
-function renderOnline(){
-  const q=$("#oq").value.toLowerCase().trim();
-  const rows=onRows.filter(x=>!q||[x.nama,x.mac,x.ip,x.host,x.hp].join(" ").toLowerCase().includes(q)).sort((a,b)=>(b.down||0)-(a.down||0));
-  $("#tbOnline").innerHTML=rows.length?rows.map(x=>`<tr>
-    <td>${x.terdaftar?`<b>${esc(x.nama)}</b>${katBadge(x.kategori)}<div class="hint">${esc(x.hp||"")}</div>`:'<span class="pill p-habis">tidak dikenal</span>'}</td>
-    <td><span class="mono">${esc(x.mac)}</span><div class="hint">${esc(x.host||"")}</div></td>
-    <td class="mono">${esc(x.ip)}</td>
-    <td>${x.kecepatan?`<span class="spd">${esc(x.kecepatan)}</span>`:'<span class="spd free">Tanpa batas</span>'}</td>
-    <td class="money">${bytes(x.down)} <span class="hint">/ ${bytes(x.up)}</span></td>
-    <td>${x.aktif_sampai?expCell({aktif_sampai:x.aktif_sampai,habis:x.status==="habis",putus_otomatis:true}):'<span class="exp hint">Tanpa batas</span>'}</td>
-    <td>${x.id&&bisa("operator")?`<button class="btn sm red" data-putus="${x.id}">Putuskan</button>`:""}</td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada HP yang tersambung.</td></tr>';
-}
-$("#oq").oninput=renderOnline; $("#oReload").onclick=loadOnline;
-$("#tbOnline").onclick=async e=>{
-  const b=e.target.closest("[data-putus]"); if(!b) return; const x=onRows.find(r=>r.id===b.dataset.putus);
-  if(!confirm("Nonaktifkan "+(x?.nama||"")+" sekarang?\nHP terputus dalam ±2 menit. Bisa diaktifkan lagi di Daftar MAC.")) return;
-  const j=await api("/perangkat/"+b.dataset.putus,{method:"PATCH",body:JSON.stringify({status:"nonaktif"})});
-  toast(j.ok?"Dinonaktifkan. HP terputus dalam ±2 menit.":j.pesan);
-};
+const RATE_ERR = "Format kecepatan salah. Contoh: 2M/5M (upload/download), 512k/1M, atau 0/0 untuk tanpa batas.";
 
-// ---------- Daftar MAC ----------
-async function loadDev(){ renderRpChips(); const j=await api("/perangkat"); if(!j.ok) return; data=j.data; defRate=j.kecepatan_default||""; renderDev(); }
-function expCell(d){
-  if(!d.aktif_sampai) return '<span class="exp hint">Tanpa batas</span>';
-  const n=daysLeft(d.aktif_sampai), cls=d.habis||n<=0?"gone":n<=7?"soon":"";
-  const txt=d.habis||n<=0?"Habis "+tgl(d.aktif_sampai):tgl(d.aktif_sampai)+" ("+n+" hr)";
-  return `<span class="exp ${cls}">${txt}</span>${d.putus_otomatis?"":'<div class="hint">tidak diputus</div>'}`;
-}
-function spdCell(d){
-  if(d.kecepatan==="0/0") return '<span class="spd free">Tanpa batas</span>';
-  if(d.kecepatan) return `<span class="spd">${esc(rateTxt(d.kecepatan))}</span>${kecName(d.kecepatan)?`<div class="hint">${esc(kecName(d.kecepatan))}</div>`:""}`;
-  return `<span class="spd def">${defRate&&defRate!=="0/0"?esc(rateTxt(defRate)):"Tanpa batas"}</span><div class="hint">default</div>`;
-}
-function bayarCell(d){
-  if(d.utang>0) return `<span class="pill p-habis">Utang ${rp(d.utang)}</span>${bisa("operator")?` <button class="btn sm green" data-lunas="${d.id}">Lunas</button>`:""}`;
-  if(d.bayar_terakhir) return `<span class="pill p-aktif">Lunas</span><div class="hint">${tgl(d.bayar_terakhir)}</div>`;
-  return '<span class="hint">–</span>';
-}
-function renderDev(){
-  const q=$("#q").value.toLowerCase().trim(), st=$("#fStatus").value, kt=$("#fKat").value, order={habis:0,hampir:1,aktif:2,menunggu:3,nonaktif:4};
-  const GU={}; data.forEach(d=>{ const g=d.grup||d.id; GU[g]=(GU[g]||0)+(d.utang||0); });
-  const rows=data.map(d=>({...d,k:kondisi(d)}))
-    .filter(d=>!st||(st==="utang"?d.utang>0:d.k===st||(st==="aktif"&&d.k==="hampir")))
-    .filter(d=>!kt||(d.kategori||"pelanggan")===kt)
-    .filter(d=>!q||[d.nama,d.mac,d.hp,d.ket].join(" ").toLowerCase().includes(q))
-    .sort((a,b)=>(GU[b.grup||b.id]>0)-(GU[a.grup||a.id]>0)||order[a.k]-order[b.k]||String(a.nama).localeCompare(String(b.nama)));
-  const label={aktif:"aktif",hampir:"aktif",menunggu:"menunggu",nonaktif:"nonaktif",habis:"habis"};
-  const op=bisa("operator"), ad=bisa("admin");
-  $("#tb").innerHTML=rows.length?rows.map(d=>`<tr>
-    <td><b>${esc(d.nama)}</b>${katBadge(d.kategori)}${d.grup_n>1?`<span class="grp" title="Satu grup: status, masa aktif & kecepatan bersama">👪 ${d.grup_n} HP</span>`:""}<div class="hint">${esc([d.hp,d.ket].filter(Boolean).join(" · "))}</div></td>
-    <td class="mono">${esc(d.mac)}${d.acak?'<div class="flag">⚠ MAC acak</div>':""}</td>
-    <td><span class="pill p-${label[d.k]}">${label[d.k]}</span></td>
-    <td>${expCell(d)}</td>
-    <td>${spdCell(d)}</td>
-    <td>${bayarCell(d)}</td>
-    <td><div class="act">${op?`
-      <button class="btn sm green" data-bayar="${d.id}">Bayar</button>
-      ${d.status!=="aktif"?`<button class="btn sm ghost" data-a="aktif" data-id="${d.id}">Aktifkan</button>`:`<button class="btn sm ghost" data-a="nonaktif" data-id="${d.id}">Nonaktifkan</button>`}
-      <button class="btn sm ghost" data-a="edit" data-id="${d.id}">Ubah</button>`:""}
-      ${ad?`<button class="btn sm red" data-a="hapus" data-id="${d.id}">Hapus</button>`:""}
-    </div></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada HP terdaftar.</td></tr>';
-}
-$("#q").oninput=renderDev; $("#fStatus").onchange=renderDev; $("#fKat").onchange=renderDev; $("#bReload").onclick=loadDev;
-$("#tb").onclick=async e=>{
-  const b=e.target.closest("button[data-a]"); if(!b) return;
-  const d=data.find(x=>x.id===b.dataset.id), a=b.dataset.a; let j;
-  if(a==="edit") return openEdit(d);
-  if(a==="hapus"){ if(!confirm("Hapus "+d.nama+" ("+d.mac+")?\nHP langsung tidak bisa konek. Riwayat pembayarannya tetap tersimpan.")) return; j=await api("/perangkat/"+d.id,{method:"DELETE"}); }
-  else j=await api("/perangkat/"+d.id,{method:"PATCH",body:JSON.stringify({status:a})});
-  toast(j.ok?"Tersimpan"+(d.grup_n>1&&a!=="hapus"?" untuk "+d.grup_n+" HP":"")+". Router menyesuaikan dalam ±2 menit.":j.pesan); loadDev();
-};
-$("#fDaftar").onsubmit=async e=>{
-  e.preventDefault(); const f=e.target, m=$("#mDaftar"), macs=$$("#macList input").map(i=>normMac(i.value)), banyak=macs.length>1;
-  const bi=macs.findIndex(x=>!x); if(bi>=0) return show(m,"bad",(banyak?"HP ke-"+(bi+1)+": ":"")+"Format MAC tidak valid. Contoh: A4:5E:60:12:34:56");
-  if(new Set(macs).size!==macs.length) return show(m,"bad","Ada MAC yang sama dimasukkan dua kali.");
-  const acak=macs.map((x,i)=>isRandom(x)?"HP "+(i+1):null).filter(Boolean);
-  if(acak.length&&!confirm((banyak?acak.join(", ")+": ":"")+"MAC terlihat seperti MAC ACAK (Privasi).\nPastikan MAC acak di HP pelanggan sudah dimatikan.\n\nTetap daftarkan?")) return;
-  const btn=f.querySelector("button[type=submit]"); btn.disabled=true;
-  const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,...(banyak?{macs}:{mac:macs[0]}),hp:f.hp.value,ket:f.ket.value,kecepatan:f.kecepatan.value,kategori:f.kategori.value,status:"aktif"})});
-  if(!j.ok){ btn.disabled=false; return show(m,"bad",j.pesan); }
-  const harga=parseRp(f.harga.value), hari=hariVal(f.hari), st=f.bayar.value, paketNm=f.harga.dataset.paket||"Pendaftaran";
-  let pesan="✅ "+(banyak?f.nama.value.trim()+" ("+macs.length+" HP)":j.data.nama)+" terdaftar dan aktif. HP bisa konek dalam ±2 menit.";
-  if(harga>0||hari>0){
-    const k=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:j.data.id,harga,hari,status:st,paket:paketNm})});
-    pesan+=" "+(k.ok?k.pesan:"(Pembayaran gagal dicatat: "+k.pesan+")");
+let schemaReady = false;
+async function ensureSchema(db) {
+  if (schemaReady) return;
+  await db.prepare(`CREATE TABLE IF NOT EXISTS perangkat (
+      id TEXT PRIMARY KEY, mac TEXT UNIQUE NOT NULL, nama TEXT, hp TEXT, ket TEXT,
+      status TEXT NOT NULL, acak INTEGER DEFAULT 0, dibuat TEXT, diubah TEXT)`).run();
+  for (const sql of [
+    "ALTER TABLE perangkat ADD COLUMN aktif_sampai TEXT",
+    "ALTER TABLE perangkat ADD COLUMN putus_otomatis INTEGER DEFAULT 1",
+    "ALTER TABLE perangkat ADD COLUMN kecepatan TEXT",
+  ]) { try { await db.prepare(sql).run(); } catch {} }
+  await db.prepare(`CREATE TABLE IF NOT EXISTS paket (
+      id TEXT PRIMARY KEY, nama TEXT NOT NULL, harga INTEGER NOT NULL DEFAULT 0,
+      hari INTEGER NOT NULL DEFAULT 0, urutan INTEGER DEFAULT 0)`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS pembayaran (
+      id TEXT PRIMARY KEY, perangkat_id TEXT, mac TEXT, nama TEXT, paket TEXT,
+      harga INTEGER NOT NULL DEFAULT 0, hari INTEGER DEFAULT 0, tanggal TEXT NOT NULL,
+      dari TEXT, sampai TEXT, catatan TEXT)`).run();
+  try { await db.prepare("ALTER TABLE paket ADD COLUMN kecepatan TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE pembayaran ADD COLUMN kecepatan TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE pembayaran ADD COLUMN status TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE pembayaran ADD COLUMN tanggal_lunas TEXT").run(); } catch {}
+  await db.prepare("UPDATE pembayaran SET status = 'lunas', tanggal_lunas = tanggal WHERE status IS NULL OR status = ''").run();
+  await db.prepare("CREATE TABLE IF NOT EXISTS pengaturan (kunci TEXT PRIMARY KEY, nilai TEXT)").run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS pengguna (username TEXT PRIMARY KEY, nama TEXT, password TEXT NOT NULL,
+      role TEXT NOT NULL, aktif INTEGER DEFAULT 1, dibuat TEXT, login_terakhir TEXT)`).run();
+  try { await db.prepare("ALTER TABLE pembayaran ADD COLUMN oleh TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE perangkat ADD COLUMN oleh TEXT").run(); } catch {}
+  // --- Versi cabang: semua data lama otomatis menjadi data APP-BHP ---
+  for (const t of ["perangkat", "pembayaran", "paket"]) {
+    try { await db.prepare(`ALTER TABLE ${t} ADD COLUMN cabang TEXT DEFAULT '${CABANG_DEFAULT}'`).run(); } catch {}
+    await db.prepare(`UPDATE ${t} SET cabang = '${CABANG_DEFAULT}' WHERE cabang IS NULL OR cabang = ''`).run();
+    try { await db.prepare(`CREATE INDEX IF NOT EXISTS idx_${t}_cabang ON ${t}(cabang)`).run(); } catch {}
   }
-  btn.disabled=false; show(m,st==="utang"&&harga>0?"warn":"ok",pesan);
-  f.nama.value=""; $("#jmlHp").value="1"; renderMacInputs(true); f.hp.value=""; f.ket.value=""; setRp(f.harga,""); f.kategori.value="pelanggan"; setKatForm("pelanggan"); loadDev();
-};
-
-// Kategori: HP pribadi/keluarga otomatis tanpa batas waktu & gratis (masih bisa diubah)
-function setKatForm(k){
-  const f=$("#fDaftar"), lain=k!=="pelanggan";
-  $("#fDaftar [name=nama]").previousElementSibling.textContent=lain?"Nama pemilik HP":"Nama pelanggan";
-  if(lain){ f.hari.value="0"; f.querySelector(".hariLain").classList.add("hidden"); setRp(f.harga,""); }
-  else { f.hari.value="30"; }
+  try { await db.prepare("ALTER TABLE pengguna ADD COLUMN cabang TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE perangkat ADD COLUMN kategori TEXT DEFAULT 'pelanggan'").run(); } catch {}
+  await db.prepare("UPDATE perangkat SET kategori = 'pelanggan' WHERE kategori IS NULL OR kategori = ''").run();
+  // Grup: beberapa HP milik satu pelanggan (Paket 2/3/4 HP) berbagi status, masa aktif, dan kecepatan
+  try { await db.prepare("ALTER TABLE perangkat ADD COLUMN grup TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE pembayaran ADD COLUMN grup TEXT").run(); } catch {}
+  const { n } = await db.prepare("SELECT COUNT(*) AS n FROM paket").first();
+  if (!n) {
+    await db.batch(DEFAULT_PAKET.map(([nama, harga, hari], i) =>
+      db.prepare("INSERT INTO paket (id,nama,harga,hari,urutan,cabang) VALUES (?,?,?,?,?,?)").bind(newId(), nama, harga, hari, i, CABANG_DEFAULT)));
+  }
+  schemaReady = true;
 }
-$$("#fDaftar input[name=kategori]").forEach(r=>r.onchange=()=>setKatForm(r.value));
 
-// ---------- Nominal (Rp): pilihan cepat + ketik manual dengan titik ribuan ----------
-// Pilihan cepat harga per cabang
-const HARGA_CAB={
-  khl2:[["Paket 1 HP",130000],["Paket 2 HP",200000],["Paket 3 HP",250000],["Paket 4 HP",335000]],
-  bhp: [["Paket 1 HP",100000],["Paket 2 HP",200000],["Paket 3 HP",300000],["Paket 4 HP",400000]],
-  bsi: [["Paket 1 HP",100000],["Paket 2 HP",200000],["Paket 3 HP",300000],["Paket 4 HP",400000]]
-};
-const hargaNow=()=>HARGA_CAB[cabang]||[];
-const parseRp=v=>parseInt(String(v||"").replace(/\D/g,""),10)||0;
-const fmtRp=n=>n?Number(n).toLocaleString("id-ID"):"";
-function setRp(inp,n,paket){ inp.value=fmtRp(parseRp(n)); inp.dataset.paket=paket||""; inp.parentElement.querySelectorAll(".chips button").forEach(b=>b.classList.toggle("on",!!paket&&b.dataset.pk===paket)); }
-function renderRpChips(){ $$(".rpChips").forEach(c=>{ c.innerHTML=hargaNow().map(([nm,n])=>`<button type="button" data-rp="${n}" data-pk="${esc(nm)}">${esc(nm.replace("Paket ",""))} · <b>${fmtRp(n)}</b></button>`).join(""); c.classList.toggle("hidden",!hargaNow().length); }); }
-document.addEventListener("input",e=>{
-  if(!e.target.classList.contains("rpIn")) return;
-  const el=e.target, n=parseRp(el.value), pk=hargaNow().find(h=>h[0]===el.dataset.paket);
-  setRp(el,n,pk&&pk[1]===n?pk[0]:"");
-  el.setSelectionRange(el.value.length,el.value.length);
-  if(el.id==="bayarHarga") previewBayar();
-});
-document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-rp]"); if(!b) return;
-  const inp=b.closest("div").parentElement.querySelector(".rpIn"); setRp(inp,b.dataset.rp,b.dataset.pk);
-  // harga paket = per bulan: masa aktif ikut 1 bulan
-  const sel=inp.id==="bayarHarga"?$("#bayarHari"):$("#fDaftar [name=hari]");
-  sel.value="30"; sel.parentElement.querySelector(".hariLain").classList.add("hidden");
-  if(inp.id==="bayarHarga") previewBayar();
-  const nHp=+((b.dataset.pk.match(/(\d+)\s*HP/)||[])[1]||0);
-  if(inp.name==="harga"&&nHp){ $("#jmlHp").value=String(nHp); renderMacInputs(); }
-});
+const PERANGKAT_COLS = ["id", "mac", "nama", "hp", "ket", "status", "acak", "dibuat", "diubah", "aktif_sampai", "putus_otomatis", "kecepatan", "oleh", "cabang", "kategori", "grup"];
+const PAKET_COLS = ["id", "nama", "harga", "hari", "urutan", "kecepatan", "cabang"];
+const BAYAR_COLS = ["id", "perangkat_id", "mac", "nama", "paket", "harga", "hari", "tanggal", "dari", "sampai", "catatan", "kecepatan", "status", "tanggal_lunas", "oleh", "cabang", "grup"];
+const insertSql = (table, cols, orIgnore = false) => `INSERT${orIgnore ? " OR IGNORE" : ""} INTO ${table} (${cols.join(",")}) VALUES (${cols.map(() => "?").join(",")})`;
 
-// ---------- Jumlah HP: kolom MAC sebanyak jumlah HP ----------
-function renderMacInputs(kosong){
-  const n=+$("#jmlHp").value||1, lama=kosong?[]:$$("#macList input").map(i=>i.value);
-  $("#macLbl").textContent=n>1?"MAC Address "+n+" HP (satu grup, sekali bayar)":"MAC Address HP";
-  $("#macList").innerHTML=Array.from({length:n},(_,i)=>`<div class="mi">${n>1?`<span>HP ${i+1}</span>`:""}<input name="mac" class="mono" required placeholder="A4:5E:60:12:34:56" value="${esc(lama[i]||"")}"></div>`).join("");
+// Pengaturan per cabang. Cabang BHP memakai kunci lama (tanpa akhiran) supaya data lama tetap terbaca.
+const kunci = (k, cab) => (cab === CABANG_DEFAULT ? k : k + ":" + cab);
+const PENGATURAN_CABANG = ["online", "kecepatan_default", "kecepatan_list"];
+
+// Script router contoh. Ganti "bhp" dengan kode cabang router itu (bhp / khl2 / bsi) dan AP-KUOTA dengan interface pelanggan.
+const routerScript = (cab) => ":local base \"https://portal-mac.pages.dev/api\";\n:local key \"bambangdk1993\";\n:local cabang \"" + cab + "\";\n:local tag \"WEBMAC\";\n:local res;\n:do { :set res [/tool fetch url=($base . \"/mikrotik?key=\" . $key . \"&cabang=\" . $cabang) check-certificate=no output=user as-value]; } on-error={ :log warning \"[WEBMAC] gagal mengambil daftar\"; :error \"fetch gagal\"; };\n:if (($res->\"status\") != \"finished\") do={ :log warning \"[WEBMAC] fetch gagal\"; :error \"fetch gagal\"; };\n:local data ($res->\"data\");\n:if ([:typeof [:find $data \"END\"]] = \"nil\" || [:typeof [:find $data \"ERROR\"]] != \"nil\") do={ :log warning \"[WEBMAC] data tidak valid\"; :error \"data tidak valid\"; };\n:local wanted \",\";\n:local rates [:toarray \"\"];\n:local pos 0;\n:local total [:len $data];\n:while ($pos < $total) do={ :local nl [:find $data \"\\n\" ($pos - 1)]; :if ([:typeof $nl] = \"nil\") do={ :set nl $total; }; :local line [:pick $data $pos $nl]; :set pos ($nl + 1); :if ([:len $line] > 0 && [:pick $line ([:len $line] - 1)] = \"\\r\") do={ :set line [:pick $line 0 ([:len $line] - 1)]; }; :if ([:len $line] > 17 && [:pick $line 17 18] = \";\") do={ :local mac [:pick $line 0 17]; :local rest [:pick $line 18 [:len $line]]; :local rate \"\"; :local sc [:find $rest \";\"]; :if ([:typeof $sc] != \"nil\") do={ :set rate [:pick $rest ($sc + 1) [:len $rest]]; }; :set wanted ($wanted . $mac . \",\"); :set ($rates->$mac) $rate; }; };\n:local okArp \",\";\n:local qwanted \",\";\n:local report \"\";\n:local blocked 0;\n:foreach l in=[/ip dhcp-server lease find where status=bound dynamic=yes] do={ :local m [/ip dhcp-server lease get $l mac-address]; :local ip [:tostr [/ip dhcp-server lease get $l address]]; :local hn [/ip dhcp-server lease get $l host-name]; :if ([:typeof [:find $wanted (\",\" . $m . \",\")]] = \"nil\") do={ :do { /ip dhcp-server lease remove $l; } on-error={}; :set blocked ($blocked + 1); } else={ :set okArp ($okArp . $ip . \",\"); :local a [/ip arp find where address=$ip]; :if ([:len $a] = 0) do={ /ip arp add address=$ip mac-address=$m interface=AP-KUOTA comment=$tag; } else={ :local am [/ip arp get [:pick $a 0] mac-address]; :local ac [:tostr [/ip arp get [:pick $a 0] comment]]; :if ($ac = $tag && $am != $m) do={ /ip arp set [:pick $a 0] mac-address=$m; }; }; :local by \"\"; :local r ($rates->$m); :if ([:typeof $r] = \"str\" && [:len $r] > 0) do={ :local qn ($tag . \"-\" . $m); :set qwanted ($qwanted . $qn . \",\"); :local t ($ip . \"/32\"); :local q [/queue simple find where name=$qn]; :if ([:len $q] = 0) do={ :local first [/queue simple find]; :if ([:len $first] > 0) do={ /queue simple add name=$qn target=$t max-limit=$r comment=$tag place-before=[:pick $first 0]; } else={ /queue simple add name=$qn target=$t max-limit=$r comment=$tag; }; } else={ :if ([/queue simple get $q max-limit] != $r) do={ /queue simple set $q max-limit=$r; }; :if ([:tostr [/queue simple get $q target]] != $t) do={ /queue simple set $q target=$t; }; :set by [:tostr [/queue simple get $q bytes]]; }; }; :set report ($report . $m . \";\" . $ip . \";\" . $hn . \";\" . $by . \"\\n\"); }; };\n:foreach a in=[/ip arp find where comment=$tag] do={ :local ip [:tostr [/ip arp get $a address]]; :if ([:typeof [:find $okArp (\",\" . $ip . \",\")]] = \"nil\") do={ /ip arp remove $a; }; };\n:foreach q in=[/queue simple find where name~(\"^\" . $tag . \"-\")] do={ :local n [/queue simple get $q name]; :if ([:typeof [:find $qwanted (\",\" . $n . \",\")]] = \"nil\") do={ /queue simple remove $q; }; };\n:if ([:len $report] = 0) do={ :set report \"-\"; };\n:do { /tool fetch url=($base . \"/online?key=\" . $key . \"&cabang=\" . $cabang) check-certificate=no http-method=post http-header-field=\"Content-Type: text/plain\" http-data=$report output=none; } on-error={ :log warning \"[WEBMAC] gagal kirim user aktif\"; };\n:if ($blocked > 0) do={ :log info (\"[WEBMAC] HP tidak terdaftar ditolak: \" . $blocked); };\n";
+
+// ---------- Handler utama ----------
+export async function onRequest({ request, env }) {
+  const url = new URL(request.url);
+  const path = url.pathname.replace(/^\/api/, "").replace(/\/+$/, "") || "/";
+  const method = request.method.toUpperCase();
+  const db = env.DB;
+  const pw = env.ADMIN_PASSWORD || "";
+  if (!db) return json({ ok: false, pesan: "Database belum disambungkan (binding DB)." }, 500);
+
+  // Cabang permintaan ini: header x-cabang (panel) atau ?cabang= (router). Kosong = BHP.
+  const cabRaw = request.headers.get("x-cabang") || url.searchParams.get("cabang") || "";
+  const cab = cabRaw ? normCab(cabRaw) : CABANG_DEFAULT;
+  if (!cab) return path === "/mikrotik" || path === "/online" || path === "/script"
+    ? text("ERROR cabang tidak dikenal\n", 400)
+    : json({ ok: false, pesan: "Cabang tidak dikenal." }, 400);
+  const namaCab = CABANG[cab];
+
+  try {
+    await ensureSchema(db);
+    const byMac = (mac) => db.prepare("SELECT * FROM perangkat WHERE mac = ?").bind(mac).first();
+    const byId = (id) => db.prepare("SELECT * FROM perangkat WHERE id = ? AND cabang = ?").bind(id, cab).first();
+    const perangkatStmt = (d) => db.prepare(insertSql("perangkat", PERANGKAT_COLS))
+      .bind(...PERANGKAT_COLS.map((c) => c === "acak" || c === "putus_otomatis" ? (d[c] ? 1 : 0) : (d[c] ?? null)));
+    const insertPerangkat = (d) => perangkatStmt(d).run();
+    const getSet = async (k) => ((await db.prepare("SELECT nilai FROM pengaturan WHERE kunci = ?").bind(kunci(k, cab)).first()) || {}).nilai;
+    const putSet = (k, v) => db.prepare("INSERT INTO pengaturan (kunci, nilai) VALUES (?, ?) ON CONFLICT(kunci) DO UPDATE SET nilai = excluded.nilai").bind(kunci(k, cab), v).run();
+
+    const getDefaultRate = async () => (await getSet("kecepatan_default")) || "";
+    const rateOf = (d, def) => { const r = d.kecepatan || def || ""; return r === "0/0" ? "" : r; };
+    const macDipakai = (d) => "MAC ini sudah terdaftar" + (d.cabang && d.cabang !== cab ? " di cabang " + (CABANG[d.cabang] || d.cabang) : "") + " atas nama " + (d.nama || "-") + ".";
+
+    // ===== Untuk MikroTik: HP aktif cabang ini yang belum habis masa aktifnya =====
+    if (path === "/mikrotik" && method === "GET") {
+      const key = env.SYNC_KEY || "";
+      if (!key || !safeEqual(url.searchParams.get("key") || "", key)) return text("ERROR kunci salah\n", 403);
+      const { results } = await db.prepare("SELECT * FROM perangkat WHERE status = 'aktif' AND cabang = ? ORDER BY mac").bind(cab).all();
+      const def = await getDefaultRate();
+      const lines = results.filter((d) => !expired(d)).map((d) => d.mac + ";" + asciiName(d.nama) + ";" + rateOf(d, def));
+      return text(lines.join("\n") + "\nEND\n");
+    }
+
+    // ===== Dari MikroTik: laporan HP yang sedang tersambung di cabang ini =====
+    // Isi (text): satu baris per HP "MAC;IP;nama-host;bytes-upload/bytes-download"
+    if (path === "/online" && method === "POST") {
+      const key = env.SYNC_KEY || "";
+      if (!key || !safeEqual(url.searchParams.get("key") || "", key)) return text("ERROR kunci salah\n", 403);
+      const raw = (await request.text()).slice(0, 200000);
+      const list = [];
+      for (const line of raw.split(/\r?\n/)) {
+        const parts = line.split(";");
+        const mac = normMac(parts[0]);
+        if (!mac) continue;
+        const ip = /^\d{1,3}(\.\d{1,3}){3}$/.test(parts[1] || "") ? parts[1] : "";
+        const host = clean(parts.slice(2, parts.length > 3 ? -1 : undefined).join(";"), 40);
+        const bm = String(parts.length > 3 ? parts[parts.length - 1] : "").match(/^(\d+)\/(\d+)$/);
+        list.push({ mac, ip, host, up: bm ? Number(bm[1]) : null, down: bm ? Number(bm[2]) : null });
+        if (list.length >= 2000) break;
+      }
+      await putSet("online", JSON.stringify({ waktu: now(), list }));
+      return text("OK " + namaCab + " " + list.length + "\n");
+    }
+
+    // ===== Script router (diunduh MikroTik), sudah berisi kode cabang =====
+    if (path === "/script" && method === "GET") {
+      const key = env.SYNC_KEY || "";
+      if (!key || !safeEqual(url.searchParams.get("key") || "", key)) return text("ERROR kunci salah\n", 403);
+      return text(routerScript(cab));
+    }
+
+    // ===== Publik =====
+    if (path === "/daftar" && method === "POST") {
+      return json({ ok: false, pesan: "Pendaftaran hanya dilakukan oleh admin. Silakan hubungi admin." }, 403);
+    }
+    if (path === "/daftar-lama" && method === "POST") {
+      const b = await readBody(request);
+      const mac = normMac(b.mac);
+      const nama = clean(b.nama, 50);
+      if (!mac) return json({ ok: false, pesan: "Format MAC Address tidak valid. Contoh: A4:5E:60:12:34:56" }, 400);
+      if (nama.length < 2) return json({ ok: false, pesan: "Nama wajib diisi." }, 400);
+      const ada = await byMac(mac);
+      if (ada) return json({ ok: true, pesan: "MAC ini sudah terdaftar dengan status: " + ada.status.toUpperCase() + ".", status: ada.status });
+      const { n } = await db.prepare("SELECT COUNT(*) AS n FROM perangkat WHERE status = 'menunggu'").first();
+      if (n >= MAX_PENDING) return json({ ok: false, pesan: "Antrian pendaftaran penuh. Silakan hubungi admin." }, 429);
+      await insertPerangkat({ id: newId(), mac, nama, hp: clean(b.hp, 20), ket: clean(b.ket, 80), status: "menunggu",
+        acak: isRandomMac(mac), dibuat: now(), diubah: now(), aktif_sampai: null, putus_otomatis: true, cabang: cab, kategori: "pelanggan" });
+      return json({ ok: true, pesan: "Pendaftaran terkirim. Tunggu persetujuan admin.", status: "menunggu" });
+    }
+
+    if (path === "/cek" && method === "GET") {
+      const mac = normMac(url.searchParams.get("mac"));
+      if (!mac) return json({ ok: false, pesan: "Format MAC Address tidak valid." }, 400);
+      const d = await byMac(mac);
+      if (!d) return json({ ok: true, mac, status: "tidak-terdaftar" });
+      return json({ ok: true, mac, status: expired(d) ? "habis" : d.status, aktif_sampai: d.aktif_sampai || null, cabang: CABANG[d.cabang] || d.cabang });
+    }
+
+    // Data akun dari database (null = tidak ada / diblokir)
+    const akun = async (username) => {
+      if (username === "admin") return { username: "admin", nama: "Admin Utama", role: "admin", utama: true, cabang: [...CABANG_IDS] };
+      const u = await db.prepare("SELECT * FROM pengguna WHERE username = ?").bind(username).first();
+      if (!u || !u.aktif) return null;
+      return { username: u.username, nama: u.nama, role: u.role, cabang: parseCabList(u.cabang), _hash: u.password };
+    };
+    const publik = (u) => { const { _hash, ...rest } = u; return rest; };
+    const tanpaAkses = (u) => "Akun " + u.username + " tidak punya akses ke cabang " + namaCab + ".";
+
+    if (path === "/login" && method === "POST") {
+      if (!pw) return json({ ok: false, pesan: "ADMIN_PASSWORD belum diatur di Cloudflare." }, 500);
+      const b = await readBody(request);
+      const username = cleanUser(b.username) || "admin";
+      const u = await akun(username);
+      let okLogin = false;
+      if (u && u.utama) okLogin = safeEqual(b.password || "", pw);
+      else if (u) { const [salt] = String(u._hash).split(":"); okLogin = safeEqual(await hashPassword(b.password || "", salt), u._hash); }
+      if (!okLogin) {
+        await new Promise((r) => setTimeout(r, 800));
+        return json({ ok: false, pesan: "Username atau password salah." }, 401);
+      }
+      if (!u.cabang.includes(cab)) return json({ ok: false, pesan: tanpaAkses(u) }, 403);
+      if (!u.utama) await db.prepare("UPDATE pengguna SET login_terakhir = ? WHERE username = ?").bind(now(), username).run();
+      return json({ ok: true, token: await makeToken(pw, username), user: publik(u) });
+    }
+
+    // ===== Semua di bawah ini perlu login =====
+    const tokUser = await readToken(request, pw);
+    const me = tokUser ? await akun(tokUser) : null;
+    if (!me) {
+      const known = ["/kecepatan", "/saya", "/pengguna", "/lunas", "/perangkat", "/paket", "/bayar", "/pembayaran", "/keuangan", "/backup", "/restore", "/pengaturan", "/online"];
+      if (known.some((p) => path === p || path.startsWith(p + "/"))) return json({ ok: false, pesan: "Sesi habis, silakan login lagi." }, 401);
+      return json({ ok: false, pesan: "Alamat tidak dikenal." }, 404);
+    }
+    // /saya boleh dari cabang mana saja (panel memakainya untuk tahu cabang mana yang boleh dibuka)
+    if (path === "/saya") return json({ ok: true, user: publik(me) });
+    // Penjaga utama: akun hanya boleh membaca/mengubah data cabang yang diizinkan
+    if (!me.cabang.includes(cab)) return json({ ok: false, pesan: tanpaAkses(me) }, 403);
+
+    const seg = path.split("/");
+    const id = seg[2];
+
+    // ----- Hak akses -----
+    const butuh = (role) => (RANK[me.role] || 0) >= RANK[role];
+    const tolak = () => json({ ok: false, pesan: "Akun Anda (" + me.role + ") tidak punya izin untuk ini." }, 403);
+    const hanyaAdmin = seg[1] === "pengguna" || (path === "/kecepatan" && method !== "GET") || path === "/restore" || path === "/backup"
+      || (path === "/pengaturan" && method !== "GET") || (method === "DELETE");
+    if (hanyaAdmin && !butuh("admin")) return tolak();
+    if (method !== "GET" && !butuh("operator")) return tolak();
+
+    // ----- Pengguna (akun login, berlaku untuk semua cabang) -----
+    if (seg[1] === "pengguna") {
+      // Hanya akun utama yang boleh mengatur akun lain, supaya admin satu cabang tidak bisa memberi dirinya akses ke cabang lain
+      if (!me.utama) return json({ ok: false, pesan: "Hanya akun utama yang bisa mengatur pengguna." }, 403);
+      if (!id && method === "GET") {
+        const { results } = await db.prepare("SELECT username, nama, role, aktif, dibuat, login_terakhir, cabang FROM pengguna ORDER BY dibuat").all();
+        return json({ ok: true, data: [{ username: "admin", nama: "Admin Utama", role: "admin", aktif: 1, utama: true, cabang: [...CABANG_IDS] },
+          ...results.map((u) => ({ ...u, cabang: parseCabList(u.cabang) }))] });
+      }
+      if (!id && method === "POST") {
+        const b = await readBody(request);
+        const username = cleanUser(b.username);
+        if (username.length < 3) return json({ ok: false, pesan: "Username minimal 3 huruf (a-z, 0-9, titik, strip)." }, 400);
+        if (username === "admin") return json({ ok: false, pesan: "Username 'admin' sudah dipakai akun utama." }, 409);
+        if (String(b.password || "").length < 6) return json({ ok: false, pesan: "Password minimal 6 karakter." }, 400);
+        const role = ROLES.includes(b.role) ? b.role : "operator";
+        const cabList = cleanCabList(b.cabang);
+        if (!cabList.length) return json({ ok: false, pesan: "Pilih minimal 1 cabang untuk akun ini." }, 400);
+        if (await db.prepare("SELECT 1 FROM pengguna WHERE username = ?").bind(username).first()) return json({ ok: false, pesan: "Username sudah ada." }, 409);
+        await db.prepare("INSERT INTO pengguna (username, nama, password, role, aktif, dibuat, cabang) VALUES (?, ?, ?, ?, 1, ?, ?)")
+          .bind(username, clean(b.nama, 40) || username, await hashPassword(b.password), role, now(), cabList.join(",")).run();
+        return json({ ok: true, pesan: "Pengguna " + username + " dibuat (" + cabList.map((c) => CABANG[c]).join(", ") + ")." });
+      }
+      const uname = cleanUser(decodeURIComponent(id || ""));
+      if (uname === "admin") return json({ ok: false, pesan: "Akun utama 'admin' diatur lewat ADMIN_PASSWORD di Cloudflare." }, 400);
+      const u = await db.prepare("SELECT * FROM pengguna WHERE username = ?").bind(uname).first();
+      if (!u) return json({ ok: false, pesan: "Pengguna tidak ditemukan." }, 404);
+      if (method === "PATCH") {
+        const b = await readBody(request);
+        if (b.role !== undefined) { if (!ROLES.includes(b.role)) return json({ ok: false, pesan: "Hak akses tidak valid." }, 400); u.role = b.role; }
+        if (b.nama !== undefined) u.nama = clean(b.nama, 40) || u.nama;
+        if (b.aktif !== undefined) u.aktif = b.aktif ? 1 : 0;
+        if (b.cabang !== undefined) {
+          const cabList = cleanCabList(b.cabang);
+          if (!cabList.length) return json({ ok: false, pesan: "Pilih minimal 1 cabang untuk akun ini." }, 400);
+          u.cabang = cabList.join(",");
+        }
+        if (b.password) {
+          if (String(b.password).length < 6) return json({ ok: false, pesan: "Password minimal 6 karakter." }, 400);
+          u.password = await hashPassword(b.password);
+        }
+        await db.prepare("UPDATE pengguna SET nama=?, role=?, aktif=?, password=?, cabang=? WHERE username=?")
+          .bind(u.nama, u.role, u.aktif, u.password, u.cabang ?? null, u.username).run();
+        return json({ ok: true, pesan: "Pengguna " + u.username + " diperbarui." });
+      }
+      if (method === "DELETE") {
+        await db.prepare("DELETE FROM pengguna WHERE username = ?").bind(u.username).run();
+        return json({ ok: true, pesan: "Pengguna " + u.username + " dihapus." });
+      }
+    }
+
+    // ----- Perangkat -----
+    if (seg[1] === "perangkat") {
+      if (!id && method === "GET") {
+        const { results } = await db.prepare("SELECT * FROM perangkat WHERE cabang = ? ORDER BY dibuat DESC").bind(cab).all();
+        const { results: ut } = await db.prepare("SELECT perangkat_id, SUM(harga) AS t, COUNT(*) AS n FROM pembayaran WHERE status = 'utang' AND cabang = ? GROUP BY perangkat_id").bind(cab).all();
+        const { results: lb } = await db.prepare("SELECT perangkat_id, MAX(tanggal) AS tgl FROM pembayaran WHERE cabang = ? GROUP BY perangkat_id").bind(cab).all();
+        const U = Object.fromEntries(ut.map((x) => [x.perangkat_id, x])), LB = Object.fromEntries(lb.map((x) => [x.perangkat_id, x.tgl]));
+        const G = {}, GB = {};
+        for (const r of results) if (r.grup) { G[r.grup] = (G[r.grup] || 0) + 1; const t = LB[r.id]; if (t && (!GB[r.grup] || t > GB[r.grup])) GB[r.grup] = t; }
+        return json({ ok: true, data: results.map((r) => ({ ...row(r), grup_n: r.grup ? G[r.grup] : 1, utang: U[r.id]?.t || 0, utang_n: U[r.id]?.n || 0, bayar_terakhir: (r.grup ? GB[r.grup] : LB[r.id]) || null })),
+          kecepatan_default: await getDefaultRate() });
+      }
+      if (!id && method === "POST") {
+        const b = await readBody(request);
+        // satu HP: {mac}; beberapa HP satu pelanggan: {macs:[...]}
+        const raw = Array.isArray(b.macs) && b.macs.length ? b.macs : [b.mac];
+        if (raw.length > 10) return json({ ok: false, pesan: "Maksimal 10 HP sekaligus." }, 400);
+        const macs = raw.map(normMac);
+        const banyak = macs.length > 1;
+        const ke = (i) => (banyak ? "HP ke-" + (i + 1) + ": " : "");
+        for (let i = 0; i < macs.length; i++) if (!macs[i]) return json({ ok: false, pesan: ke(i) + "Format MAC tidak valid." }, 400);
+        if (new Set(macs).size !== macs.length) return json({ ok: false, pesan: "Ada MAC yang sama dimasukkan dua kali." }, 400);
+        for (let i = 0; i < macs.length; i++) { const ada = await byMac(macs[i]); if (ada) return json({ ok: false, pesan: ke(i) + macDipakai(ada) }, 409); }
+        const kecepatan = normRate(b.kecepatan);
+        if (kecepatan === null) return json({ ok: false, pesan: RATE_ERR }, 400);
+        const nama = clean(b.nama, 44) || "tanpa nama", grup = banyak ? newId() : null;
+        const items = macs.map((mac, i) => ({ id: newId(), mac, nama: banyak ? nama + " HP" + (i + 1) : nama, hp: clean(b.hp, 20), ket: clean(b.ket, 80),
+          status: STATUSES.includes(b.status) ? b.status : "aktif", acak: isRandomMac(mac), dibuat: now(), diubah: now(),
+          aktif_sampai: validIso(b.aktif_sampai) ? new Date(b.aktif_sampai).toISOString() : null, putus_otomatis: b.putus_otomatis !== false,
+          kecepatan, oleh: me.username, cabang: cab, kategori: normKat(b.kategori), grup }));
+        await db.batch(items.map(perangkatStmt));
+        return json({ ok: true, data: row(items[0]), items: items.map(row), grup });
+      }
+      const d = await byId(id);
+      if (!d) return json({ ok: false, pesan: "Data tidak ditemukan di cabang " + namaCab + "." }, 404);
+      if (method === "PATCH") {
+        const b = await readBody(request);
+        if (b.status !== undefined) {
+          if (!STATUSES.includes(b.status)) return json({ ok: false, pesan: "Status tidak valid." }, 400);
+          d.status = b.status;
+        }
+        if (b.nama !== undefined) d.nama = clean(b.nama, 50) || d.nama;
+        if (b.hp !== undefined) d.hp = clean(b.hp, 20);
+        if (b.ket !== undefined) d.ket = clean(b.ket, 80);
+        if (b.kategori !== undefined) d.kategori = normKat(b.kategori);
+        if (b.aktif_sampai !== undefined) d.aktif_sampai = validIso(b.aktif_sampai) ? new Date(b.aktif_sampai).toISOString() : null;
+        if (b.putus_otomatis !== undefined) d.putus_otomatis = b.putus_otomatis ? 1 : 0;
+        if (b.kecepatan !== undefined) { const r = normRate(b.kecepatan); if (r === null) return json({ ok: false, pesan: RATE_ERR }, 400); d.kecepatan = r; }
+        d.diubah = now();
+        await db.prepare("UPDATE perangkat SET status=?, nama=?, hp=?, ket=?, aktif_sampai=?, putus_otomatis=?, kecepatan=?, kategori=?, diubah=? WHERE id=? AND cabang=?")
+          .bind(d.status, d.nama, d.hp, d.ket, d.aktif_sampai, d.putus_otomatis ? 1 : 0, d.kecepatan ?? "", normKat(d.kategori), d.diubah, d.id, cab).run();
+        if (d.grup && ["status", "aktif_sampai", "putus_otomatis", "kecepatan"].some((k) => b[k] !== undefined))
+          await db.prepare("UPDATE perangkat SET status=?, aktif_sampai=?, putus_otomatis=?, kecepatan=?, diubah=? WHERE grup=? AND cabang=? AND id!=?")
+            .bind(d.status, d.aktif_sampai, d.putus_otomatis ? 1 : 0, d.kecepatan ?? "", d.diubah, d.grup, cab, d.id).run();
+        return json({ ok: true, data: row(d) });
+      }
+      if (method === "DELETE") {
+        await db.prepare("DELETE FROM perangkat WHERE id = ? AND cabang = ?").bind(id, cab).run();
+        return json({ ok: true });
+      }
+    }
+
+    // ----- Paket -----
+    if (seg[1] === "paket") {
+      if (!id && method === "GET") {
+        const { results } = await db.prepare("SELECT * FROM paket WHERE cabang = ? ORDER BY urutan, harga").bind(cab).all();
+        return json({ ok: true, data: results });
+      }
+      if (!id && method === "POST") {
+        const b = await readBody(request);
+        const nama = clean(b.nama, 40);
+        if (!nama) return json({ ok: false, pesan: "Nama paket wajib diisi." }, 400);
+        const item = { id: newId(), nama, harga: Math.max(0, int(b.harga)), hari: Math.max(0, int(b.hari)), urutan: int(b.urutan, 99), kecepatan: normRate(b.kecepatan), cabang: cab };
+        if (item.kecepatan === null) return json({ ok: false, pesan: RATE_ERR }, 400);
+        await db.prepare(insertSql("paket", PAKET_COLS)).bind(...PAKET_COLS.map((c) => item[c])).run();
+        return json({ ok: true, data: item });
+      }
+      const p = await db.prepare("SELECT * FROM paket WHERE id = ? AND cabang = ?").bind(id, cab).first();
+      if (!p) return json({ ok: false, pesan: "Paket tidak ditemukan." }, 404);
+      if (method === "PATCH") {
+        const b = await readBody(request);
+        if (b.nama !== undefined) p.nama = clean(b.nama, 40) || p.nama;
+        if (b.harga !== undefined) p.harga = Math.max(0, int(b.harga));
+        if (b.hari !== undefined) p.hari = Math.max(0, int(b.hari));
+        if (b.kecepatan !== undefined) { const r = normRate(b.kecepatan); if (r === null) return json({ ok: false, pesan: RATE_ERR }, 400); p.kecepatan = r; }
+        await db.prepare("UPDATE paket SET nama=?, harga=?, hari=?, kecepatan=? WHERE id=? AND cabang=?").bind(p.nama, p.harga, p.hari, p.kecepatan ?? "", p.id, cab).run();
+        return json({ ok: true, data: p });
+      }
+      if (method === "DELETE") {
+        await db.prepare("DELETE FROM paket WHERE id = ? AND cabang = ?").bind(id, cab).run();
+        return json({ ok: true });
+      }
+    }
+
+    // ----- Catat pembayaran (memperpanjang masa aktif) -----
+    if (path === "/bayar" && method === "POST") {
+      const b = await readBody(request);
+      const d = await byId(b.perangkat_id);
+      if (!d) return json({ ok: false, pesan: "Perangkat tidak ditemukan di cabang " + namaCab + "." }, 404);
+      let kecepatan = "";
+      let paketNama = clean(b.paket, 40) || "Pembayaran", harga = Math.max(0, int(b.harga)), hari = Math.max(0, int(b.hari));
+      if (b.paket_id) {
+        const p = await db.prepare("SELECT * FROM paket WHERE id = ? AND cabang = ?").bind(b.paket_id, cab).first();
+        if (!p) return json({ ok: false, pesan: "Paket tidak ditemukan." }, 404);
+        paketNama = p.nama; harga = p.harga; hari = p.hari; kecepatan = p.kecepatan || "";
+        if (b.harga !== undefined && b.harga !== "") harga = Math.max(0, int(b.harga)); // boleh diskon
+      }
+      if (b.kecepatan !== undefined && b.kecepatan !== null) { const r = normRate(b.kecepatan); if (r === null) return json({ ok: false, pesan: RATE_ERR }, 400); if (r) kecepatan = r; }
+      const kecBaru = kecepatan || d.kecepatan || "";
+      const tanggal = validIso(b.tanggal) ? new Date(b.tanggal).toISOString() : now();
+      const stBayar = b.status === "utang" ? "utang" : "lunas";
+      let dari = null, sampai = d.aktif_sampai || null;
+      if (hari > 0) {
+        const base = d.aktif_sampai && Date.parse(d.aktif_sampai) > Date.now() ? Date.parse(d.aktif_sampai) : Date.now();
+        dari = new Date(base).toISOString();
+        sampai = new Date(base + hari * 86400000).toISOString();
+      }
+      const bayar = { id: newId(), perangkat_id: d.id, mac: d.mac, nama: d.nama, paket: paketNama, harga, hari, tanggal, dari, sampai, catatan: clean(b.catatan, 80), kecepatan: kecBaru,
+        status: stBayar, tanggal_lunas: stBayar === "lunas" ? tanggal : null, oleh: me.username, cabang: cab, grup: d.grup || null };
+      const nGrup = d.grup ? ((await db.prepare("SELECT COUNT(*) AS n FROM perangkat WHERE grup = ? AND cabang = ?").bind(d.grup, cab).first()) || {}).n || 1 : 1;
+      await db.batch([
+        db.prepare(insertSql("pembayaran", BAYAR_COLS)).bind(...BAYAR_COLS.map((c) => bayar[c])),
+        db.prepare("UPDATE perangkat SET status='aktif', aktif_sampai=?, kecepatan=?, diubah=? WHERE cabang=? AND (id=? OR (grup IS NOT NULL AND grup=?))").bind(sampai, kecBaru, now(), cab, d.id, d.grup || ""),
+      ]);
+      return json({ ok: true, data: bayar, pesan: (stBayar === "utang" ? "Dicatat sebagai UTANG." : "Pembayaran LUNAS dicatat.") + (sampai ? " Aktif sampai " + sampai.slice(0, 10) + "." : "") + (kecepatan ? " Kecepatan " + kecepatan + "." : "") + (nGrup > 1 ? " Berlaku untuk " + nGrup + " HP." : "") });
+    }
+
+    // ----- Lunasi semua utang satu pelanggan -----
+    if (path === "/lunas" && method === "POST") {
+      const b = await readBody(request);
+      const { t, n } = await db.prepare("SELECT COALESCE(SUM(harga),0) AS t, COUNT(*) AS n FROM pembayaran WHERE status = 'utang' AND perangkat_id = ? AND cabang = ?").bind(b.perangkat_id, cab).first();
+      if (!n) return json({ ok: false, pesan: "Tidak ada utang." }, 400);
+      await db.prepare("UPDATE pembayaran SET status = 'lunas', tanggal_lunas = ? WHERE status = 'utang' AND perangkat_id = ? AND cabang = ?").bind(now(), b.perangkat_id, cab).run();
+      return json({ ok: true, pesan: "Lunas. Rp " + Number(t).toLocaleString("id-ID") + " masuk pendapatan hari ini." });
+    }
+
+    // ----- Riwayat pembayaran -----
+    if (seg[1] === "pembayaran") {
+      if (!id && method === "GET") {
+        const bulan = url.searchParams.get("bulan"); // YYYY-MM (WITA)
+        const st = url.searchParams.get("status");
+        const m = (col) => `strftime('%Y-%m', datetime(${col}, '${TZ_OFFSET}'))`;
+        let q;
+        if (st === "utang") q = db.prepare("SELECT * FROM pembayaran WHERE status = 'utang' AND cabang = ?1 ORDER BY tanggal DESC").bind(cab);
+        else if (/^\d{4}-\d{2}$/.test(bulan || "")) q = db.prepare(`SELECT * FROM pembayaran WHERE cabang = ?2 AND (${m("tanggal")} = ?1 OR (status = 'lunas' AND ${m("tanggal_lunas")} = ?1)) ORDER BY tanggal DESC`).bind(bulan, cab);
+        else q = db.prepare("SELECT * FROM pembayaran WHERE cabang = ?1 ORDER BY tanggal DESC LIMIT 2000").bind(cab);
+        const { results } = await q.all();
+        return json({ ok: true, data: results });
+      }
+      if (id && method === "PATCH") {
+        const b = await readBody(request);
+        const x = await db.prepare("SELECT * FROM pembayaran WHERE id = ? AND cabang = ?").bind(id, cab).first();
+        if (!x) return json({ ok: false, pesan: "Pembayaran tidak ditemukan." }, 404);
+        if (b.status === "lunas") {
+          const harga = b.harga !== undefined && b.harga !== "" ? Math.max(0, int(b.harga)) : x.harga;
+          await db.prepare("UPDATE pembayaran SET status = 'lunas', tanggal_lunas = ?, harga = ? WHERE id = ? AND cabang = ?").bind(now(), harga, id, cab).run();
+          return json({ ok: true, pesan: "Lunas. " + harga.toLocaleString("id-ID") + " masuk pendapatan hari ini." });
+        }
+        if (b.status === "utang") {
+          await db.prepare("UPDATE pembayaran SET status = 'utang', tanggal_lunas = NULL WHERE id = ? AND cabang = ?").bind(id, cab).run();
+          return json({ ok: true, pesan: "Dikembalikan menjadi utang." });
+        }
+        return json({ ok: false, pesan: "Status tidak valid." }, 400);
+      }
+      if (id && method === "DELETE") {
+        await db.prepare("DELETE FROM pembayaran WHERE id = ? AND cabang = ?").bind(id, cab).run();
+        return json({ ok: true, pesan: "Catatan pembayaran dihapus. Masa aktif HP tidak berubah; ubah lewat Edit bila perlu." });
+      }
+    }
+
+    // ----- Ringkasan keuangan (per cabang) -----
+    if (path === "/keuangan" && method === "GET") {
+      const L = `strftime(%F, datetime(tanggal_lunas, '${TZ_OFFSET}'))`;
+      const at = (f) => L.replace("%F", f);
+      const skr = (f, extra = "") => `strftime(${f}, datetime('now', '${TZ_OFFSET}'${extra}))`;
+      const sum = (cond) => db.prepare(`SELECT COALESCE(SUM(harga),0) AS t, COUNT(*) AS n FROM pembayaran WHERE status = 'lunas' AND cabang = ? AND ${cond}`).bind(cab).first();
+      const hari_ini = await sum(`${at("'%Y-%m-%d'")} = ${skr("'%Y-%m-%d'")}`);
+      const bulan_ini = await sum(`${at("'%Y-%m'")} = ${skr("'%Y-%m'")}`);
+      const bulan_lalu = await sum(`${at("'%Y-%m'")} = ${skr("'%Y-%m'", ", 'start of month', '-1 month'")}`);
+      const total = await sum("1=1");
+      const utang = await db.prepare("SELECT COALESCE(SUM(harga),0) AS t, COUNT(*) AS n FROM pembayaran WHERE status = 'utang' AND cabang = ?").bind(cab).first();
+      const { results: per_bulan } = await db.prepare(
+        `SELECT ${at("'%Y-%m'")} AS bulan, SUM(harga) AS total, COUNT(*) AS jumlah FROM pembayaran WHERE status = 'lunas' AND cabang = ? GROUP BY bulan ORDER BY bulan DESC LIMIT 12`).bind(cab).all();
+      const { results: utang_list } = await db.prepare(
+        "SELECT perangkat_id, mac, nama, SUM(harga) AS total, COUNT(*) AS jumlah FROM pembayaran WHERE status = 'utang' AND cabang = ? GROUP BY perangkat_id ORDER BY total DESC LIMIT 50").bind(cab).all();
+      const { results: semua } = await db.prepare("SELECT * FROM perangkat WHERE cabang = ?").bind(cab).all();
+      const in7 = Date.now() + 7 * 86400000;
+      const hampir = semua.filter((d) => d.status === "aktif" && d.aktif_sampai && !expired(d) && Date.parse(d.aktif_sampai) <= in7)
+        .map(row).sort((x, y) => x.aktif_sampai.localeCompare(y.aktif_sampai));
+      return json({ ok: true, data: {
+        hari_ini, bulan_ini, bulan_lalu, total, utang, utang_list, per_bulan: per_bulan.reverse(),
+        jumlah_habis: semua.filter((d) => d.status === "aktif" && expired(d)).length, hampir_habis: hampir,
+      } });
+    }
+
+    // ----- User aktif (laporan terakhir dari router cabang ini) -----
+    if (path === "/online" && method === "GET") {
+      let rep = { waktu: null, list: [] };
+      try { const v = await getSet("online"); if (v) rep = JSON.parse(v); } catch {}
+      const { results } = await db.prepare("SELECT * FROM perangkat WHERE cabang = ?").bind(cab).all();
+      const def = await getDefaultRate();
+      const byM = Object.fromEntries(results.map((d) => [d.mac, d]));
+      const data = rep.list.map((o) => {
+        const d = byM[o.mac];
+        return { ...o, terdaftar: !!d, id: d?.id || null, nama: d?.nama || null, hp: d?.hp || null, kategori: d ? normKat(d.kategori) : null,
+          status: d ? (expired(d) ? "habis" : d.status) : null, aktif_sampai: d?.aktif_sampai || null,
+          kecepatan: d ? (rateOf(d, def) || "") : "" };
+      });
+      return json({ ok: true, waktu: rep.waktu, data });
+    }
+
+    // ----- Daftar pilihan kecepatan (per cabang) -----
+    if (path === "/kecepatan") {
+      const getList = async () => { try { return JSON.parse((await getSet("kecepatan_list")) || "[]"); } catch { return []; } };
+      if (method === "GET") return json({ ok: true, data: await getList(), kecepatan_default: await getDefaultRate() });
+      if (method === "PUT") {
+        const b = await readBody(request);
+        if (!Array.isArray(b.data)) return json({ ok: false, pesan: "Data tidak valid." }, 400);
+        const list = [];
+        for (const x of b.data.slice(0, 50)) {
+          const nama = clean(x && x.nama, 30), r = normRate(x && x.rate);
+          if (!nama) return json({ ok: false, pesan: "Nama kecepatan wajib diisi." }, 400);
+          if (!r || r === "0/0") return json({ ok: false, pesan: "Kecepatan '" + nama + "': " + RATE_ERR }, 400);
+          list.push({ nama, rate: r });
+        }
+        await putSet("kecepatan_list", JSON.stringify(list));
+        return json({ ok: true, data: list, pesan: "Daftar kecepatan disimpan." });
+      }
+    }
+
+    // ----- Pengaturan (kecepatan default, per cabang) -----
+    if (path === "/pengaturan") {
+      if (method === "GET") return json({ ok: true, data: { kecepatan_default: await getDefaultRate() } });
+      if (method === "PATCH") {
+        const b = await readBody(request);
+        const r = normRate(b.kecepatan_default);
+        if (r === null) return json({ ok: false, pesan: RATE_ERR }, 400);
+        await putSet("kecepatan_default", r);
+        return json({ ok: true, data: { kecepatan_default: r }, pesan: r && r !== "0/0" ? "Kecepatan default: " + r : "Kecepatan default: tanpa batas" });
+      }
+    }
+
+    // ----- Backup & restore (per cabang) -----
+    // Backup berisi data cabang yang dipilih saja. Akun login tidak ikut di-restore (diatur di menu Pengguna).
+    if (path === "/backup" && method === "GET") {
+      const all = async (t) => (await db.prepare(`SELECT * FROM ${t} WHERE cabang = ?`).bind(cab).all()).results;
+      const pengaturan = [];
+      for (const k of PENGATURAN_CABANG) { const v = await getSet(k); if (v !== undefined && v !== null) pengaturan.push({ kunci: k, nilai: v }); }
+      return json({ aplikasi: "portal-mac", versi: 5, cabang: cab, nama_cabang: namaCab, dibuat: now(), pengaturan,
+        perangkat: await all("perangkat"), paket: await all("paket"), pembayaran: await all("pembayaran") });
+    }
+    if (path === "/restore" && method === "POST") {
+      const b = await readBody(request);
+      if (b.aplikasi !== "portal-mac" || !Array.isArray(b.perangkat)) return json({ ok: false, pesan: "File backup tidak dikenali." }, 400);
+      if (b.cabang && normCab(b.cabang) && normCab(b.cabang) !== cab)
+        return json({ ok: false, pesan: "File ini backup cabang " + (CABANG[normCab(b.cabang)]) + ", bukan " + namaCab + ". Pilih cabang yang sesuai dulu." }, 400);
+      const pick = (o, cols) => cols.map((c) => (o[c] === undefined ? null : o[c]));
+      const stmts = [
+        db.prepare("DELETE FROM perangkat WHERE cabang = ?").bind(cab),
+        db.prepare("DELETE FROM paket WHERE cabang = ?").bind(cab),
+        db.prepare("DELETE FROM pembayaran WHERE cabang = ?").bind(cab),
+      ];
+      if (Array.isArray(b.pengaturan)) {
+        for (const k of PENGATURAN_CABANG) stmts.push(db.prepare("DELETE FROM pengaturan WHERE kunci = ?").bind(kunci(k, cab)));
+        for (const x of b.pengaturan) {
+          // backup lama memakai kunci tanpa akhiran; ambil hanya pengaturan milik cabang
+          const k = String((x && x.kunci) || "").split(":")[0];
+          if (PENGATURAN_CABANG.includes(k)) stmts.push(db.prepare("INSERT OR REPLACE INTO pengaturan (kunci, nilai) VALUES (?, ?)").bind(kunci(k, cab), String(x.nilai ?? "")));
+        }
+      }
+      // MAC yang sudah dipakai cabang lain dilewati (satu HP hanya boleh di satu cabang)
+      const { results: lain } = await db.prepare("SELECT mac FROM perangkat WHERE cabang != ?").bind(cab).all();
+      const macLain = new Set(lain.map((x) => x.mac));
+      let nPerangkat = 0, dilewati = 0;
+      const seen = new Set();
+      for (const d of b.perangkat) {
+        const mac = normMac(d.mac);
+        if (!mac || !d.id || seen.has(mac)) continue;
+        if (macLain.has(mac)) { dilewati++; continue; }
+        seen.add(mac); nPerangkat++;
+        stmts.push(db.prepare(insertSql("perangkat", PERANGKAT_COLS, true)).bind(...pick({ ...d, mac, cabang: cab,
+          kategori: normKat(d.kategori), acak: d.acak ? 1 : 0, putus_otomatis: d.putus_otomatis === undefined ? 1 : (d.putus_otomatis ? 1 : 0),
+          status: STATUSES.includes(d.status) ? d.status : "menunggu" }, PERANGKAT_COLS)));
+      }
+      for (const p of b.paket || []) if (p.id && p.nama) stmts.push(db.prepare(insertSql("paket", PAKET_COLS, true)).bind(...pick({ ...p, cabang: cab }, PAKET_COLS)));
+      for (const p of b.pembayaran || []) if (p.id && p.tanggal) stmts.push(db.prepare(insertSql("pembayaran", BAYAR_COLS, true)).bind(...pick({ ...p, cabang: cab }, BAYAR_COLS)));
+      await db.batch(stmts);
+      return json({ ok: true, pesan: `Restore ${namaCab} selesai: ${nPerangkat} perangkat, ${(b.paket || []).length} paket, ${(b.pembayaran || []).length} pembayaran.`
+        + (dilewati ? ` ${dilewati} HP dilewati karena sudah terdaftar di cabang lain.` : "") });
+    }
+
+    return json({ ok: false, pesan: "Alamat tidak dikenal." }, 404);
+  } catch (e) {
+    return json({ ok: false, pesan: "Kesalahan server: " + e.message }, 500);
+  }
 }
-$("#jmlHp").onchange=()=>renderMacInputs();
-renderMacInputs(true);
-// ---------- Dialog Bayar ----------
-function openBayar(id){
-  curDev=data.find(x=>x.id===id); if(!curDev) return; renderRpChips();
-  $("#bayarSiapa").textContent=curDev.nama+" · "+curDev.mac+(curDev.aktif_sampai?" · aktif s/d "+tgl(curDev.aktif_sampai):"")+(curDev.grup_n>1?" · 👪 grup "+curDev.grup_n+" HP: semua ikut diperpanjang":"");
-  setRp($("#bayarHarga"),""); $("#bayarHari").value="30"; $("#bayarHariLain").value=""; $("#bayarHariLain").classList.add("hidden"); $("#bayarKec").innerHTML=kecOptions([["","Tidak diubah"],["0/0","Tanpa batas"]]); $("#bayarKec").value=""; $("#bayarCatatan").value="";
-  $$("input[name=bStat]")[0].checked=true; previewBayar(); $("#dBayar").showModal();
-}
-function previewBayar(){
-  const hari=hariVal($("#bayarHari")), base=curDev.aktif_sampai&&Date.parse(curDev.aktif_sampai)>Date.now()?Date.parse(curDev.aktif_sampai):Date.now();
-  const k=$("#bayarKec").value.trim(), st=$("input[name=bStat]:checked").value;
-  const nom=parseRp($("#bayarHarga").value), pk=$("#bayarHarga").dataset.paket;
-  $("#bayarPreview").innerHTML="💵 Nominal <b>"+rp(nom)+"</b>"+(pk?" ("+esc(pk)+")":"")+"<br>"+(hari?`Masa aktif sampai <b>${tgl(new Date(base+hari*86400000).toISOString())}</b>`:"Masa aktif tidak berubah")
-    +"<br>"+(k?`Kecepatan menjadi <b>${esc(rateTxt(k))}</b>`:`Kecepatan tetap: <b>${esc(curDev.kecepatan||("default "+(defRate||"tanpa batas")))}</b>`)
-    +"<br>"+(st==="lunas"?"✅ Langsung masuk pendapatan hari ini":"⏳ Dicatat sebagai <b>utang</b>, masuk pendapatan saat ditandai Lunas");
-}
-$("#bayarHari").addEventListener("change",previewBayar); $("#bayarHariLain").oninput=previewBayar; $("#bayarKec").onchange=previewBayar; $$("input[name=bStat]").forEach(r=>r.onchange=previewBayar);
-$("#fBayar").onsubmit=async e=>{
-  if(e.submitter?.value!=="ok") return; e.preventDefault();
-  const j=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:curDev.id,harga:parseRp($("#bayarHarga").value),paket:$("#bayarHarga").dataset.paket||"Pembayaran",hari:hariVal($("#bayarHari")),kecepatan:$("#bayarKec").value.trim(),status:$("input[name=bStat]:checked").value,catatan:$("#bayarCatatan").value})});
-  toast(j.pesan); if(j.ok){ $("#dBayar").close(); refreshNow(); }
-};
-
-// ---------- Dialog Ubah ----------
-function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").value=d.nama||""; $("#eHp").value=d.hp||""; $("#eKet").value=d.ket||""; $("#eKat").value=d.kategori||"pelanggan"; $("#eKec").innerHTML=kecOptions([["","Default"],["0/0","Tanpa batas"]],d.kecepatan); $("#eKec").value=d.kecepatan||""; $("#eSampai").value=toDateInput(d.aktif_sampai); $("#ePutus").checked=!!d.putus_otomatis; $("#editMac").textContent=d.mac+(d.grup_n>1?" · 👪 grup "+d.grup_n+" HP: kecepatan, masa aktif & putus otomatis berlaku untuk semua":""); $("#dEdit").showModal(); }
-$("#eTanpa").onclick=()=>{$("#eSampai").value=""};
-$("#fEdit").onsubmit=async e=>{
-  if(e.submitter?.value!=="ok") return; e.preventDefault();
-  const j=await api("/perangkat/"+curDev.id,{method:"PATCH",body:JSON.stringify({nama:$("#eNama").value,hp:$("#eHp").value,ket:$("#eKet").value,kategori:$("#eKat").value,kecepatan:$("#eKec").value.trim(),aktif_sampai:fromDateInput($("#eSampai").value),putus_otomatis:$("#ePutus").checked})});
-  toast(j.ok?"Tersimpan. Router menyesuaikan dalam ±2 menit.":j.pesan); if(j.ok){ $("#dEdit").close(); loadDev(); }
-};
-
-// ---------- Pembayaran ----------
-let bayarRows=[];
-$("#bulanPick").value=bulanNow(); $("#bulanPick").onchange=loadBayar; $("#bStatus").onchange=loadBayar;
-async function loadBayar(){
-  const st=$("#bStatus").value, bln=$("#bulanPick").value||bulanNow();
-  const [j,k]=await Promise.all([api(st==="utang"?"/pembayaran?status=utang":"/pembayaran?bulan="+bln),api("/keuangan")]); if(!j.ok) return;
-  const inMonth=iso=>iso&&new Date(Date.parse(iso)+8*3600e3).toISOString().slice(0,7)===bln;
-  bayarRows=st==="lunas"?j.data.filter(x=>x.status==="lunas"):j.data;
-  const lunas=j.data.filter(x=>x.status==="lunas"&&inMonth(x.tanggal_lunas)), utang=j.data.filter(x=>x.status==="utang"&&inMonth(x.tanggal));
-  $("#pLunas").textContent=rp(lunas.reduce((a,x)=>a+x.harga,0)); $("#pLunasD").textContent=lunas.length+" pembayaran · "+namaBulan(bln)+" "+bln.slice(0,4);
-  $("#pUtang").textContent=st==="utang"?"–":rp(utang.reduce((a,x)=>a+x.harga,0)); $("#pUtangD").textContent=st==="utang"?"":utang.length+" tagihan";
-  if(k.ok){ $("#pUtangAll").textContent=rp(k.data.utang.t); $("#pUtangAllD").textContent=k.data.utang.n+" tagihan"; }
-  const op=bisa("operator"), ad=bisa("admin");
-  $("#tbBayar").innerHTML=bayarRows.length?bayarRows.map(x=>`<tr>
-    <td>${tglJam(x.tanggal)}${x.oleh?`<div class="hint">oleh ${esc(x.oleh)}</div>`:""}</td>
-    <td><b>${esc(x.nama)}</b><div class="hint mono">${esc(x.mac)}</div></td>
-    <td class="money">${rp(x.harga)}</td>
-    <td>${x.status==="utang"?'<span class="pill p-habis">Utang</span>':`<span class="pill p-aktif">Lunas</span><div class="hint">${tgl(x.tanggal_lunas)}</div>`}</td>
-    <td>${x.sampai?tgl(x.sampai):"–"}${x.kecepatan?`<div class="hint">${esc(x.kecepatan)}</div>`:""}</td>
-    <td class="hint">${esc(x.catatan)}</td>
-    <td><div class="act">${x.status==="utang"&&op?`<button class="btn sm green" data-bl="${x.id}">Lunas</button>`:""}${ad?`<button class="btn sm red" data-bh="${x.id}">Hapus</button>`:""}</div></td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada pembayaran.</td></tr>';
-}
-$("#tbBayar").onclick=async e=>{
-  const l=e.target.closest("[data-bl]"), h=e.target.closest("[data-bh]"); let j;
-  if(l){ if(!confirm("Tandai LUNAS? Nominalnya masuk pendapatan hari ini.")) return; j=await api("/pembayaran/"+l.dataset.bl,{method:"PATCH",body:JSON.stringify({status:"lunas"})}); }
-  else if(h){ if(!confirm("Hapus catatan pembayaran ini?\nMasa aktif HP tidak ikut berubah.")) return; j=await api("/pembayaran/"+h.dataset.bh,{method:"DELETE"}); }
-  else return;
-  toast(j.pesan||"Tersimpan."); loadBayar();
-};
-
-// ---------- Menu Kecepatan ----------
-async function loadKecPage(){
-  await loadKec(); const [dv]=await Promise.all([api("/perangkat")]); if(dv.ok) data=dv.data;
-  $("#tbKec").innerHTML=kecList.length?kecList.map((k,i)=>`<tr><td><b>${esc(k.nama)}</b></td><td><span class="spd">${esc(rateTxt(k.rate))}</span></td><td class="hint">${data.filter(d=>d.kecepatan===k.rate).length} HP</td><td><button class="btn sm red" data-kh="${i}">Hapus</button></td></tr>`).join(""):'<tr><td colspan="4" class="empty">Belum ada. Tambahkan di sebelah kanan.</td></tr>';
-  $("#defRate").innerHTML=kecOptions([["","Tanpa batas"]]); $("#defRate").value=defRate&&defRate!=="0/0"?defRate:"";
-  $("#defNow").textContent="Sekarang: "+(defRate&&defRate!=="0/0"?(kecName(defRate)||rateTxt(defRate)):"tanpa batas");
-}
-async function saveKec(list,msg){ const j=await api("/kecepatan",{method:"PUT",body:JSON.stringify({data:list})}); toast(j.ok?msg:j.pesan); if(j.ok) loadKecPage(); return j.ok; }
-$("#fKec").onsubmit=async e=>{
-  e.preventDefault(); const f=e.target; const rate=f.up.value.trim()+"/"+f.down.value.trim();
-  if(await saveKec([...kecList,{nama:f.nama.value.trim(),rate}],"Kecepatan ditambahkan.")) f.reset();
-};
-$("#tbKec").onclick=async e=>{
-  const b=e.target.closest("[data-kh]"); if(!b) return; const k=kecList[+b.dataset.kh];
-  if(!confirm("Hapus pilihan kecepatan "+k.nama+"?\nHP yang sudah memakainya tetap dengan kecepatan itu.")) return;
-  saveKec(kecList.filter((_,i)=>i!==+b.dataset.kh),"Dihapus.");
-};
-
-// ---------- Kecepatan default ----------
-$("#fDefault").onsubmit=async e=>{ e.preventDefault(); const j=await api("/pengaturan",{method:"PATCH",body:JSON.stringify({kecepatan_default:$("#defRate").value})}); toast(j.ok?j.pesan+". Router menyesuaikan dalam ±2 menit.":j.pesan); if(j.ok) loadKecPage(); };
-
-// ---------- Pengguna ----------
-const roleTxt={admin:"Admin",operator:"Operator",lihat:"Lihat saja"};
-const cabChk=(sel,list)=>{ $(sel).innerHTML=CABANG.map(c=>`<label><input type="checkbox" value="${c.id}"${list.includes(c.id)?" checked":""}> ${esc(c.nama)}</label>`).join(""); };
-const cabDipilih=sel=>$$(sel+" input:checked").map(i=>i.value);
-const cabTeks=u=>u.utama?"Semua cabang":aksesCab(u).map(id=>(CABANG.find(c=>c.id===id)||{nama:id}).nama).join(", ")||"–";
-cabChk("#fUserCab",[cabang]);
-async function loadUsers(){
-  if(!me||!me.utama) return;
-  const j=await api("/pengguna"); if(!j.ok) return; users=j.data;
-  $("#tbUser").innerHTML=users.map(u=>`<tr>
-    <td><b>${esc(u.username)}</b><div class="hint">${esc(u.nama||"")}${u.utama?" · akun utama":""}</div></td>
-    <td><span class="pill ${u.role==="admin"?"p-aktif":u.role==="operator"?"p-menunggu":"p-nonaktif"}">${roleTxt[u.role]||u.role}</span></td>
-    <td class="hint">${esc(cabTeks(u))}</td>
-    <td>${u.aktif?'<span class="hint">aktif</span>':'<span class="pill p-habis">diblokir</span>'}</td>
-    <td class="hint">${u.utama?"–":(u.login_terakhir?tglJam(u.login_terakhir):"belum pernah")}</td>
-    <td>${u.utama?"":`<div class="act"><button class="btn sm ghost" data-u="edit" data-n="${esc(u.username)}">Ubah</button><button class="btn sm red" data-u="hapus" data-n="${esc(u.username)}">Hapus</button></div>`}</td></tr>`).join("");
-}
-$("#fUser").onsubmit=async e=>{
-  e.preventDefault(); const f=e.target; const cab=cabDipilih("#fUserCab");
-  if(!cab.length) return toast("Centang minimal 1 cabang untuk akun ini.");
-  const j=await api("/pengguna",{method:"POST",body:JSON.stringify({nama:f.nama.value,username:f.username.value,password:f.password.value,role:f.role.value,cabang:cab})});
-  toast(j.pesan); if(j.ok){ f.reset(); cabChk("#fUserCab",[cabang]); loadUsers(); }
-};
-$("#tbUser").onclick=async e=>{
-  const b=e.target.closest("[data-u]"); if(!b) return; const u=users.find(x=>x.username===b.dataset.n);
-  if(b.dataset.u==="hapus"){ if(!confirm("Hapus pengguna "+u.username+"?")) return; const j=await api("/pengguna/"+encodeURIComponent(u.username),{method:"DELETE"}); toast(j.pesan); return loadUsers(); }
-  curUser=u; $("#uName").textContent=u.username; $("#uNama").value=u.nama||""; $("#uRole").value=u.role; $("#uPass").value=""; $("#uAktif").checked=!!u.aktif; cabChk("#uCab",aksesCab(u)); $("#dUser").showModal();
-};
-$("#fUserEdit").onsubmit=async e=>{
-  if(e.submitter?.value!=="ok") return; e.preventDefault();
-  const cab=cabDipilih("#uCab"); if(!cab.length) return toast("Centang minimal 1 cabang untuk akun ini.");
-  const body={nama:$("#uNama").value,role:$("#uRole").value,aktif:$("#uAktif").checked,cabang:cab}; if($("#uPass").value) body.password=$("#uPass").value;
-  const j=await api("/pengguna/"+encodeURIComponent(curUser.username),{method:"PATCH",body:JSON.stringify(body)});
-  toast(j.pesan); if(j.ok){ $("#dUser").close(); loadUsers(); }
-};
-
-// ---------- Backup & Excel ----------
-function download(name,content,type){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500); }
-const csv=(rows,cols)=>"﻿"+[cols.map(c=>c[0]).join(";"),...rows.map(r=>cols.map(c=>{const v=String(c[1](r)??"");return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(";"))].join("\r\n");
-const today=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,10);
-const bayarCols=[["Tanggal",r=>tglJam(r.tanggal)],["Nama",r=>r.nama],["MAC",r=>r.mac],["Nominal",r=>r.harga],["Status",r=>r.status],["Tanggal lunas",r=>tglJam(r.tanggal_lunas)],["Hari",r=>r.hari],["Aktif sampai",r=>toDateInput(r.sampai)],["Kecepatan",r=>r.kecepatan],["Catatan",r=>r.catatan],["Oleh",r=>r.oleh]];
-$("#bCsvBayar").onclick=()=>download(cabNow().nama+"-pembayaran-"+($("#bStatus").value==="utang"?"utang":$("#bulanPick").value)+".csv",csv(bayarRows,bayarCols),"text/csv");
-$("#bCsvAll").onclick=async()=>{ const j=await api("/pembayaran"); if(!j.ok) return toast(j.pesan); download(cabNow().nama+"-pembayaran-semua-"+today()+".csv",csv(j.data,bayarCols),"text/csv"); };
-$("#bCsvPel").onclick=()=>download(cabNow().nama+"-daftar-mac-"+today()+".csv",csv(data,[["Nama",r=>r.nama],["Kategori",r=>r.kategori||"pelanggan"],["No HP",r=>r.hp],["MAC",r=>r.mac],["Status",r=>r.habis?"habis":r.status],["Aktif sampai",r=>toDateInput(r.aktif_sampai)],["Kecepatan",r=>r.kecepatan||"default"],["Utang",r=>r.utang||0],["Keterangan",r=>r.ket]]),"text/csv");
-$("#bBackup").onclick=async()=>{ const j=await api("/backup"); if(!j.aplikasi) return toast(j.pesan||"Gagal backup."); download("backup-"+cabNow().nama+"-"+today()+".json",JSON.stringify(j,null,1),"application/json"); toast("Backup diunduh."); };
-$("#bRestore").onclick=async()=>{
-  const f=$("#restoreFile").files[0], m=$("#mRestore"); if(!f) return show(m,"bad","Pilih file backup dulu.");
-  let isi; try{ isi=JSON.parse(await f.text()); }catch(e){ return show(m,"bad","File bukan backup yang valid."); }
-  if(!confirm("Yakin restore ke cabang "+cabNow().nama+"?\nSemua data cabang ini akan DIGANTI dengan isi file:\n"+(isi.perangkat||[]).length+" pelanggan, "+(isi.pembayaran||[]).length+" pembayaran.")) return;
-  const j=await api("/restore",{method:"POST",body:JSON.stringify(isi)}); show(m,j.ok?"ok":"bad",j.pesan);
-};
-</script>
-</body>
-</html>
