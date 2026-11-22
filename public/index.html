@@ -102,23 +102,35 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 .seg label:has(input:checked){border-color:var(--pri);background:#eef4ff;color:var(--pri2)}
 .seg input{width:auto;margin:0}
 @media(max-width:640px){#whoBox{display:none}}
+.cabbar{max-width:1100px;margin:14px auto 0;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cabbar .lbl{font-size:.8rem;opacity:.8;margin-right:4px;font-weight:600}
+.cabbar button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font:inherit;font-weight:700;font-size:.88rem;padding:7px 14px;border-radius:999px;cursor:pointer}
+.cabbar button.on{background:#fff;color:var(--pri2);border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.hero{padding-bottom:96px}
+.cabchk{display:flex;gap:6px;flex-wrap:wrap}
+.cabchk label{display:flex;align-items:center;gap:6px;margin:0;padding:8px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-weight:600;font-size:.88rem;background:#fff}
+.cabchk label:has(input:checked){border-color:var(--pri);background:#eef4ff;color:var(--pri2)}
+.cabchk input{width:auto;margin:0}
 </style>
 </head>
 <body>
 <header class="hero">
   <div class="hero-in">
     <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M2 8.5a15 15 0 0 1 20 0"/><path d="M5.5 12a10 10 0 0 1 13 0"/><path d="M9 15.5a5 5 0 0 1 6 0"/><circle cx="12" cy="19" r="1.3" fill="#fff"/></svg></div>
-    <div style="flex:1"><h1>APP-BHP <span style="opacity:.8;font-weight:600">· APP-NET</span></h1><p>Panel admin daftar MAC HP</p></div>
+    <div style="flex:1"><h1><span id="brandName">APP-NET</span> <span style="opacity:.8;font-weight:600">· APP-NET</span></h1><p>Panel admin daftar MAC HP · <span id="brandSub">3 cabang</span></p></div>
     <div id="whoBox" class="hidden" style="text-align:right"><div style="font-weight:700" id="whoName"></div><div style="opacity:.8;font-size:.85rem" id="whoRole"></div></div>
   </div>
+  <div class="cabbar hidden" id="cabBar"><span class="lbl">Cabang:</span></div>
 </header>
 
 <div class="wrap">
   <!-- ================= LOGIN ================= -->
   <section id="loginBox" class="card" style="max-width:420px;margin:0 auto">
     <h2>Masuk</h2>
-    <p class="sub">Masuk dengan akun yang sudah didaftarkan admin.</p>
+    <p class="sub">Pilih cabang, lalu masuk dengan akun yang sudah didaftarkan admin.</p>
     <form id="fLogin" autocomplete="on">
+      <label>Cabang</label>
+      <select id="loginCab" name="cabang" required></select>
       <label>Username</label>
       <input name="username" required autocomplete="username" autocapitalize="none" placeholder="admin">
       <label>Password</label>
@@ -285,7 +297,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
       <div class="two">
         <div class="card">
           <h2>Backup database</h2>
-          <p class="sub">Unduh seluruh data (pelanggan, pembayaran, pengguna, pengaturan) ke satu file. Simpan secara rutin, misalnya seminggu sekali.</p>
+          <p class="sub">Unduh data cabang yang sedang dipilih (pelanggan, pembayaran, pengaturan) ke satu file. Backup tiap cabang terpisah. Simpan secara rutin, misalnya seminggu sekali.</p>
           <button class="btn" id="bBackup" type="button">⬇ Download backup</button>
           <div style="margin-top:18px">
             <h2>Download Excel</h2>
@@ -295,7 +307,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
         </div>
         <div class="card">
           <h2>Restore dari backup</h2>
-          <p class="sub">⚠️ Semua data saat ini akan <b>diganti</b> dengan isi file backup.</p>
+          <p class="sub">⚠️ Data <b>cabang yang sedang dipilih</b> akan <b>diganti</b> dengan isi file backup. Pastikan cabangnya benar.</p>
           <input type="file" id="restoreFile" accept=".json,application/json">
           <div style="margin-top:12px"><button class="btn red" id="bRestore" type="button">Restore</button></div>
           <div id="mRestore" class="msg"></div>
@@ -306,9 +318,9 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
       <div class="two">
         <div class="card">
           <h2>👤 Pengguna Login</h2>
-          <p class="sub">Akun yang bisa masuk ke panel ini.</p>
+          <p class="sub">Akun yang bisa masuk ke panel ini. Tiap akun hanya bisa masuk ke cabang yang dicentang. Akun utama bisa masuk ke semua cabang.</p>
           <div class="tablewrap"><table>
-            <thead><tr><th>Username</th><th>Hak akses</th><th>Status</th><th>Login terakhir</th><th></th></tr></thead>
+            <thead><tr><th>Username</th><th>Hak akses</th><th>Cabang</th><th>Status</th><th>Login terakhir</th><th></th></tr></thead>
             <tbody id="tbUser"></tbody>
           </table></div>
         </div>
@@ -320,6 +332,8 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
             <label>Password</label><input name="password" type="text" required minlength="6" placeholder="minimal 6 karakter">
             <label>Hak akses</label>
             <select name="role"><option value="operator">Operator: daftar HP, bayar, lunas, ubah</option><option value="lihat">Lihat saja</option><option value="admin">Admin: semua fitur</option></select>
+            <label>Boleh masuk ke cabang</label>
+            <div class="cabchk" id="fUserCab"></div>
             <div style="margin-top:14px"><button class="btn" type="submit">Daftarkan pengguna</button></div>
           </form>
           <div class="hint" style="margin-top:12px">Akun utama <b>admin</b> memakai password <b>ADMIN_PASSWORD</b> di Cloudflare dan tidak bisa dihapus dari sini.</div>
@@ -330,7 +344,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
     </div>
   </section>
 </div>
-<footer>APP-BHP (APP-NET) · Admin <a href="https://wa.me/6282151587277" target="_blank" rel="noopener">0821-5158-7277</a></footer>
+<footer>APP-NET · APP-BHP · APP-KHL2 · APP-BSI · Admin <a href="https://wa.me/6282151587277" target="_blank" rel="noopener">0821-5158-7277</a></footer>
 
 <!-- Dialog bayar -->
 <dialog id="dBayar">
@@ -379,6 +393,8 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
       <label>Hak akses</label>
       <select id="uRole"><option value="operator">Operator</option><option value="lihat">Lihat saja</option><option value="admin">Admin</option></select>
       <label>Password baru (kosongkan jika tidak diganti)</label><input id="uPass" type="text" minlength="6">
+      <label>Boleh masuk ke cabang</label>
+      <div class="cabchk" id="uCab"></div>
       <label class="check"><input type="checkbox" id="uAktif"> Akun aktif (boleh login)</label>
     </div>
     <div class="dlg-f"><button class="btn ghost" value="cancel" formnovalidate>Batal</button><button class="btn" value="ok">Simpan</button></div>
@@ -391,6 +407,32 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const TZ="Asia/Makassar";
 let token="", me=null; try{token=localStorage.getItem("macToken")||""}catch(e){}
+
+// ---------- Cabang ----------
+// id = kode yang dikirim ke server (header x-cabang); nama = yang tampil di layar
+const CABANG=[
+  {id:"bhp", nama:"APP-BHP", ket:"BHP Starlink"},
+  {id:"khl2",nama:"APP-KHL2",ket:"Cabang KHL2"},
+  {id:"bsi", nama:"APP-BSI", ket:"Syakila BSI PKS"}
+];
+let cabang="bhp"; try{ const c=localStorage.getItem("macCabang"); if(CABANG.some(x=>x.id===c)) cabang=c; }catch(e){}
+const cabNow=()=>CABANG.find(x=>x.id===cabang)||CABANG[0];
+// Akun utama: semua cabang. Akun lama tanpa data cabang dianggap akun BHP.
+const aksesCab=u=>u&&u.utama?CABANG.map(c=>c.id):(Array.isArray(u&&u.cabang)&&u.cabang.length?u.cabang:["bhp"]);
+function renderCabang(){
+  const c=cabNow();
+  $("#brandName").textContent=c.nama; $("#brandSub").textContent=c.ket;
+  document.title=c.nama+" (APP-NET) — Panel Daftar MAC";
+  $$("#cabBar button").forEach(b=>b.classList.toggle("on",b.dataset.cab===cabang));
+  const ls=$("#loginCab"); if(ls) ls.value=cabang;
+}
+function setCabang(id){
+  if(id===cabang) return; cabang=id; try{localStorage.setItem("macCabang",id)}catch(e){}
+  renderCabang(); data=[]; onRows=[]; keu=null;
+  if(!me) return;
+  loadKec(); subTab($("#subnav button.on")?.dataset.sub||"ringkasan");
+  toast("Pindah ke cabang "+cabNow().nama);
+}
 let kecList=[];
 function hariVal(sel){ if(sel.value!=="lain") return +sel.value||0; const i=sel.parentElement.querySelector(".hariLain"); return Math.max(0,+i.value||0); }
 document.addEventListener("change",e=>{ if(e.target.classList.contains("hariSel")){ const i=e.target.parentElement.querySelector(".hariLain"); i.classList.toggle("hidden",e.target.value!=="lain"); if(e.target.value==="lain") i.focus(); } });
@@ -427,7 +469,7 @@ function kondisi(d){ if(d.status!=="aktif") return d.status; if(d.habis) return 
 const bisa=role=>me&&({lihat:1,operator:2,admin:3}[me.role]||0)>=({lihat:1,operator:2,admin:3}[role]);
 
 async function api(path,opt={}){
-  const headers={"content-type":"application/json"}; if(token) headers.authorization="Bearer "+token;
+  const headers={"content-type":"application/json","x-cabang":cabang}; if(token) headers.authorization="Bearer "+token;
   let r; try{ r=await fetch("/api"+path,{...opt,headers}); }catch(e){ return {ok:false,pesan:"Tidak ada koneksi internet."}; }
   let j={}; try{j=await r.json()}catch(e){j={ok:false,pesan:"Server tidak merespons ("+r.status+")."}}
   if(r.status===401 && path!=="/login") logout("Sesi habis, silakan masuk lagi.");
@@ -437,26 +479,36 @@ async function api(path,opt={}){
 // ---------- Login ----------
 $("#fLogin").onsubmit=async e=>{
   e.preventDefault(); const f=e.target, btn=f.querySelector("button"); btn.disabled=true;
-  const j=await api("/login",{method:"POST",body:JSON.stringify({username:f.username.value,password:f.password.value})});
+  const j=await api("/login",{method:"POST",body:JSON.stringify({username:f.username.value,password:f.password.value,cabang})});
   btn.disabled=false;
   if(!j.ok) return show($("#mLogin"),"bad",j.pesan);
   token=j.token; try{localStorage.setItem("macToken",token)}catch(e){}
   f.password.value=""; $("#mLogin").className="msg"; start(j.user);
 };
 function start(user){
+  const izin=aksesCab(user);
+  if(!izin.includes(cabang)){ token=""; try{localStorage.removeItem("macToken")}catch(e){} return show($("#mLogin"),"bad","Akun "+user.username+" tidak punya akses ke cabang "+cabNow().nama+"."); }
   me=user; $("#loginBox").classList.add("hidden"); $("#app").classList.remove("hidden");
   $("#whoBox").classList.remove("hidden"); $("#whoName").textContent=me.nama||me.username;
   $("#whoRole").textContent=me.username+" · "+({admin:"Admin",operator:"Operator",lihat:"Lihat saja"}[me.role]||me.role);
   $$("[data-role]").forEach(el=>el.classList.toggle("hidden",!bisa(el.dataset.role)));
+  $("#s-pengguna").classList.toggle("hidden",!me.utama);
+  $$("#cabBar button").forEach(b=>b.classList.toggle("hidden",!izin.includes(b.dataset.cab)));
+  $("#cabBar").classList.remove("hidden"); renderCabang();
   loadKec();
   subTab("ringkasan");
 }
 function logout(msg){
   token=""; me=null; try{localStorage.removeItem("macToken")}catch(e){}
-  $("#app").classList.add("hidden"); $("#whoBox").classList.add("hidden"); $("#loginBox").classList.remove("hidden");
+  $("#app").classList.add("hidden"); $("#whoBox").classList.add("hidden"); $("#cabBar").classList.add("hidden"); $("#loginBox").classList.remove("hidden");
   if(msg) show($("#mLogin"),"warn",msg);
 }
 $("#bLogout").onclick=()=>logout();
+$("#cabBar").insertAdjacentHTML("beforeend",CABANG.map(c=>`<button type="button" data-cab="${c.id}">${esc(c.nama)}</button>`).join(""));
+$("#loginCab").innerHTML=CABANG.map(c=>`<option value="${c.id}">${esc(c.nama)} — ${esc(c.ket)}</option>`).join("");
+$("#loginCab").onchange=e=>setCabang(e.target.value);
+$("#cabBar").onclick=e=>{ const b=e.target.closest("[data-cab]"); if(b) setCabang(b.dataset.cab); };
+renderCabang();
 (async()=>{ if(!token) return; const j=await api("/saya"); if(j.ok) start(j.user); })();
 
 // ---------- Navigasi ----------
@@ -672,29 +724,36 @@ $("#fDefault").onsubmit=async e=>{ e.preventDefault(); const j=await api("/penga
 
 // ---------- Pengguna ----------
 const roleTxt={admin:"Admin",operator:"Operator",lihat:"Lihat saja"};
+const cabChk=(sel,list)=>{ $(sel).innerHTML=CABANG.map(c=>`<label><input type="checkbox" value="${c.id}"${list.includes(c.id)?" checked":""}> ${esc(c.nama)}</label>`).join(""); };
+const cabDipilih=sel=>$$(sel+" input:checked").map(i=>i.value);
+const cabTeks=u=>u.utama?"Semua cabang":aksesCab(u).map(id=>(CABANG.find(c=>c.id===id)||{nama:id}).nama).join(", ")||"–";
+cabChk("#fUserCab",[cabang]);
 async function loadUsers(){
-  if(!bisa("admin")) return;
+  if(!me||!me.utama) return;
   const j=await api("/pengguna"); if(!j.ok) return; users=j.data;
   $("#tbUser").innerHTML=users.map(u=>`<tr>
     <td><b>${esc(u.username)}</b><div class="hint">${esc(u.nama||"")}${u.utama?" · akun utama":""}</div></td>
     <td><span class="pill ${u.role==="admin"?"p-aktif":u.role==="operator"?"p-menunggu":"p-nonaktif"}">${roleTxt[u.role]||u.role}</span></td>
+    <td class="hint">${esc(cabTeks(u))}</td>
     <td>${u.aktif?'<span class="hint">aktif</span>':'<span class="pill p-habis">diblokir</span>'}</td>
     <td class="hint">${u.utama?"–":(u.login_terakhir?tglJam(u.login_terakhir):"belum pernah")}</td>
     <td>${u.utama?"":`<div class="act"><button class="btn sm ghost" data-u="edit" data-n="${esc(u.username)}">Ubah</button><button class="btn sm red" data-u="hapus" data-n="${esc(u.username)}">Hapus</button></div>`}</td></tr>`).join("");
 }
 $("#fUser").onsubmit=async e=>{
-  e.preventDefault(); const f=e.target;
-  const j=await api("/pengguna",{method:"POST",body:JSON.stringify({nama:f.nama.value,username:f.username.value,password:f.password.value,role:f.role.value})});
-  toast(j.pesan); if(j.ok){ f.reset(); loadUsers(); }
+  e.preventDefault(); const f=e.target; const cab=cabDipilih("#fUserCab");
+  if(!cab.length) return toast("Centang minimal 1 cabang untuk akun ini.");
+  const j=await api("/pengguna",{method:"POST",body:JSON.stringify({nama:f.nama.value,username:f.username.value,password:f.password.value,role:f.role.value,cabang:cab})});
+  toast(j.pesan); if(j.ok){ f.reset(); cabChk("#fUserCab",[cabang]); loadUsers(); }
 };
 $("#tbUser").onclick=async e=>{
   const b=e.target.closest("[data-u]"); if(!b) return; const u=users.find(x=>x.username===b.dataset.n);
   if(b.dataset.u==="hapus"){ if(!confirm("Hapus pengguna "+u.username+"?")) return; const j=await api("/pengguna/"+encodeURIComponent(u.username),{method:"DELETE"}); toast(j.pesan); return loadUsers(); }
-  curUser=u; $("#uName").textContent=u.username; $("#uNama").value=u.nama||""; $("#uRole").value=u.role; $("#uPass").value=""; $("#uAktif").checked=!!u.aktif; $("#dUser").showModal();
+  curUser=u; $("#uName").textContent=u.username; $("#uNama").value=u.nama||""; $("#uRole").value=u.role; $("#uPass").value=""; $("#uAktif").checked=!!u.aktif; cabChk("#uCab",aksesCab(u)); $("#dUser").showModal();
 };
 $("#fUserEdit").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
-  const body={nama:$("#uNama").value,role:$("#uRole").value,aktif:$("#uAktif").checked}; if($("#uPass").value) body.password=$("#uPass").value;
+  const cab=cabDipilih("#uCab"); if(!cab.length) return toast("Centang minimal 1 cabang untuk akun ini.");
+  const body={nama:$("#uNama").value,role:$("#uRole").value,aktif:$("#uAktif").checked,cabang:cab}; if($("#uPass").value) body.password=$("#uPass").value;
   const j=await api("/pengguna/"+encodeURIComponent(curUser.username),{method:"PATCH",body:JSON.stringify(body)});
   toast(j.pesan); if(j.ok){ $("#dUser").close(); loadUsers(); }
 };
@@ -704,14 +763,14 @@ function download(name,content,type){ const a=document.createElement("a"); a.hre
 const csv=(rows,cols)=>"﻿"+[cols.map(c=>c[0]).join(";"),...rows.map(r=>cols.map(c=>{const v=String(c[1](r)??"");return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(";"))].join("\r\n");
 const today=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,10);
 const bayarCols=[["Tanggal",r=>tglJam(r.tanggal)],["Nama",r=>r.nama],["MAC",r=>r.mac],["Nominal",r=>r.harga],["Status",r=>r.status],["Tanggal lunas",r=>tglJam(r.tanggal_lunas)],["Hari",r=>r.hari],["Aktif sampai",r=>toDateInput(r.sampai)],["Kecepatan",r=>r.kecepatan],["Catatan",r=>r.catatan],["Oleh",r=>r.oleh]];
-$("#bCsvBayar").onclick=()=>download("pembayaran-"+($("#bStatus").value==="utang"?"utang":$("#bulanPick").value)+".csv",csv(bayarRows,bayarCols),"text/csv");
-$("#bCsvAll").onclick=async()=>{ const j=await api("/pembayaran"); if(!j.ok) return toast(j.pesan); download("pembayaran-semua-"+today()+".csv",csv(j.data,bayarCols),"text/csv"); };
-$("#bCsvPel").onclick=()=>download("daftar-mac-"+today()+".csv",csv(data,[["Nama",r=>r.nama],["No HP",r=>r.hp],["MAC",r=>r.mac],["Status",r=>r.habis?"habis":r.status],["Aktif sampai",r=>toDateInput(r.aktif_sampai)],["Kecepatan",r=>r.kecepatan||"default"],["Utang",r=>r.utang||0],["Keterangan",r=>r.ket]]),"text/csv");
-$("#bBackup").onclick=async()=>{ const j=await api("/backup"); if(!j.aplikasi) return toast(j.pesan||"Gagal backup."); download("backup-portal-mac-"+today()+".json",JSON.stringify(j,null,1),"application/json"); toast("Backup diunduh."); };
+$("#bCsvBayar").onclick=()=>download(cabNow().nama+"-pembayaran-"+($("#bStatus").value==="utang"?"utang":$("#bulanPick").value)+".csv",csv(bayarRows,bayarCols),"text/csv");
+$("#bCsvAll").onclick=async()=>{ const j=await api("/pembayaran"); if(!j.ok) return toast(j.pesan); download(cabNow().nama+"-pembayaran-semua-"+today()+".csv",csv(j.data,bayarCols),"text/csv"); };
+$("#bCsvPel").onclick=()=>download(cabNow().nama+"-daftar-mac-"+today()+".csv",csv(data,[["Nama",r=>r.nama],["No HP",r=>r.hp],["MAC",r=>r.mac],["Status",r=>r.habis?"habis":r.status],["Aktif sampai",r=>toDateInput(r.aktif_sampai)],["Kecepatan",r=>r.kecepatan||"default"],["Utang",r=>r.utang||0],["Keterangan",r=>r.ket]]),"text/csv");
+$("#bBackup").onclick=async()=>{ const j=await api("/backup"); if(!j.aplikasi) return toast(j.pesan||"Gagal backup."); download("backup-"+cabNow().nama+"-"+today()+".json",JSON.stringify(j,null,1),"application/json"); toast("Backup diunduh."); };
 $("#bRestore").onclick=async()=>{
   const f=$("#restoreFile").files[0], m=$("#mRestore"); if(!f) return show(m,"bad","Pilih file backup dulu.");
   let isi; try{ isi=JSON.parse(await f.text()); }catch(e){ return show(m,"bad","File bukan backup yang valid."); }
-  if(!confirm("Yakin restore? Semua data saat ini akan DIGANTI dengan isi file:\n"+(isi.perangkat||[]).length+" pelanggan, "+(isi.pembayaran||[]).length+" pembayaran.")) return;
+  if(!confirm("Yakin restore ke cabang "+cabNow().nama+"?\nSemua data cabang ini akan DIGANTI dengan isi file:\n"+(isi.perangkat||[]).length+" pelanggan, "+(isi.pembayaran||[]).length+" pembayaran.")) return;
   const j=await api("/restore",{method:"POST",body:JSON.stringify(isi)}); show(m,j.ok?"ok":"bad",j.pesan);
 };
 </script>
