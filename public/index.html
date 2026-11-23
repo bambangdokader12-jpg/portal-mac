@@ -223,7 +223,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
           <div class="maclist" id="macList"></div>
           <div class="row3">
             <div><label>Kecepatan</label><select name="kecepatan"></select></div>
-            <div><label>Masa aktif</label><select name="hari" class="hariSel"><option value="1">1 hari</option><option value="3">3 hari</option><option value="7">1 minggu (7 hari)</option><option value="14">2 minggu (14 hari)</option><option value="30" selected>1 bulan (30 hari)</option><option value="60">2 bulan (60 hari)</option><option value="90">3 bulan (90 hari)</option><option value="180">6 bulan (180 hari)</option><option value="365">1 tahun (365 hari)</option><option value="0">Tanpa batas waktu</option><option value="lain">Lainnya (isi sendiri)…</option></select><input class="hariLain hidden" type="number" min="1" placeholder="jumlah hari" style="margin-top:6px"></div>
+            <div><label>Masa aktif</label><select name="hari" class="hariSel"><option value="0.125">3 jam</option><option value="1">1 hari</option><option value="3">3 hari</option><option value="7">1 minggu (7 hari)</option><option value="14">2 minggu (14 hari)</option><option value="30" selected>1 bulan (30 hari)</option><option value="60">2 bulan (60 hari)</option><option value="90">3 bulan (90 hari)</option><option value="180">6 bulan (180 hari)</option><option value="365">1 tahun (365 hari)</option><option value="0">Tanpa batas waktu</option><option value="lain">Lainnya (isi sendiri)…</option></select><input class="hariLain hidden" type="number" min="1" placeholder="jumlah hari" style="margin-top:6px"></div>
             <div><label>Nominal (Rp)</label><input name="harga" class="rpIn" type="text" inputmode="numeric" autocomplete="off" placeholder="0 = gratis"><div class="chips rpChips"></div></div>
           </div>
           <div class="row3">
@@ -369,7 +369,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
     <div class="dlg-b">
       <div class="row">
         <div><label>Nominal (Rp)</label><input id="bayarHarga" class="rpIn" type="text" inputmode="numeric" autocomplete="off" placeholder="0"><div class="chips rpChips"></div></div>
-        <div><label>Tambah masa aktif</label><select id="bayarHari" class="hariSel"><option value="1">1 hari</option><option value="3">3 hari</option><option value="7">1 minggu (7 hari)</option><option value="14">2 minggu (14 hari)</option><option value="30" selected>1 bulan (30 hari)</option><option value="60">2 bulan (60 hari)</option><option value="90">3 bulan (90 hari)</option><option value="180">6 bulan (180 hari)</option><option value="365">1 tahun (365 hari)</option><option value="0">Tidak ditambah</option><option value="lain">Lainnya (isi sendiri)…</option></select><input class="hariLain hidden" id="bayarHariLain" type="number" min="1" placeholder="jumlah hari" style="margin-top:6px"></div>
+        <div><label>Tambah masa aktif</label><select id="bayarHari" class="hariSel"><option value="0.125">3 jam</option><option value="1">1 hari</option><option value="3">3 hari</option><option value="7">1 minggu (7 hari)</option><option value="14">2 minggu (14 hari)</option><option value="30" selected>1 bulan (30 hari)</option><option value="60">2 bulan (60 hari)</option><option value="90">3 bulan (90 hari)</option><option value="180">6 bulan (180 hari)</option><option value="365">1 tahun (365 hari)</option><option value="0">Tidak ditambah</option><option value="lain">Lainnya (isi sendiri)…</option></select><input class="hariLain hidden" id="bayarHariLain" type="number" min="1" placeholder="jumlah hari" style="margin-top:6px"></div>
       </div>
       <label>Kecepatan</label><select id="bayarKec"></select>
       <label>Pembayaran</label>
@@ -600,7 +600,8 @@ async function loadDev(){ renderRpChips(); const j=await api("/perangkat"); if(!
 function expCell(d){
   if(!d.aktif_sampai) return '<span class="exp hint">Tanpa batas</span>';
   const n=daysLeft(d.aktif_sampai), cls=d.habis||n<=0?"gone":n<=7?"soon":"";
-  const txt=d.habis||n<=0?"Habis "+tgl(d.aktif_sampai):tgl(d.aktif_sampai)+" ("+n+" hr)";
+  const ms=Date.parse(d.aktif_sampai)-Date.now(), jam=Math.ceil(ms/3600000);
+  const txt=d.habis||ms<=0?"Habis "+(ms>-86400000?tglJam(d.aktif_sampai):tgl(d.aktif_sampai)):ms<86400000?tglJam(d.aktif_sampai)+" ("+jam+" jam)":tgl(d.aktif_sampai)+" ("+n+" hr)";
   return `<span class="exp ${cls}">${txt}</span>${d.putus_otomatis?"":'<div class="hint">tidak diputus</div>'}`;
 }
 function spdCell(d){
@@ -723,7 +724,7 @@ function previewBayar(){
   const hari=hariVal($("#bayarHari")), base=curDev.aktif_sampai&&Date.parse(curDev.aktif_sampai)>Date.now()?Date.parse(curDev.aktif_sampai):Date.now();
   const k=$("#bayarKec").value.trim(), st=$("input[name=bStat]:checked").value;
   const nom=parseRp($("#bayarHarga").value), pk=$("#bayarHarga").dataset.paket;
-  $("#bayarPreview").innerHTML="💵 Nominal <b>"+rp(nom)+"</b>"+(pk?" ("+esc(pk)+")":"")+"<br>"+(hari?`Masa aktif sampai <b>${tgl(new Date(base+hari*86400000).toISOString())}</b>`:"Masa aktif tidak berubah")
+  $("#bayarPreview").innerHTML="💵 Nominal <b>"+rp(nom)+"</b>"+(pk?" ("+esc(pk)+")":"")+"<br>"+(hari?`Masa aktif sampai <b>${(hari<1?tglJam:tgl)(new Date(base+hari*86400000).toISOString())}</b>`:"Masa aktif tidak berubah")
     +"<br>"+(k?`Kecepatan menjadi <b>${esc(rateTxt(k))}</b>`:`Kecepatan tetap: <b>${esc(curDev.kecepatan||("default "+(defRate||"tanpa batas")))}</b>`)
     +"<br>"+(st==="lunas"?"✅ Langsung masuk pendapatan hari ini":"⏳ Dicatat sebagai <b>utang</b>, masuk pendapatan saat ditandai Lunas");
 }
@@ -739,7 +740,7 @@ function openEdit(d){ curDev=d; $("#editMac").textContent=d.mac; $("#eNama").val
 $("#eTanpa").onclick=()=>{$("#eSampai").value=""};
 $("#fEdit").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
-  const j=await api("/perangkat/"+curDev.id,{method:"PATCH",body:JSON.stringify({nama:$("#eNama").value,hp:$("#eHp").value,ket:$("#eKet").value,kategori:$("#eKat").value,kecepatan:$("#eKec").value.trim(),aktif_sampai:fromDateInput($("#eSampai").value),putus_otomatis:$("#ePutus").checked})});
+  const j=await api("/perangkat/"+curDev.id,{method:"PATCH",body:JSON.stringify({nama:$("#eNama").value,hp:$("#eHp").value,ket:$("#eKet").value,kategori:$("#eKat").value,kecepatan:$("#eKec").value.trim(),aktif_sampai:$("#eSampai").value===toDateInput(curDev.aktif_sampai)?(curDev.aktif_sampai||null):fromDateInput($("#eSampai").value),putus_otomatis:$("#ePutus").checked})});
   toast(j.ok?"Tersimpan. Router menyesuaikan dalam ±2 menit.":j.pesan); if(j.ok){ $("#dEdit").close(); loadDev(); }
 };
 
@@ -834,7 +835,7 @@ $("#fUserEdit").onsubmit=async e=>{
 function download(name,content,type){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500); }
 const csv=(rows,cols)=>"﻿"+[cols.map(c=>c[0]).join(";"),...rows.map(r=>cols.map(c=>{const v=String(c[1](r)??"");return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(";"))].join("\r\n");
 const today=()=>new Date(Date.now()+8*3600e3).toISOString().slice(0,10);
-const bayarCols=[["Tanggal",r=>tglJam(r.tanggal)],["Nama",r=>r.nama],["MAC",r=>r.mac],["Nominal",r=>r.harga],["Status",r=>r.status],["Tanggal lunas",r=>tglJam(r.tanggal_lunas)],["Hari",r=>r.hari],["Aktif sampai",r=>toDateInput(r.sampai)],["Kecepatan",r=>r.kecepatan],["Catatan",r=>r.catatan],["Oleh",r=>r.oleh]];
+const bayarCols=[["Tanggal",r=>tglJam(r.tanggal)],["Nama",r=>r.nama],["MAC",r=>r.mac],["Nominal",r=>r.harga],["Status",r=>r.status],["Tanggal lunas",r=>tglJam(r.tanggal_lunas)],["Hari",r=>r.hari>0&&r.hari<1?Math.round(r.hari*24)+" jam":r.hari],["Aktif sampai",r=>toDateInput(r.sampai)],["Kecepatan",r=>r.kecepatan],["Catatan",r=>r.catatan],["Oleh",r=>r.oleh]];
 $("#bCsvBayar").onclick=()=>download(cabNow().nama+"-pembayaran-"+($("#bStatus").value==="utang"?"utang":$("#bulanPick").value)+".csv",csv(bayarRows,bayarCols),"text/csv");
 $("#bCsvAll").onclick=async()=>{ const j=await api("/pembayaran"); if(!j.ok) return toast(j.pesan); download(cabNow().nama+"-pembayaran-semua-"+today()+".csv",csv(j.data,bayarCols),"text/csv"); };
 $("#bCsvPel").onclick=()=>download(cabNow().nama+"-daftar-mac-"+today()+".csv",csv(data,[["Nama",r=>r.nama],["Kategori",r=>r.kategori||"pelanggan"],["No HP",r=>r.hp],["MAC",r=>r.mac],["Status",r=>r.habis?"habis":r.status],["Aktif sampai",r=>toDateInput(r.aktif_sampai)],["Kecepatan",r=>r.kecepatan||"default"],["Utang",r=>r.utang||0],["Keterangan",r=>r.ket]]),"text/csv");
