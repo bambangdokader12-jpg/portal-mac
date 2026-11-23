@@ -156,6 +156,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
     <div class="subnav" id="subnav">
       <button class="on" data-sub="ringkasan">📊 Ringkasan</button>
       <button data-sub="online">🟢 User Aktif</button>
+      <button data-sub="pemakaian">📶 Pemakaian</button>
       <button data-sub="pelanggan">📱 Pelanggan</button>
       <button data-sub="pembayaran">💰 Pembayaran</button>
       <button data-sub="kecepatan" data-role="admin">⚡ Kecepatan</button>
@@ -197,15 +198,17 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
         <div class="toolbar">
           <input id="oq" placeholder="Cari nama, MAC, IP…">
           <button class="btn ghost" id="oReload" type="button">↻ Muat ulang</button>
-          <span class="hint">Data dikirim router setiap ±2 menit. Kolom pemakaian di tabel ini = sejak HP terakhir konek. Catatan harian/bulanan ada di bawah.</span>
+          <span class="hint">Data dikirim router setiap ±2 menit. Kolom pemakaian di tabel ini = sejak HP terakhir konek. Catatan harian/bulanan ada di menu 📶 Pemakaian.</span>
         </div>
         <div class="tablewrap"><table>
           <thead><tr><th>Pelanggan</th><th>MAC / Nama HP</th><th>IP</th><th>Kecepatan</th><th>Pemakaian ↓ / ↑</th><th>Masa aktif</th><th></th></tr></thead>
           <tbody id="tbOnline"></tbody>
         </table></div>
       </div>
+    </div>
 
-      <!-- PEMAKAIAN KUOTA -->
+    <!-- PEMAKAIAN KUOTA -->
+    <div id="s-pemakaian" class="hidden">
       <div class="card">
         <h2>📊 Pemakaian Kuota</h2>
         <p class="sub" id="pkMulai">Jumlah kuota yang dipakai semua HP (download + upload).</p>
@@ -557,8 +560,8 @@ renderCabang();
 $$("#subnav button[data-sub]").forEach(b=>b.onclick=()=>subTab(b.dataset.sub));
 function subTab(s){
   $$("#subnav button[data-sub]").forEach(x=>x.classList.toggle("on",x.dataset.sub===s));
-  ["ringkasan","online","pelanggan","pembayaran","kecepatan","backup"].forEach(t=>$("#s-"+t).classList.toggle("hidden",t!==s));
-  ({ringkasan:loadKeuangan,online:()=>{loadOnline();loadPakai();},pelanggan:()=>{loadKec();loadDev();},pembayaran:loadBayar,kecepatan:loadKecPage,backup:loadUsers})[s]?.();
+  ["ringkasan","online","pemakaian","pelanggan","pembayaran","kecepatan","backup"].forEach(t=>$("#s-"+t).classList.toggle("hidden",t!==s));
+  ({ringkasan:loadKeuangan,online:loadOnline,pemakaian:loadPakai,pelanggan:()=>{loadKec();loadDev();},pembayaran:loadBayar,kecepatan:loadKecPage,backup:loadUsers})[s]?.();
 }
 document.addEventListener("focusout",e=>{ if(e.target.matches("input[name=mac]")){const m=normMac(e.target.value);if(m)e.target.value=m} });
 document.addEventListener("click",e=>{
@@ -611,7 +614,7 @@ function renderOnline(){
     <td>${x.aktif_sampai?expCell({aktif_sampai:x.aktif_sampai,habis:x.status==="habis",putus_otomatis:true}):'<span class="exp hint">Tanpa batas</span>'}</td>
     <td>${x.id&&bisa("operator")?`<button class="btn sm red" data-putus="${x.id}">Putuskan</button>`:""}</td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada HP yang tersambung.</td></tr>';
 }
-$("#oq").oninput=renderOnline; $("#oReload").onclick=()=>{loadOnline();loadPakai();};
+$("#oq").oninput=renderOnline; $("#oReload").onclick=loadOnline;
 
 // ---------- Pemakaian kuota (per hari / per bulan / per pelanggan) ----------
 let pk=null, pkMode="hari";
