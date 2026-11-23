@@ -149,6 +149,9 @@ async function ensureSchema(db) {
   // Grup: beberapa HP milik satu pelanggan (Paket 2/3/4 HP) berbagi status, masa aktif, dan kecepatan
   try { await db.prepare("ALTER TABLE perangkat ADD COLUMN grup TEXT").run(); } catch {}
   try { await db.prepare("ALTER TABLE pembayaran ADD COLUMN grup TEXT").run(); } catch {}
+  // Pemakaian kuota per HP per hari (WITA), dijumlah dari laporan router tiap ±2 menit
+  await db.prepare(`CREATE TABLE IF NOT EXISTS pemakaian (cabang TEXT NOT NULL, tanggal TEXT NOT NULL, mac TEXT NOT NULL,
+      up INTEGER NOT NULL DEFAULT 0, down INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (cabang, tanggal, mac))`).run();
   const { n } = await db.prepare("SELECT COUNT(*) AS n FROM paket").first();
   if (!n) {
     await db.batch(DEFAULT_PAKET.map(([nama, harga, hari], i) =>
@@ -227,7 +230,31 @@ export async function onRequest({ request, env }) {
         list.push({ mac, ip, host, up: bm ? Number(bm[1]) : null, down: bm ? Number(bm[2]) : null });
         if (list.length >= 2000) break;
       }
-      await putSet("online", JSON.stringify({ waktu: now(), list }));
+      // Hitung tambahan pemakaian sejak laporan sebelumnya, lalu jumlahkan ke tabel pemakaian (per hari)
+      let prev = null;
+      try { const v = await getSet("online"); if (v) prev = JSON.parse(v); } catch {}
+      const prevBy = Object.fromEntries(((prev && prev.list) || []).map((o) => [o.mac, o]));
+      const tgl = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // tanggal WITA
+      const MAXD = 2e12; // pengaman angka aneh
+      const tambah = [];
+      for (const o of list) {
+        if (o.up == null || o.down == null) continue;
+        const p = prevBy[o.mac];
+        let du, dd;
+        if (p && p.up != null && p.down != null) {
+          // counter queue reset (HP konek ulang / router reboot) -> pakai angka baru
+          du = o.up >= p.up ? o.up - p.up : o.up;
+          dd = o.down >= p.down ? o.down - p.down : o.down;
+        } else if (prev) { du = o.up; dd = o.down; } // HP baru tersambung: queue baru dibuat
+        else continue; // laporan pertama: jadikan patokan saja
+        if ((du > 0 || dd > 0) && du < MAXD && dd < MAXD) tambah.push([o.mac, du, dd]);
+      }
+      const stmts = tambah.map(([mac, du, dd]) => db.prepare(
+        "INSERT INTO pemakaian (cabang, tanggal, mac, up, down) VALUES (?,?,?,?,?) ON CONFLICT(cabang, tanggal, mac) DO UPDATE SET up = up + excluded.up, down = down + excluded.down")
+        .bind(cab, tgl, mac, du, dd));
+      stmts.push(db.prepare("INSERT INTO pengaturan (kunci, nilai) VALUES (?, ?) ON CONFLICT(kunci) DO UPDATE SET nilai = excluded.nilai")
+        .bind(kunci("online", cab), JSON.stringify({ waktu: now(), list })));
+      await db.batch(stmts);
       return text("OK " + namaCab + " " + list.length + "\n");
     }
 
@@ -296,7 +323,7 @@ export async function onRequest({ request, env }) {
     const tokUser = await readToken(request, pw);
     const me = tokUser ? await akun(tokUser) : null;
     if (!me) {
-      const known = ["/kecepatan", "/saya", "/pengguna", "/lunas", "/perangkat", "/paket", "/bayar", "/pembayaran", "/keuangan", "/backup", "/restore", "/pengaturan", "/online"];
+      const known = ["/kecepatan", "/saya", "/pengguna", "/lunas", "/perangkat", "/paket", "/bayar", "/pembayaran", "/keuangan", "/backup", "/restore", "/pengaturan", "/online", "/pemakaian"];
       if (known.some((p) => path === p || path.startsWith(p + "/"))) return json({ ok: false, pesan: "Sesi habis, silakan login lagi." }, 401);
       return json({ ok: false, pesan: "Alamat tidak dikenal." }, 404);
     }
@@ -576,6 +603,28 @@ export async function onRequest({ request, env }) {
           kecepatan: d ? (rateOf(d, def) || "") : "" };
       });
       return json({ ok: true, waktu: rep.waktu, data });
+    }
+
+    // ----- Pemakaian kuota: hari ini, bulan ini, total, per hari, per bulan, per pelanggan -----
+    if (path === "/pemakaian" && method === "GET") {
+      const hariIni = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+      const bulanIni = hariIni.slice(0, 7);
+      const bulan = /^\d{4}-\d{2}$/.test(url.searchParams.get("bulan") || "") ? url.searchParams.get("bulan") : bulanIni;
+      const sum = (where, ...args) => db.prepare(`SELECT COALESCE(SUM(up),0) AS up, COALESCE(SUM(down),0) AS down, COUNT(DISTINCT mac) AS hp FROM pemakaian WHERE cabang = ? ${where}`).bind(cab, ...args).first();
+      const hari_ini = await sum("AND tanggal = ?", hariIni);
+      const bulan_ini = await sum("AND substr(tanggal,1,7) = ?", bulanIni);
+      const total = await sum("");
+      const mulai = ((await db.prepare("SELECT MIN(tanggal) AS t FROM pemakaian WHERE cabang = ?").bind(cab).first()) || {}).t || null;
+      const per_hari = (await db.prepare("SELECT tanggal, SUM(up) AS up, SUM(down) AS down, COUNT(DISTINCT mac) AS hp FROM pemakaian WHERE cabang = ? AND substr(tanggal,1,7) = ? GROUP BY tanggal ORDER BY tanggal DESC").bind(cab, bulan).all()).results;
+      const per_bulan = (await db.prepare("SELECT substr(tanggal,1,7) AS bulan, SUM(up) AS up, SUM(down) AS down, COUNT(DISTINCT mac) AS hp FROM pemakaian WHERE cabang = ? GROUP BY bulan ORDER BY bulan DESC LIMIT 24").bind(cab).all()).results;
+      const pel = (await db.prepare(`SELECT mac,
+          SUM(CASE WHEN tanggal = ? THEN up + down ELSE 0 END) AS hari,
+          SUM(CASE WHEN substr(tanggal,1,7) = ? THEN up + down ELSE 0 END) AS bulan,
+          SUM(up + down) AS total FROM pemakaian WHERE cabang = ? GROUP BY mac`).bind(hariIni, bulan, cab).all()).results;
+      const { results: devs } = await db.prepare("SELECT mac, nama, kategori FROM perangkat WHERE cabang = ?").bind(cab).all();
+      const nm = Object.fromEntries(devs.map((d) => [d.mac, d]));
+      const per_pelanggan = pel.map((r) => ({ ...r, nama: nm[r.mac]?.nama || null, kategori: nm[r.mac] ? normKat(nm[r.mac].kategori) : null }));
+      return json({ ok: true, hari_ini: hariIni, bulan, bulan_ini: bulanIni, mulai, ringkas: { hari_ini, bulan_ini, total }, per_hari, per_bulan, per_pelanggan });
     }
 
     // ----- Daftar pilihan kecepatan (per cabang) -----
