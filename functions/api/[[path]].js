@@ -41,6 +41,8 @@ function clean(s, max = 60) {
 }
 const asciiName = (s) => clean(s, 40).replace(/[^A-Za-z0-9 ._\-]/g, "").replace(/\s+/g, " ").trim() || "tanpa-nama";
 const int = (v, def = 0) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? n : def; };
+// Masa aktif dalam hari, boleh pecahan (mis. 3 jam = 0.125 hari)
+const hariNum = (v) => { const n = Number(v); return Number.isFinite(n) && n > 0 ? Math.round(n * 10000) / 10000 : 0; };
 function safeEqual(a, b) {
   a = String(a); b = String(b);
   let r = a.length ^ b.length;
@@ -465,7 +467,7 @@ export async function onRequest({ request, env }) {
       const d = await byId(b.perangkat_id);
       if (!d) return json({ ok: false, pesan: "Perangkat tidak ditemukan di cabang " + namaCab + "." }, 404);
       let kecepatan = "";
-      let paketNama = clean(b.paket, 40) || "Pembayaran", harga = Math.max(0, int(b.harga)), hari = Math.max(0, int(b.hari));
+      let paketNama = clean(b.paket, 40) || "Pembayaran", harga = Math.max(0, int(b.harga)), hari = hariNum(b.hari);
       if (b.paket_id) {
         const p = await db.prepare("SELECT * FROM paket WHERE id = ? AND cabang = ?").bind(b.paket_id, cab).first();
         if (!p) return json({ ok: false, pesan: "Paket tidak ditemukan." }, 404);
@@ -480,7 +482,7 @@ export async function onRequest({ request, env }) {
       if (hari > 0) {
         const base = d.aktif_sampai && Date.parse(d.aktif_sampai) > Date.now() ? Date.parse(d.aktif_sampai) : Date.now();
         dari = new Date(base).toISOString();
-        sampai = new Date(base + hari * 86400000).toISOString();
+        sampai = new Date(base + Math.round(hari * 86400000)).toISOString();
       }
       const bayar = { id: newId(), perangkat_id: d.id, mac: d.mac, nama: d.nama, paket: paketNama, harga, hari, tanggal, dari, sampai, catatan: clean(b.catatan, 80), kecepatan: kecBaru,
         status: stBayar, tanggal_lunas: stBayar === "lunas" ? tanggal : null, oleh: me.username, cabang: cab, grup: d.grup || null };
@@ -489,7 +491,7 @@ export async function onRequest({ request, env }) {
         db.prepare(insertSql("pembayaran", BAYAR_COLS)).bind(...BAYAR_COLS.map((c) => bayar[c])),
         db.prepare("UPDATE perangkat SET status='aktif', aktif_sampai=?, kecepatan=?, diubah=? WHERE cabang=? AND (id=? OR (grup IS NOT NULL AND grup=?))").bind(sampai, kecBaru, now(), cab, d.id, d.grup || ""),
       ]);
-      return json({ ok: true, data: bayar, pesan: (stBayar === "utang" ? "Dicatat sebagai UTANG." : "Pembayaran LUNAS dicatat.") + (sampai ? " Aktif sampai " + sampai.slice(0, 10) + "." : "") + (kecepatan ? " Kecepatan " + kecepatan + "." : "") + (nGrup > 1 ? " Berlaku untuk " + nGrup + " HP." : "") });
+      return json({ ok: true, data: bayar, pesan: (stBayar === "utang" ? "Dicatat sebagai UTANG." : "Pembayaran LUNAS dicatat.") + (sampai ? " Aktif sampai " + new Date(sampai).toLocaleString("id-ID", { timeZone: "Asia/Makassar", day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) + "." : "") + (kecepatan ? " Kecepatan " + kecepatan + "." : "") + (nGrup > 1 ? " Berlaku untuk " + nGrup + " HP." : "") });
     }
 
     // ----- Lunasi semua utang satu pelanggan -----
