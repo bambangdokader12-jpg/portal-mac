@@ -198,7 +198,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:6px 0 30px}
         <div class="toolbar">
           <input id="oq" placeholder="Cari nama, MAC, IP…">
           <button class="btn ghost" id="oReload" type="button">↻ Muat ulang</button>
-          <span class="hint">Data dikirim router setiap ±2 menit. Kolom pemakaian di tabel ini = sejak HP terakhir konek. Catatan harian/bulanan ada di menu 📶 Pemakaian.</span>
+          <span class="hint">Data dikirim router setiap ±10 detik dan halaman ini ikut diperbarui otomatis. Kolom pemakaian di tabel ini = sejak HP terakhir konek. Catatan harian/bulanan ada di menu 📶 Pemakaian.</span>
         </div>
         <div class="tablewrap"><table>
           <thead><tr><th>Pelanggan</th><th>MAC / Nama HP</th><th>IP</th><th>Kecepatan</th><th>Pemakaian ↓ / ↑</th><th>Masa aktif</th><th></th></tr></thead>
@@ -595,7 +595,7 @@ function refreshNow(){ const s=$("#subnav button.on")?.dataset.sub; if(s==="pela
 
 // ---------- User aktif ----------
 const bytes=n=>{ if(n==null) return "–"; const u=["B","KB","MB","GB","TB"]; let i=0; while(n>=1024&&i<u.length-1){n/=1024;i++} return (i?n.toFixed(n<10?2:1):n).toString().replace(".",",")+" "+u[i]; };
-function sejak(iso){ if(!iso) return "belum ada laporan dari router"; const m=Math.round((Date.now()-Date.parse(iso))/60000); return "diperbarui "+(m<1?"baru saja":m+" menit lalu")+(m>5?" ⚠ router belum lapor lagi":""); }
+function sejak(iso){ if(!iso) return "belum ada laporan dari router"; const d=Math.max(0,Math.round((Date.now()-Date.parse(iso))/1000)); const t=d<5?"baru saja":d<60?d+" detik lalu":d<3600?Math.round(d/60)+" menit lalu":Math.floor(d/3600)+" jam "+Math.round(d%3600/60)+" menit lalu"; return "diperbarui "+t+(d>60?" ⚠ router belum lapor lagi":""); }
 async function loadOnline(){
   const j=await api("/online"); if(!j.ok) return; onRows=j.data;
   $("#oJumlah").textContent=onRows.length; $("#oWaktu").textContent=sejak(j.waktu);
@@ -615,6 +615,13 @@ function renderOnline(){
     <td>${x.id&&bisa("operator")?`<button class="btn sm red" data-putus="${x.id}">Putuskan</button>`:""}</td></tr>`).join(""):'<tr><td colspan="7" class="empty">Belum ada HP yang tersambung.</td></tr>';
 }
 $("#oq").oninput=renderOnline; $("#oReload").onclick=loadOnline;
+// Muat ulang otomatis: User Aktif tiap 10 detik, Pemakaian tiap 30 detik (hanya saat tab browser terlihat)
+let autoTick=0, autoSibuk=false;
+setInterval(async()=>{
+  autoTick++; if(!me||autoSibuk||document.visibilityState!=="visible"||document.querySelector("dialog[open]")) return;
+  const s=$("#subnav button.on")?.dataset.sub; autoSibuk=true;
+  try{ if(s==="online") await loadOnline(); else if(s==="pemakaian"&&autoTick%3===0) await loadPakai(); }finally{ autoSibuk=false; }
+},10000);
 
 // ---------- Pemakaian kuota (per hari / per bulan / per pelanggan) ----------
 let pk=null, pkMode="hari";
@@ -628,7 +635,7 @@ async function loadPakai(){
   $("#pkHari").textContent=bytes(r.hari_ini.up+r.hari_ini.down); $("#pkHariD").textContent=ud(r.hari_ini)+" · "+r.hari_ini.hp+" HP";
   $("#pkBulan").textContent=bytes(r.bulan_ini.up+r.bulan_ini.down); $("#pkBulanD").textContent=ud(r.bulan_ini)+" · "+blnPanjang(j.bulan_ini);
   $("#pkTotal").textContent=bytes(r.total.up+r.total.down); $("#pkTotalD").textContent=ud(r.total);
-  $("#pkMulai").textContent=j.mulai?"Jumlah kuota yang dipakai semua HP (download + upload). Mulai dicatat sejak "+tglPanjang(j.mulai)+". Diperbarui tiap ±2 menit.":"Belum ada catatan. Pencatatan mulai otomatis setelah router lapor 2 kali (±4 menit).";
+  $("#pkMulai").textContent=j.mulai?"Jumlah kuota yang dipakai semua HP (download + upload). Mulai dicatat sejak "+tglPanjang(j.mulai)+". Diperbarui otomatis.":"Belum ada catatan. Pencatatan mulai otomatis setelah router lapor 2 kali (±20 detik).";
   const bl=new Set(j.per_bulan.map(x=>x.bulan)); bl.add(j.bulan_ini); bl.add(j.bulan);
   sel.innerHTML=[...bl].sort().reverse().map(x=>`<option value="${x}">${blnPanjang(x)}</option>`).join(""); sel.value=j.bulan;
   renderPakai();
@@ -658,9 +665,9 @@ $("#pkTab").onclick=e=>{ const b=e.target.closest("[data-pk]"); if(!b) return; p
 $("#pkBulanSel").onchange=loadPakai; $("#pkq").oninput=renderPakai;
 $("#tbOnline").onclick=async e=>{
   const b=e.target.closest("[data-putus]"); if(!b) return; const x=onRows.find(r=>r.id===b.dataset.putus);
-  if(!confirm("Nonaktifkan "+(x?.nama||"")+" sekarang?\nHP terputus dalam ±2 menit. Bisa diaktifkan lagi di Daftar MAC.")) return;
+  if(!confirm("Nonaktifkan "+(x?.nama||"")+" sekarang?\nHP terputus dalam ±10 detik. Bisa diaktifkan lagi di Daftar MAC.")) return;
   const j=await api("/perangkat/"+b.dataset.putus,{method:"PATCH",body:JSON.stringify({status:"nonaktif"})});
-  toast(j.ok?"Dinonaktifkan. HP terputus dalam ±2 menit.":j.pesan);
+  toast(j.ok?"Dinonaktifkan. HP terputus dalam ±10 detik.":j.pesan);
 };
 
 // ---------- Daftar MAC ----------
@@ -713,7 +720,7 @@ $("#tb").onclick=async e=>{
   if(a==="edit") return openEdit(d);
   if(a==="hapus"){ if(!confirm("Hapus "+d.nama+" ("+d.mac+")?\nHP langsung tidak bisa konek. Riwayat pembayarannya tetap tersimpan.")) return; j=await api("/perangkat/"+d.id,{method:"DELETE"}); }
   else j=await api("/perangkat/"+d.id,{method:"PATCH",body:JSON.stringify({status:a})});
-  toast(j.ok?"Tersimpan"+(d.grup_n>1&&a!=="hapus"?" untuk "+d.grup_n+" HP":"")+". Router menyesuaikan dalam ±2 menit.":j.pesan); loadDev();
+  toast(j.ok?"Tersimpan"+(d.grup_n>1&&a!=="hapus"?" untuk "+d.grup_n+" HP":"")+". Router menyesuaikan dalam ±10 detik.":j.pesan); loadDev();
 };
 $("#fDaftar").onsubmit=async e=>{
   e.preventDefault(); const f=e.target, m=$("#mDaftar"), macs=$$("#macList input").map(i=>normMac(i.value)), banyak=macs.length>1;
@@ -725,7 +732,7 @@ $("#fDaftar").onsubmit=async e=>{
   const j=await api("/perangkat",{method:"POST",body:JSON.stringify({nama:f.nama.value,...(banyak?{macs}:{mac:macs[0]}),hp:f.hp.value,ket:f.ket.value,kecepatan:f.kecepatan.value,kategori:f.kategori.value,status:"aktif"})});
   if(!j.ok){ btn.disabled=false; return show(m,"bad",j.pesan); }
   const harga=parseRp(f.harga.value), hari=hariVal(f.hari), st=f.bayar.value, paketNm=f.harga.dataset.paket||"Pendaftaran";
-  let pesan="✅ "+(banyak?f.nama.value.trim()+" ("+macs.length+" HP)":j.data.nama)+" terdaftar dan aktif. HP bisa konek dalam ±2 menit.";
+  let pesan="✅ "+(banyak?f.nama.value.trim()+" ("+macs.length+" HP)":j.data.nama)+" terdaftar dan aktif. HP bisa konek dalam ±10 detik.";
   if(harga>0||hari>0){
     const k=await api("/bayar",{method:"POST",body:JSON.stringify({perangkat_id:j.data.id,harga,hari,status:st,paket:paketNm})});
     pesan+=" "+(k.ok?k.pesan:"(Pembayaran gagal dicatat: "+k.pesan+")");
@@ -809,7 +816,7 @@ $("#eTanpa").onclick=()=>{$("#eSampai").value=""};
 $("#fEdit").onsubmit=async e=>{
   if(e.submitter?.value!=="ok") return; e.preventDefault();
   const j=await api("/perangkat/"+curDev.id,{method:"PATCH",body:JSON.stringify({nama:$("#eNama").value,hp:$("#eHp").value,ket:$("#eKet").value,kategori:$("#eKat").value,kecepatan:$("#eKec").value.trim(),aktif_sampai:$("#eSampai").value===toDateInput(curDev.aktif_sampai)?(curDev.aktif_sampai||null):fromDateInput($("#eSampai").value),putus_otomatis:$("#ePutus").checked})});
-  toast(j.ok?"Tersimpan. Router menyesuaikan dalam ±2 menit.":j.pesan); if(j.ok){ $("#dEdit").close(); loadDev(); }
+  toast(j.ok?"Tersimpan. Router menyesuaikan dalam ±10 detik.":j.pesan); if(j.ok){ $("#dEdit").close(); loadDev(); }
 };
 
 // ---------- Pembayaran ----------
@@ -861,7 +868,7 @@ $("#tbKec").onclick=async e=>{
 };
 
 // ---------- Kecepatan default ----------
-$("#fDefault").onsubmit=async e=>{ e.preventDefault(); const j=await api("/pengaturan",{method:"PATCH",body:JSON.stringify({kecepatan_default:$("#defRate").value})}); toast(j.ok?j.pesan+". Router menyesuaikan dalam ±2 menit.":j.pesan); if(j.ok) loadKecPage(); };
+$("#fDefault").onsubmit=async e=>{ e.preventDefault(); const j=await api("/pengaturan",{method:"PATCH",body:JSON.stringify({kecepatan_default:$("#defRate").value})}); toast(j.ok?j.pesan+". Router menyesuaikan dalam ±10 detik.":j.pesan); if(j.ok) loadKecPage(); };
 
 // ---------- Pengguna ----------
 const roleTxt={admin:"Admin",operator:"Operator",lihat:"Lihat saja"};
