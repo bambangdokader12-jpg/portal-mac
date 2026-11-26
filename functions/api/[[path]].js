@@ -7,6 +7,9 @@
 // Data lama (sebelum versi cabang) otomatis menjadi data APP-BHP.
 
 const TOKEN_TTL_MS = 12 * 60 * 60 * 1000;
+// Router lapor tiap ±10 detik. Supaya tidak boros "rows written" D1, pemakaian ditampung dulu
+// di snapshot (1 baris) dan baru ditulis ke tabel pemakaian tiap FLUSH_MS atau saat ganti hari.
+const FLUSH_MS = 10 * 60 * 1000;
 const MAX_PENDING = 300;
 const STATUSES = ["aktif", "menunggu", "nonaktif"];
 const KATEGORI = ["pelanggan", "pribadi", "keluarga"]; // jenis HP
@@ -149,7 +152,7 @@ async function ensureSchema(db) {
   // Grup: beberapa HP milik satu pelanggan (Paket 2/3/4 HP) berbagi status, masa aktif, dan kecepatan
   try { await db.prepare("ALTER TABLE perangkat ADD COLUMN grup TEXT").run(); } catch {}
   try { await db.prepare("ALTER TABLE pembayaran ADD COLUMN grup TEXT").run(); } catch {}
-  // Pemakaian kuota per HP per hari (WITA), dijumlah dari laporan router tiap ±2 menit
+  // Pemakaian kuota per HP per hari (WITA), dijumlah dari laporan router (ditulis tiap ±10 menit)
   await db.prepare(`CREATE TABLE IF NOT EXISTS pemakaian (cabang TEXT NOT NULL, tanggal TEXT NOT NULL, mac TEXT NOT NULL,
       up INTEGER NOT NULL DEFAULT 0, down INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (cabang, tanggal, mac))`).run();
   const { n } = await db.prepare("SELECT COUNT(*) AS n FROM paket").first();
@@ -170,7 +173,8 @@ const kunci = (k, cab) => (cab === CABANG_DEFAULT ? k : k + ":" + cab);
 const PENGATURAN_CABANG = ["online", "kecepatan_default", "kecepatan_list"];
 
 // Script router contoh. Ganti "bhp" dengan kode cabang router itu (bhp / khl2 / bsi) dan AP-KUOTA dengan interface pelanggan.
-const routerScript = (cab) => ":local base \"https://portal-mac.pages.dev/api\";\n:local key \"bambangdk1993\";\n:local cabang \"" + cab + "\";\n:local tag \"WEBMAC\";\n:local res;\n:do { :set res [/tool fetch url=($base . \"/mikrotik?key=\" . $key . \"&cabang=\" . $cabang) check-certificate=no output=user as-value]; } on-error={ :log warning \"[WEBMAC] gagal mengambil daftar\"; :error \"fetch gagal\"; };\n:if (($res->\"status\") != \"finished\") do={ :log warning \"[WEBMAC] fetch gagal\"; :error \"fetch gagal\"; };\n:local data ($res->\"data\");\n:if ([:typeof [:find $data \"END\"]] = \"nil\" || [:typeof [:find $data \"ERROR\"]] != \"nil\") do={ :log warning \"[WEBMAC] data tidak valid\"; :error \"data tidak valid\"; };\n:local wanted \",\";\n:local rates [:toarray \"\"];\n:local pos 0;\n:local total [:len $data];\n:while ($pos < $total) do={ :local nl [:find $data \"\\n\" ($pos - 1)]; :if ([:typeof $nl] = \"nil\") do={ :set nl $total; }; :local line [:pick $data $pos $nl]; :set pos ($nl + 1); :if ([:len $line] > 0 && [:pick $line ([:len $line] - 1)] = \"\\r\") do={ :set line [:pick $line 0 ([:len $line] - 1)]; }; :if ([:len $line] > 17 && [:pick $line 17 18] = \";\") do={ :local mac [:pick $line 0 17]; :local rest [:pick $line 18 [:len $line]]; :local rate \"\"; :local sc [:find $rest \";\"]; :if ([:typeof $sc] != \"nil\") do={ :set rate [:pick $rest ($sc + 1) [:len $rest]]; }; :set wanted ($wanted . $mac . \",\"); :set ($rates->$mac) $rate; }; };\n:local okArp \",\";\n:local qwanted \",\";\n:local report \"\";\n:local blocked 0;\n:foreach l in=[/ip dhcp-server lease find where status=bound dynamic=yes] do={ :local m [/ip dhcp-server lease get $l mac-address]; :local ip [:tostr [/ip dhcp-server lease get $l address]]; :local hn [/ip dhcp-server lease get $l host-name]; :if ([:typeof [:find $wanted (\",\" . $m . \",\")]] = \"nil\") do={ :do { /ip dhcp-server lease remove $l; } on-error={}; :set blocked ($blocked + 1); } else={ :set okArp ($okArp . $ip . \",\"); :local a [/ip arp find where address=$ip]; :if ([:len $a] = 0) do={ /ip arp add address=$ip mac-address=$m interface=AP-KUOTA comment=$tag; } else={ :local am [/ip arp get [:pick $a 0] mac-address]; :local ac [:tostr [/ip arp get [:pick $a 0] comment]]; :if ($ac = $tag && $am != $m) do={ /ip arp set [:pick $a 0] mac-address=$m; }; }; :local by \"\"; :local r ($rates->$m); :if ([:typeof $r] = \"str\" && [:len $r] > 0) do={ :local qn ($tag . \"-\" . $m); :set qwanted ($qwanted . $qn . \",\"); :local t ($ip . \"/32\"); :local q [/queue simple find where name=$qn]; :if ([:len $q] = 0) do={ :local first [/queue simple find]; :if ([:len $first] > 0) do={ /queue simple add name=$qn target=$t max-limit=$r comment=$tag place-before=[:pick $first 0]; } else={ /queue simple add name=$qn target=$t max-limit=$r comment=$tag; }; } else={ :if ([/queue simple get $q max-limit] != $r) do={ /queue simple set $q max-limit=$r; }; :if ([:tostr [/queue simple get $q target]] != $t) do={ /queue simple set $q target=$t; }; :set by [:tostr [/queue simple get $q bytes]]; }; }; :set report ($report . $m . \";\" . $ip . \";\" . $hn . \";\" . $by . \"\\n\"); }; };\n:foreach a in=[/ip arp find where comment=$tag] do={ :local ip [:tostr [/ip arp get $a address]]; :if ([:typeof [:find $okArp (\",\" . $ip . \",\")]] = \"nil\") do={ /ip arp remove $a; }; };\n:foreach q in=[/queue simple find where name~(\"^\" . $tag . \"-\")] do={ :local n [/queue simple get $q name]; :if ([:typeof [:find $qwanted (\",\" . $n . \",\")]] = \"nil\") do={ /queue simple remove $q; }; };\n:if ([:len $report] = 0) do={ :set report \"-\"; };\n:do { /tool fetch url=($base . \"/online?key=\" . $key . \"&cabang=\" . $cabang) check-certificate=no http-method=post http-header-field=\"Content-Type: text/plain\" http-data=$report output=none; } on-error={ :log warning \"[WEBMAC] gagal kirim user aktif\"; };\n:if ($blocked > 0) do={ :log info (\"[WEBMAC] HP tidak terdaftar ditolak: \" . $blocked); };\n";
+// Jalankan lewat scheduler interval=10s. Ada kunci "webmacJalan" supaya tidak jalan dobel kalau satu putaran lambat.
+const routerScript = (cab) => ":global webmacJalan;\n:global webmacTunggu;\n:if ([:typeof $webmacTunggu] != \"num\") do={ :set webmacTunggu 0; };\n:if ($webmacJalan = true && $webmacTunggu < 6) do={ :set webmacTunggu ($webmacTunggu + 1); } else={\n:set webmacJalan true;\n:set webmacTunggu 0;\n:do {\n:local base \"https://portal-mac.pages.dev/api\";\n:local key \"bambangdk1993\";\n:local cabang \"" + cab + "\";\n:local tag \"WEBMAC\";\n:local res;\n:do { :set res [/tool fetch url=($base . \"/mikrotik?key=\" . $key . \"&cabang=\" . $cabang) check-certificate=no output=user as-value]; } on-error={ :log warning \"[WEBMAC] gagal mengambil daftar\"; :error \"fetch gagal\"; };\n:if (($res->\"status\") != \"finished\") do={ :log warning \"[WEBMAC] fetch gagal\"; :error \"fetch gagal\"; };\n:local data ($res->\"data\");\n:if ([:typeof [:find $data \"END\"]] = \"nil\" || [:typeof [:find $data \"ERROR\"]] != \"nil\") do={ :log warning \"[WEBMAC] data tidak valid\"; :error \"data tidak valid\"; };\n:local wanted \",\";\n:local rates [:toarray \"\"];\n:local pos 0;\n:local total [:len $data];\n:while ($pos < $total) do={ :local nl [:find $data \"\\n\" ($pos - 1)]; :if ([:typeof $nl] = \"nil\") do={ :set nl $total; }; :local line [:pick $data $pos $nl]; :set pos ($nl + 1); :if ([:len $line] > 0 && [:pick $line ([:len $line] - 1)] = \"\\r\") do={ :set line [:pick $line 0 ([:len $line] - 1)]; }; :if ([:len $line] > 17 && [:pick $line 17 18] = \";\") do={ :local mac [:pick $line 0 17]; :local rest [:pick $line 18 [:len $line]]; :local rate \"\"; :local sc [:find $rest \";\"]; :if ([:typeof $sc] != \"nil\") do={ :set rate [:pick $rest ($sc + 1) [:len $rest]]; }; :set wanted ($wanted . $mac . \",\"); :set ($rates->$mac) $rate; }; };\n:local okArp \",\";\n:local qwanted \",\";\n:local report \"\";\n:local blocked 0;\n:foreach l in=[/ip dhcp-server lease find where status=bound dynamic=yes] do={ :local m [/ip dhcp-server lease get $l mac-address]; :local ip [:tostr [/ip dhcp-server lease get $l address]]; :local hn [/ip dhcp-server lease get $l host-name]; :if ([:typeof [:find $wanted (\",\" . $m . \",\")]] = \"nil\") do={ :do { /ip dhcp-server lease remove $l; } on-error={}; :set blocked ($blocked + 1); } else={ :set okArp ($okArp . $ip . \",\"); :local a [/ip arp find where address=$ip]; :if ([:len $a] = 0) do={ /ip arp add address=$ip mac-address=$m interface=AP-KUOTA comment=$tag; } else={ :local am [/ip arp get [:pick $a 0] mac-address]; :local ac [:tostr [/ip arp get [:pick $a 0] comment]]; :if ($ac = $tag && $am != $m) do={ /ip arp set [:pick $a 0] mac-address=$m; }; }; :local by \"\"; :local r ($rates->$m); :if ([:typeof $r] = \"str\" && [:len $r] > 0) do={ :local qn ($tag . \"-\" . $m); :set qwanted ($qwanted . $qn . \",\"); :local t ($ip . \"/32\"); :local q [/queue simple find where name=$qn]; :if ([:len $q] = 0) do={ :local first [/queue simple find]; :if ([:len $first] > 0) do={ /queue simple add name=$qn target=$t max-limit=$r comment=$tag place-before=[:pick $first 0]; } else={ /queue simple add name=$qn target=$t max-limit=$r comment=$tag; }; } else={ :if ([/queue simple get $q max-limit] != $r) do={ /queue simple set $q max-limit=$r; }; :if ([:tostr [/queue simple get $q target]] != $t) do={ /queue simple set $q target=$t; }; :set by [:tostr [/queue simple get $q bytes]]; }; }; :set report ($report . $m . \";\" . $ip . \";\" . $hn . \";\" . $by . \"\\n\"); }; };\n:foreach a in=[/ip arp find where comment=$tag] do={ :local ip [:tostr [/ip arp get $a address]]; :if ([:typeof [:find $okArp (\",\" . $ip . \",\")]] = \"nil\") do={ /ip arp remove $a; }; };\n:foreach q in=[/queue simple find where name~(\"^\" . $tag . \"-\")] do={ :local n [/queue simple get $q name]; :if ([:typeof [:find $qwanted (\",\" . $n . \",\")]] = \"nil\") do={ /queue simple remove $q; }; };\n:if ([:len $report] = 0) do={ :set report \"-\"; };\n:do { /tool fetch url=($base . \"/online?key=\" . $key . \"&cabang=\" . $cabang) check-certificate=no http-method=post http-header-field=\"Content-Type: text/plain\" http-data=$report output=none; } on-error={ :log warning \"[WEBMAC] gagal kirim user aktif\"; };\n:if ($blocked > 0) do={ :log info (\"[WEBMAC] HP tidak terdaftar ditolak: \" . $blocked); };\n} on-error={ :log warning \"[WEBMAC] putaran gagal\"; };\n:set webmacJalan false;\n};\n";
 
 // ---------- Handler utama ----------
 export async function onRequest({ request, env }) {
@@ -236,7 +240,15 @@ export async function onRequest({ request, env }) {
       const prevBy = Object.fromEntries(((prev && prev.list) || []).map((o) => [o.mac, o]));
       const tgl = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10); // tanggal WITA
       const MAXD = 2e12; // pengaman angka aneh
-      const tambah = [];
+      // tunda = pemakaian yang belum ditulis ke tabel: { tgl, sejak, by: { mac: [up, down] } }
+      let tunda = prev && prev.tunda && prev.tunda.by ? prev.tunda : { tgl, sejak: now(), by: {} };
+      const stmts = [];
+      const flush = (t) => {
+        for (const [mac, [u, d]] of Object.entries(t.by || {})) if (u > 0 || d > 0) stmts.push(db.prepare(
+          "INSERT INTO pemakaian (cabang, tanggal, mac, up, down) VALUES (?,?,?,?,?) ON CONFLICT(cabang, tanggal, mac) DO UPDATE SET up = up + excluded.up, down = down + excluded.down")
+          .bind(cab, t.tgl, mac, u, d));
+      };
+      if (tunda.tgl !== tgl) { flush(tunda); tunda = { tgl, sejak: now(), by: {} }; } // ganti hari
       for (const o of list) {
         if (o.up == null || o.down == null) continue;
         const p = prevBy[o.mac];
@@ -247,13 +259,14 @@ export async function onRequest({ request, env }) {
           dd = o.down >= p.down ? o.down - p.down : o.down;
         } else if (prev) { du = o.up; dd = o.down; } // HP baru tersambung: queue baru dibuat
         else continue; // laporan pertama: jadikan patokan saja
-        if ((du > 0 || dd > 0) && du < MAXD && dd < MAXD) tambah.push([o.mac, du, dd]);
+        if ((du > 0 || dd > 0) && du < MAXD && dd < MAXD) {
+          const a = tunda.by[o.mac] || [0, 0];
+          tunda.by[o.mac] = [a[0] + du, a[1] + dd];
+        }
       }
-      const stmts = tambah.map(([mac, du, dd]) => db.prepare(
-        "INSERT INTO pemakaian (cabang, tanggal, mac, up, down) VALUES (?,?,?,?,?) ON CONFLICT(cabang, tanggal, mac) DO UPDATE SET up = up + excluded.up, down = down + excluded.down")
-        .bind(cab, tgl, mac, du, dd));
+      if (Date.now() - Date.parse(tunda.sejak) >= FLUSH_MS) { flush(tunda); tunda = { tgl, sejak: now(), by: {} }; }
       stmts.push(db.prepare("INSERT INTO pengaturan (kunci, nilai) VALUES (?, ?) ON CONFLICT(kunci) DO UPDATE SET nilai = excluded.nilai")
-        .bind(kunci("online", cab), JSON.stringify({ waktu: now(), list })));
+        .bind(kunci("online", cab), JSON.stringify({ waktu: now(), list, tunda })));
       await db.batch(stmts);
       return text("OK " + namaCab + " " + list.length + "\n");
     }
@@ -624,7 +637,29 @@ export async function onRequest({ request, env }) {
       const { results: devs } = await db.prepare("SELECT mac, nama, kategori FROM perangkat WHERE cabang = ?").bind(cab).all();
       const nm = Object.fromEntries(devs.map((d) => [d.mac, d]));
       const per_pelanggan = pel.map((r) => ({ ...r, nama: nm[r.mac]?.nama || null, kategori: nm[r.mac] ? normKat(nm[r.mac].kategori) : null }));
-      return json({ ok: true, hari_ini: hariIni, bulan, bulan_ini: bulanIni, mulai, ringkas: { hari_ini, bulan_ini, total }, per_hari, per_bulan, per_pelanggan });
+      // Tambahkan pemakaian yang belum ditulis (masih di snapshot) supaya angka tetap real-time
+      let td = null; try { const v = await getSet("online"); if (v) td = JSON.parse(v).tunda; } catch {}
+      const P = td && td.tgl === hariIni && td.by ? td.by : {};
+      let mulaiX = mulai;
+      for (const [mac, [u, d]] of Object.entries(P)) {
+        if (!(u > 0 || d > 0)) continue;
+        if (!mulaiX) mulaiX = hariIni;
+        let x = per_pelanggan.find((r) => r.mac === mac);
+        const baruHariIni = !x || !x.hari;
+        if (baruHariIni) hari_ini.hp++;
+        for (const r of [hari_ini, bulan_ini, total]) { r.up += u; r.down += d; }
+        if (bulan === bulanIni) {
+          let h = per_hari.find((r) => r.tanggal === hariIni);
+          if (!h) { h = { tanggal: hariIni, up: 0, down: 0, hp: 0 }; per_hari.unshift(h); }
+          h.up += u; h.down += d; if (baruHariIni) h.hp++;
+        }
+        let bl = per_bulan.find((r) => r.bulan === bulanIni);
+        if (!bl) { bl = { bulan: bulanIni, up: 0, down: 0, hp: 0 }; per_bulan.unshift(bl); }
+        bl.up += u; bl.down += d;
+        if (!x) { x = { mac, hari: 0, bulan: 0, total: 0, nama: nm[mac]?.nama || null, kategori: nm[mac] ? normKat(nm[mac].kategori) : null }; per_pelanggan.push(x); }
+        x.hari += u + d; x.total += u + d; if (bulan === bulanIni) x.bulan += u + d;
+      }
+      return json({ ok: true, hari_ini: hariIni, bulan, bulan_ini: bulanIni, mulai: mulaiX, ringkas: { hari_ini, bulan_ini, total }, per_hari, per_bulan, per_pelanggan });
     }
 
     // ----- Daftar pilihan kecepatan (per cabang) -----
